@@ -1,0 +1,1707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>hoplite.game.terrain API documentation</title>
+<meta name="description" content="Representation of the terrain of the game." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hoplite.game.terrain</code></h1>
+</header>
+<section id="section-intro">
+<p>Representation of the terrain of the game.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Representation of the terrain of the game.
+&#34;&#34;&#34;
+
+import math
+import enum
+import pygame
+import hoplite.utils
+import hoplite.game.demons
+
+
+def draw_regular_polygon(surface, color, vertex_count, radius, position):
+    &#34;&#34;&#34;Small function to draw regular polygon on Pygame surfaces.
+
+    Parameters
+    ----------
+    surface : pygame.Surface
+        Surface to draw to.
+    color : tuple[int, int, int, int]
+        Color in RGBA format (scaling from 0 to 255).
+    vertex_count : int
+        Number of vertex in the polygon. 6 is hexagon.
+    radius : int
+        Polygon radius in pixels.
+    position : tuple[int, int]
+        Position, in pixels, of the polygon center.
+
+    &#34;&#34;&#34;
+    pygame.draw.polygon(surface, color, [
+        (
+            position[0] + radius * math.cos(2 * math.pi * i / vertex_count),
+            position[1] + radius * math.sin(2 * math.pi * i / vertex_count)
+        )
+        for i in range(vertex_count)
+    ])
+
+
+@enum.unique
+class Tile(enum.Enum):
+    &#34;&#34;&#34;
+    Enumeration of tiles composing the surface of the map.
+    &#34;&#34;&#34;
+
+    GROUND = 0
+    MAGMA = 1
+
+
+@enum.unique
+class SurfaceElement(enum.Enum):
+    &#34;&#34;&#34;
+    Enumeration of the possible content of the map tiles.
+    &#34;&#34;&#34;
+
+    GROUND = 0
+    MAGMA = 1
+    FOOTMAN = 2
+    ARCHER = 3
+    DEMOLITIONIST_HOLDING_BOMB = 4
+    DEMOLITIONIST_WITHOUT_BOMB = 5
+    WIZARD_CHARGED = 6
+    WIZARD_DISCHARGED = 7
+    SPEAR = 8
+    BOMB = 9
+    PLAYER = 10
+    STAIRS = 11
+    ALTAR_ON = 12
+    ALTAR_OFF = 13
+    FLEECE = 14
+    PORTAL = 15
+
+
+class Terrain:  # pylint: disable=R0902
+    &#34;&#34;&#34;Logical representation of the game terrain.
+
+    Attributes
+    ----------
+    player : hoplite.utils.HexagonalCoordinates
+        Player location.
+    surface : dict[hoplite.utils.HexagonalCoordinates, Tile]
+        Tile composition of the surface.
+    demons : dict[hoplite.utils.HexagonalCoordinates, hoplite.game.demons.Demon]
+        Location of alive demons.
+    bombs : set[hoplite.utils.HexagonalCoordinates]
+        Location of active bombs.
+    spear : hoplite.utils.HexagonalCoordinates
+        Location of the spear, `None` if not present.
+    altar : hoplite.utils.HexagonalCoordinates
+        Location of the altar of Apollo.
+    altar_prayable : bool
+        Whether a prayer can be made at the altar.
+    fleece : hoplite.utils.HexagonalCoordinates
+        Location of the fleece, `None` if not present.
+    portal : hoplite.utils.HexagonalCoordinates
+        Location of the portal, `None` if not present.
+    stairs : hoplite.utils.HexagonalCoordinates
+        Location of the stairs.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.player = hoplite.utils.HexagonalCoordinates(0, -4)
+        self.surface = dict()
+        self.demons = dict()
+        self.bombs = set()
+        self.spear = None
+        self.altar = None
+        self.altar_prayable = False
+        self.fleece = None
+        self.portal = None
+        self.stairs = hoplite.utils.HexagonalCoordinates(0, 4)
+
+    def to_list(self):  # pylint: disable=R0912
+        &#34;&#34;&#34;Represent the terrain as a list of `SurfaceElement`.
+
+        Returns
+        -------
+        list[SurfaceElement]
+            SurfaceElement representing the terrain map in the order of
+            `SURFACE_COORDINATES`.
+
+        &#34;&#34;&#34;
+        result = list()
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            if pos == self.player:
+                result.append(SurfaceElement.PLAYER)
+            elif pos == self.spear:
+                result.append(SurfaceElement.SPEAR)
+            elif pos == self.altar:
+                if self.altar_prayable:
+                    result.append(SurfaceElement.ALTAR_ON)
+                else:
+                    result.append(SurfaceElement.ALTAR_OFF)
+            elif pos == self.fleece:
+                result.append(SurfaceElement.FLEECE)
+            elif pos == self.portal:
+                result.append(SurfaceElement.PORTAL)
+            elif pos == self.stairs:
+                result.append(SurfaceElement.STAIRS)
+            elif pos in self.bombs:
+                result.append(SurfaceElement.BOMB)
+            elif pos in self.demons:
+                demon = self.demons[pos]
+                if demon.skill == hoplite.game.demons.DemonSkill.FOOTMAN:
+                    result.append(SurfaceElement.FOOTMAN)
+                elif demon.skill == hoplite.game.demons.DemonSkill.ARCHER:
+                    result.append(SurfaceElement.ARCHER)
+                elif demon.skill == hoplite.game.demons.DemonSkill.DEMOLITIONIST:
+                    if demon.holds_bomb:
+                        result.append(
+                            SurfaceElement.DEMOLITIONIST_HOLDING_BOMB)
+                    else:
+                        result.append(
+                            SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB)
+                elif demon.skill == hoplite.game.demons.DemonSkill.WIZARD:
+                    if demon.charged_wand:
+                        result.append(SurfaceElement.WIZARD_CHARGED)
+                    else:
+                        result.append(SurfaceElement.WIZARD_DISCHARGED)
+            elif pos in self.surface:
+                if self.surface[pos] == Tile.GROUND:
+                    result.append(SurfaceElement.GROUND)
+                elif self.surface[pos] == Tile.MAGMA:
+                    result.append(SurfaceElement.MAGMA)
+            else:
+                raise ValueError(&#34;Wrong position: %s&#34; % pos)
+        return result
+
+    @classmethod
+    def from_list(cls, source):  # pylint: disable=R0912
+        &#34;&#34;&#34;Create and return a Terrain object from a `SurfaceElement` list.
+
+        Parameters
+        ----------
+        source : List[SurfaceElement]
+            List of surface elements in the `SURFACE_COORDINATES` order.
+
+        Returns
+        -------
+        Terrain
+            Terrain corresponding to this list of elements.
+
+        &#34;&#34;&#34;
+        terrain = cls()
+        for pos, elt in zip(hoplite.utils.SURFACE_COORDINATES, source):
+            terrain.surface[pos] = Tile.GROUND
+            if elt == SurfaceElement.MAGMA:
+                terrain.surface[pos] = Tile.MAGMA
+            if elt == SurfaceElement.FOOTMAN:
+                terrain.demons[pos] = hoplite.game.demons.Footman()
+            elif elt == SurfaceElement.ARCHER:
+                terrain.demons[pos] = hoplite.game.demons.Archer()
+            elif elt == SurfaceElement.DEMOLITIONIST_HOLDING_BOMB:
+                terrain.demons[pos] = hoplite.game.demons.Demolitionist(True)
+            elif elt == SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB:
+                terrain.demons[pos] = hoplite.game.demons.Demolitionist(False)
+            elif elt == SurfaceElement.WIZARD_CHARGED:
+                terrain.demons[pos] = hoplite.game.demons.Wizard(True)
+            elif elt == SurfaceElement.WIZARD_DISCHARGED:
+                terrain.demons[pos] = hoplite.game.demons.Wizard(False)
+            elif elt == SurfaceElement.SPEAR:
+                terrain.spear = pos
+            elif elt == SurfaceElement.BOMB:
+                terrain.bombs.add(pos)
+            elif elt == SurfaceElement.PLAYER:
+                terrain.player = pos
+            elif elt == SurfaceElement.STAIRS:
+                terrain.stairs = pos
+            elif elt == SurfaceElement.ALTAR_ON:
+                terrain.altar = pos
+                terrain.altar_prayable = True
+            elif elt == SurfaceElement.ALTAR_OFF:
+                terrain.altar = pos
+                terrain.altar_prayable = False
+            elif elt == SurfaceElement.FLEECE:
+                terrain.fleece = pos
+            elif elt == SurfaceElement.PORTAL:
+                terrain.portal = pos
+        return terrain
+
+    def __repr__(self):
+        text = &#34;&#34;
+        for elt in self.to_list():
+            text += &#34;0123456789abcdef&#34;[elt.value]
+        return text
+
+    def __str__(self):
+        return &#34;Terrain%s&#34; % self.__dict__
+
+    def render(self, show_ranges=False):
+        &#34;&#34;&#34; Call a terrain renderer to render itself.
+
+        Parameters
+        ----------
+        show_ranges : bool
+            Whether to show demon ranges.
+
+        &#34;&#34;&#34;
+        TerrainRenderer(self).render(show_ranges=show_ranges)
+
+    def walkable(self, *positions):
+        &#34;&#34;&#34;Compute walkable tiles.
+
+        Parameters
+        ----------
+        positions : List[hoplite.utils.HexagonalCoordinates]
+            Candidate tiles.
+
+        Returns
+        -------
+        List[hoplite.utils.HexagonalCoordinates]
+            Subset of `positions` only containing tiles a player can currently
+            walk on (ie. not over magma or an altar).
+
+        &#34;&#34;&#34;
+        result = list()
+        for pos in positions:
+            if self.surface.get(pos) != Tile.GROUND:
+                continue
+            if pos == self.altar:
+                continue
+            result.append(pos)
+        return result
+
+    def pathfind(self, start, goal):
+        &#34;&#34;&#34;Pathfinding between two tiles using the A* algorithm with norm-inf
+        distance as heuristic.
+
+        Parameters
+        ----------
+        start : hoplite.utils.HexagonalCoordinates
+            Starting position.
+        goal : hoplite.utils.HexagonalCoordinates
+            Target position.
+
+        Returns
+        -------
+        List[hoplite.utils.HexagonalCoordinates]
+            Path from `start` to `goal`, both included.
+
+        &#34;&#34;&#34;
+
+        open_set = {start}
+        came_from = dict()
+        cost = dict()
+        heuristic = dict()
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            cost[pos] = float(&#34;inf&#34;)
+            heuristic[pos] = float(&#34;inf&#34;)
+        cost[start] = 0.
+        heuristic[start] = (goal - start).norm()
+        while len(open_set) &gt; 0:
+            # TODO: use heapq to represent the open_set
+            current = min(open_set, key=lambda node: heuristic[node])
+            if current == goal:
+                path = [current]
+                while current in came_from:
+                    current = came_from[current]
+                    path.insert(0, current)
+                return path
+            open_set.remove(current)
+            for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+                tentative_cost = cost[current] + 1
+                if tentative_cost &lt; cost[neighbor]:
+                    came_from[neighbor] = current
+                    cost[neighbor] = tentative_cost
+                    heuristic[neighbor] = tentative_cost + \
+                        (goal - neighbor).norm()
+                    open_set.add(neighbor)
+        return None
+
+
+class Sprite(pygame.Surface):  # pylint: disable=E0239, R0903
+    &#34;&#34;&#34;Square surface showing a sprite loaded from a file.
+
+    Parameters
+    ----------
+    path : str
+        Path to the sprite file.
+
+    Attributes
+    ----------
+    SURFLAGS : int
+        `pygame` flags for handling the surface.
+    WIDTH : int
+        Pixel width of the sprite.
+    HEIGHT : int
+        Pixel height of the sprite.
+    path
+
+    &#34;&#34;&#34;
+
+    WIDTH = 32
+    HEIGHT = 28
+
+    SURFLAGS = pygame.SRCALPHA | pygame.DOUBLEBUF | pygame.HWSURFACE  # pylint: disable=E1101
+
+    def __init__(self, path):
+        pygame.Surface.__init__(  # pylint: disable=W0233
+            self,
+            (Sprite.WIDTH, Sprite.HEIGHT),
+            self.SURFLAGS,
+            32
+        )
+        self.path = path
+
+    def load(self):
+        &#34;&#34;&#34;Load the sprite file and blit it to the internal surface.
+        &#34;&#34;&#34;
+        if self.path is not None:
+            self.blit(pygame.image.load(self.path).convert_alpha(), (0, 0))
+
+
+class TerrainRenderer:  # pylint: disable=R0903
+    &#34;&#34;&#34;Create a Pygame window to display a simplified version of the game
+    terrain.
+
+    Parameters
+    ----------
+    terrain : Terrain
+        Terrain to render.
+
+    Attributes
+    ----------
+    tile_width : int
+        Pixel width of a tile when rendered. May differ from `Sprite.WIDTH`.
+    tile_height : int
+        Pixel height of a tile when rendered. May differ from `Sprite.HEIGHT`.
+    screen_width : int
+        Pygame window width in pixels.
+    screen_height : int
+        Pygame window height in pixels.
+    sprites : dict[SurfaceElement, Sprite]
+        Registry of sprites used to render each possible surface element.
+    font : pygame.font.Font
+        Font used to render coordinates. `None` before it is initialized.
+    terrain
+
+    &#34;&#34;&#34;
+
+    def __init__(self, terrain):
+        self.tile_width = 64
+        self.tile_height = 64
+        self.screen_width = 800
+        self.screen_height = 800
+        self.sprites = {
+            SurfaceElement.GROUND:
+                Sprite(&#34;assets/ground.png&#34;),
+            SurfaceElement.MAGMA:
+                Sprite(&#34;assets/magma.png&#34;),
+            SurfaceElement.FOOTMAN:
+                Sprite(&#34;assets/footman.png&#34;),
+            SurfaceElement.ARCHER:
+                Sprite(&#34;assets/archer.png&#34;),
+            SurfaceElement.DEMOLITIONIST_HOLDING_BOMB:
+                Sprite(&#34;assets/demolitionist_holding_bomb.png&#34;),
+            SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB:
+                Sprite(&#34;assets/demolitionist_without_bomb.png&#34;),
+            SurfaceElement.WIZARD_CHARGED:
+                Sprite(&#34;assets/wizard_charged.png&#34;),
+            SurfaceElement.WIZARD_DISCHARGED:
+                Sprite(&#34;assets/wizard_discharged.png&#34;),
+            SurfaceElement.SPEAR:
+                Sprite(&#34;assets/spear.png&#34;),
+            SurfaceElement.BOMB:
+                Sprite(&#34;assets/bomb.png&#34;),
+            SurfaceElement.PLAYER:
+                Sprite(&#34;assets/player.png&#34;),
+            SurfaceElement.STAIRS:
+                Sprite(&#34;assets/stairs.png&#34;),
+            SurfaceElement.ALTAR_ON:
+                Sprite(&#34;assets/altar_on.png&#34;),
+            SurfaceElement.ALTAR_OFF:
+                Sprite(&#34;assets/altar_off.png&#34;),
+            SurfaceElement.FLEECE:
+                Sprite(&#34;assets/fleece.png&#34;),
+            SurfaceElement.PORTAL:
+                Sprite(&#34;assets/portal.png&#34;),
+        }
+        self.terrain = terrain
+        self.font = None
+
+    def _render_sprite(self, screen, key, pos):
+        column, row = pos.doubled()
+        sprite = pygame.transform.scale2x(self.sprites[key])
+        screen.blit(sprite, (
+            int(self.tile_width * column) +
+            (self.screen_width - sprite.get_width()) // 2,
+            int(-self.tile_height * row) +
+            (self.screen_height - sprite.get_height()) // 2,
+        ))
+
+    def _render_coordinates(self, screen, pos):
+        column, row = pos.doubled()
+        text = self.font.render(str(pos), True, (255, 255, 255))
+        screen.blit(text, (
+            int(self.tile_width * column) +
+            (self.screen_width - text.get_width()) // 2,
+            int(-self.tile_height * row) +
+            (self.screen_height - text.get_height()) // 2,
+        ))
+
+    def _render_ranges(self, screen):
+        for demon_pos, demon in self.terrain.demons.items():
+            range_surface = pygame.Surface(  # pylint: disable=E1121
+                (screen.get_width(), screen.get_height()),
+                pygame.SRCALPHA,  # pylint: disable=E1101
+                32
+            ).convert_alpha()
+            demon_color = {
+                hoplite.game.demons.DemonSkill.FOOTMAN: (255, 255, 0, 70),
+                hoplite.game.demons.DemonSkill.ARCHER: (0, 255, 0, 70),
+                hoplite.game.demons.DemonSkill.DEMOLITIONIST: (255, 0, 0, 70),
+                hoplite.game.demons.DemonSkill.WIZARD: (0, 0, 255, 70)
+            }[demon.skill]
+            for pos in demon.range(self.terrain, demon_pos):
+                column, row = pos.doubled()
+                position = (
+                    int(self.tile_width * column) + self.screen_width // 2,
+                    int(-self.tile_height * row) + self.screen_height // 2,
+                )
+                draw_regular_polygon(range_surface, demon_color, 6, 32, position)
+            screen.blit(range_surface, (0, 0))
+
+    def render(self, show_ranges=False):
+        &#34;&#34;&#34;Create a Pygame window, blit the terrain, and wait for a quit event.
+
+        Parameters
+        ----------
+        show_ranges : bool
+            Whether to show demons ranges
+
+        &#34;&#34;&#34;
+        pygame.init()  # pylint: disable=E1101
+        screen = pygame.display.set_mode(
+            (self.screen_width, self.screen_height),
+            pygame.DOUBLEBUF | pygame.HWSURFACE  # pylint: disable=E1101
+        )
+        for sprite in self.sprites.values():
+            sprite.load()
+        pygame.display.set_caption(&#34;Hoplite&#34;)
+        pygame.display.set_icon(pygame.image.load(&#34;assets/icon.png&#34;))
+        self.font = pygame.font.SysFont(&#34;consolas&#34;, 10)
+        screen.fill((25, 25, 25))
+        for pos, elt in zip(hoplite.utils.SURFACE_COORDINATES, self.terrain.to_list()):
+            self._render_sprite(screen, elt, pos)
+        if show_ranges:
+            self._render_ranges(screen)
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            self._render_coordinates(screen, pos)
+        pygame.display.flip()
+        running = True
+
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:  # pylint: disable=E1101
+                    running = False</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="hoplite.game.terrain.draw_regular_polygon"><code class="name flex">
+<span>def <span class="ident">draw_regular_polygon</span></span>(<span>surface, color, vertex_count, radius, position)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Small function to draw regular polygon on Pygame surfaces.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>surface</code></strong> :&ensp;<code>pygame.Surface</code></dt>
+<dd>Surface to draw to.</dd>
+<dt><strong><code>color</code></strong> :&ensp;<code>tuple[int, int, int, int]</code></dt>
+<dd>Color in RGBA format (scaling from 0 to 255).</dd>
+<dt><strong><code>vertex_count</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of vertex in the polygon. 6 is hexagon.</dd>
+<dt><strong><code>radius</code></strong> :&ensp;<code>int</code></dt>
+<dd>Polygon radius in pixels.</dd>
+<dt><strong><code>position</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Position, in pixels, of the polygon center.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def draw_regular_polygon(surface, color, vertex_count, radius, position):
+    &#34;&#34;&#34;Small function to draw regular polygon on Pygame surfaces.
+
+    Parameters
+    ----------
+    surface : pygame.Surface
+        Surface to draw to.
+    color : tuple[int, int, int, int]
+        Color in RGBA format (scaling from 0 to 255).
+    vertex_count : int
+        Number of vertex in the polygon. 6 is hexagon.
+    radius : int
+        Polygon radius in pixels.
+    position : tuple[int, int]
+        Position, in pixels, of the polygon center.
+
+    &#34;&#34;&#34;
+    pygame.draw.polygon(surface, color, [
+        (
+            position[0] + radius * math.cos(2 * math.pi * i / vertex_count),
+            position[1] + radius * math.sin(2 * math.pi * i / vertex_count)
+        )
+        for i in range(vertex_count)
+    ])</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="hoplite.game.terrain.Sprite"><code class="flex name class">
+<span>class <span class="ident">Sprite</span></span>
+<span>(</span><span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Square surface showing a sprite loaded from a file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the sprite file.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>SURFLAGS</code></strong> :&ensp;<code>int</code></dt>
+<dd><code>pygame</code> flags for handling the surface.</dd>
+<dt><strong><code>WIDTH</code></strong> :&ensp;<code>int</code></dt>
+<dd>Pixel width of the sprite.</dd>
+<dt><strong><code>HEIGHT</code></strong> :&ensp;<code>int</code></dt>
+<dd>Pixel height of the sprite.</dd>
+<dt><strong><code>path</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Sprite(pygame.Surface):  # pylint: disable=E0239, R0903
+    &#34;&#34;&#34;Square surface showing a sprite loaded from a file.
+
+    Parameters
+    ----------
+    path : str
+        Path to the sprite file.
+
+    Attributes
+    ----------
+    SURFLAGS : int
+        `pygame` flags for handling the surface.
+    WIDTH : int
+        Pixel width of the sprite.
+    HEIGHT : int
+        Pixel height of the sprite.
+    path
+
+    &#34;&#34;&#34;
+
+    WIDTH = 32
+    HEIGHT = 28
+
+    SURFLAGS = pygame.SRCALPHA | pygame.DOUBLEBUF | pygame.HWSURFACE  # pylint: disable=E1101
+
+    def __init__(self, path):
+        pygame.Surface.__init__(  # pylint: disable=W0233
+            self,
+            (Sprite.WIDTH, Sprite.HEIGHT),
+            self.SURFLAGS,
+            32
+        )
+        self.path = path
+
+    def load(self):
+        &#34;&#34;&#34;Load the sprite file and blit it to the internal surface.
+        &#34;&#34;&#34;
+        if self.path is not None:
+            self.blit(pygame.image.load(self.path).convert_alpha(), (0, 0))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pygame.Surface</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.game.terrain.Sprite.HEIGHT"><code class="name">var <span class="ident">HEIGHT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.Sprite.SURFLAGS"><code class="name">var <span class="ident">SURFLAGS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.Sprite.WIDTH"><code class="name">var <span class="ident">WIDTH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.game.terrain.Sprite.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load the sprite file and blit it to the internal surface.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self):
+    &#34;&#34;&#34;Load the sprite file and blit it to the internal surface.
+    &#34;&#34;&#34;
+    if self.path is not None:
+        self.blit(pygame.image.load(self.path).convert_alpha(), (0, 0))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement"><code class="flex name class">
+<span>class <span class="ident">SurfaceElement</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enumeration of the possible content of the map tiles.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SurfaceElement(enum.Enum):
+    &#34;&#34;&#34;
+    Enumeration of the possible content of the map tiles.
+    &#34;&#34;&#34;
+
+    GROUND = 0
+    MAGMA = 1
+    FOOTMAN = 2
+    ARCHER = 3
+    DEMOLITIONIST_HOLDING_BOMB = 4
+    DEMOLITIONIST_WITHOUT_BOMB = 5
+    WIZARD_CHARGED = 6
+    WIZARD_DISCHARGED = 7
+    SPEAR = 8
+    BOMB = 9
+    PLAYER = 10
+    STAIRS = 11
+    ALTAR_ON = 12
+    ALTAR_OFF = 13
+    FLEECE = 14
+    PORTAL = 15</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.game.terrain.SurfaceElement.ALTAR_OFF"><code class="name">var <span class="ident">ALTAR_OFF</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.ALTAR_ON"><code class="name">var <span class="ident">ALTAR_ON</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.ARCHER"><code class="name">var <span class="ident">ARCHER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.BOMB"><code class="name">var <span class="ident">BOMB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_HOLDING_BOMB"><code class="name">var <span class="ident">DEMOLITIONIST_HOLDING_BOMB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB"><code class="name">var <span class="ident">DEMOLITIONIST_WITHOUT_BOMB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.FLEECE"><code class="name">var <span class="ident">FLEECE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.FOOTMAN"><code class="name">var <span class="ident">FOOTMAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.GROUND"><code class="name">var <span class="ident">GROUND</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.MAGMA"><code class="name">var <span class="ident">MAGMA</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.PLAYER"><code class="name">var <span class="ident">PLAYER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.PORTAL"><code class="name">var <span class="ident">PORTAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.SPEAR"><code class="name">var <span class="ident">SPEAR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.STAIRS"><code class="name">var <span class="ident">STAIRS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.WIZARD_CHARGED"><code class="name">var <span class="ident">WIZARD_CHARGED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.SurfaceElement.WIZARD_DISCHARGED"><code class="name">var <span class="ident">WIZARD_DISCHARGED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.game.terrain.Terrain"><code class="flex name class">
+<span>class <span class="ident">Terrain</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Logical representation of the game terrain.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>player</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Player location.</dd>
+<dt><strong><code>surface</code></strong> :&ensp;<code>dict[<a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>, <a title="hoplite.game.terrain.Tile" href="#hoplite.game.terrain.Tile">Tile</a>]</code></dt>
+<dd>Tile composition of the surface.</dd>
+<dt><strong><code>demons</code></strong> :&ensp;<code>dict[<a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>, <a title="hoplite.game.demons.Demon" href="demons.html#hoplite.game.demons.Demon">Demon</a>]</code></dt>
+<dd>Location of alive demons.</dd>
+<dt><strong><code>bombs</code></strong> :&ensp;<code>set[<a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Location of active bombs.</dd>
+<dt><strong><code>spear</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Location of the spear, <code>None</code> if not present.</dd>
+<dt><strong><code>altar</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Location of the altar of Apollo.</dd>
+<dt><strong><code>altar_prayable</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether a prayer can be made at the altar.</dd>
+<dt><strong><code>fleece</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Location of the fleece, <code>None</code> if not present.</dd>
+<dt><strong><code>portal</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Location of the portal, <code>None</code> if not present.</dd>
+<dt><strong><code>stairs</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Location of the stairs.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Terrain:  # pylint: disable=R0902
+    &#34;&#34;&#34;Logical representation of the game terrain.
+
+    Attributes
+    ----------
+    player : hoplite.utils.HexagonalCoordinates
+        Player location.
+    surface : dict[hoplite.utils.HexagonalCoordinates, Tile]
+        Tile composition of the surface.
+    demons : dict[hoplite.utils.HexagonalCoordinates, hoplite.game.demons.Demon]
+        Location of alive demons.
+    bombs : set[hoplite.utils.HexagonalCoordinates]
+        Location of active bombs.
+    spear : hoplite.utils.HexagonalCoordinates
+        Location of the spear, `None` if not present.
+    altar : hoplite.utils.HexagonalCoordinates
+        Location of the altar of Apollo.
+    altar_prayable : bool
+        Whether a prayer can be made at the altar.
+    fleece : hoplite.utils.HexagonalCoordinates
+        Location of the fleece, `None` if not present.
+    portal : hoplite.utils.HexagonalCoordinates
+        Location of the portal, `None` if not present.
+    stairs : hoplite.utils.HexagonalCoordinates
+        Location of the stairs.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.player = hoplite.utils.HexagonalCoordinates(0, -4)
+        self.surface = dict()
+        self.demons = dict()
+        self.bombs = set()
+        self.spear = None
+        self.altar = None
+        self.altar_prayable = False
+        self.fleece = None
+        self.portal = None
+        self.stairs = hoplite.utils.HexagonalCoordinates(0, 4)
+
+    def to_list(self):  # pylint: disable=R0912
+        &#34;&#34;&#34;Represent the terrain as a list of `SurfaceElement`.
+
+        Returns
+        -------
+        list[SurfaceElement]
+            SurfaceElement representing the terrain map in the order of
+            `SURFACE_COORDINATES`.
+
+        &#34;&#34;&#34;
+        result = list()
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            if pos == self.player:
+                result.append(SurfaceElement.PLAYER)
+            elif pos == self.spear:
+                result.append(SurfaceElement.SPEAR)
+            elif pos == self.altar:
+                if self.altar_prayable:
+                    result.append(SurfaceElement.ALTAR_ON)
+                else:
+                    result.append(SurfaceElement.ALTAR_OFF)
+            elif pos == self.fleece:
+                result.append(SurfaceElement.FLEECE)
+            elif pos == self.portal:
+                result.append(SurfaceElement.PORTAL)
+            elif pos == self.stairs:
+                result.append(SurfaceElement.STAIRS)
+            elif pos in self.bombs:
+                result.append(SurfaceElement.BOMB)
+            elif pos in self.demons:
+                demon = self.demons[pos]
+                if demon.skill == hoplite.game.demons.DemonSkill.FOOTMAN:
+                    result.append(SurfaceElement.FOOTMAN)
+                elif demon.skill == hoplite.game.demons.DemonSkill.ARCHER:
+                    result.append(SurfaceElement.ARCHER)
+                elif demon.skill == hoplite.game.demons.DemonSkill.DEMOLITIONIST:
+                    if demon.holds_bomb:
+                        result.append(
+                            SurfaceElement.DEMOLITIONIST_HOLDING_BOMB)
+                    else:
+                        result.append(
+                            SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB)
+                elif demon.skill == hoplite.game.demons.DemonSkill.WIZARD:
+                    if demon.charged_wand:
+                        result.append(SurfaceElement.WIZARD_CHARGED)
+                    else:
+                        result.append(SurfaceElement.WIZARD_DISCHARGED)
+            elif pos in self.surface:
+                if self.surface[pos] == Tile.GROUND:
+                    result.append(SurfaceElement.GROUND)
+                elif self.surface[pos] == Tile.MAGMA:
+                    result.append(SurfaceElement.MAGMA)
+            else:
+                raise ValueError(&#34;Wrong position: %s&#34; % pos)
+        return result
+
+    @classmethod
+    def from_list(cls, source):  # pylint: disable=R0912
+        &#34;&#34;&#34;Create and return a Terrain object from a `SurfaceElement` list.
+
+        Parameters
+        ----------
+        source : List[SurfaceElement]
+            List of surface elements in the `SURFACE_COORDINATES` order.
+
+        Returns
+        -------
+        Terrain
+            Terrain corresponding to this list of elements.
+
+        &#34;&#34;&#34;
+        terrain = cls()
+        for pos, elt in zip(hoplite.utils.SURFACE_COORDINATES, source):
+            terrain.surface[pos] = Tile.GROUND
+            if elt == SurfaceElement.MAGMA:
+                terrain.surface[pos] = Tile.MAGMA
+            if elt == SurfaceElement.FOOTMAN:
+                terrain.demons[pos] = hoplite.game.demons.Footman()
+            elif elt == SurfaceElement.ARCHER:
+                terrain.demons[pos] = hoplite.game.demons.Archer()
+            elif elt == SurfaceElement.DEMOLITIONIST_HOLDING_BOMB:
+                terrain.demons[pos] = hoplite.game.demons.Demolitionist(True)
+            elif elt == SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB:
+                terrain.demons[pos] = hoplite.game.demons.Demolitionist(False)
+            elif elt == SurfaceElement.WIZARD_CHARGED:
+                terrain.demons[pos] = hoplite.game.demons.Wizard(True)
+            elif elt == SurfaceElement.WIZARD_DISCHARGED:
+                terrain.demons[pos] = hoplite.game.demons.Wizard(False)
+            elif elt == SurfaceElement.SPEAR:
+                terrain.spear = pos
+            elif elt == SurfaceElement.BOMB:
+                terrain.bombs.add(pos)
+            elif elt == SurfaceElement.PLAYER:
+                terrain.player = pos
+            elif elt == SurfaceElement.STAIRS:
+                terrain.stairs = pos
+            elif elt == SurfaceElement.ALTAR_ON:
+                terrain.altar = pos
+                terrain.altar_prayable = True
+            elif elt == SurfaceElement.ALTAR_OFF:
+                terrain.altar = pos
+                terrain.altar_prayable = False
+            elif elt == SurfaceElement.FLEECE:
+                terrain.fleece = pos
+            elif elt == SurfaceElement.PORTAL:
+                terrain.portal = pos
+        return terrain
+
+    def __repr__(self):
+        text = &#34;&#34;
+        for elt in self.to_list():
+            text += &#34;0123456789abcdef&#34;[elt.value]
+        return text
+
+    def __str__(self):
+        return &#34;Terrain%s&#34; % self.__dict__
+
+    def render(self, show_ranges=False):
+        &#34;&#34;&#34; Call a terrain renderer to render itself.
+
+        Parameters
+        ----------
+        show_ranges : bool
+            Whether to show demon ranges.
+
+        &#34;&#34;&#34;
+        TerrainRenderer(self).render(show_ranges=show_ranges)
+
+    def walkable(self, *positions):
+        &#34;&#34;&#34;Compute walkable tiles.
+
+        Parameters
+        ----------
+        positions : List[hoplite.utils.HexagonalCoordinates]
+            Candidate tiles.
+
+        Returns
+        -------
+        List[hoplite.utils.HexagonalCoordinates]
+            Subset of `positions` only containing tiles a player can currently
+            walk on (ie. not over magma or an altar).
+
+        &#34;&#34;&#34;
+        result = list()
+        for pos in positions:
+            if self.surface.get(pos) != Tile.GROUND:
+                continue
+            if pos == self.altar:
+                continue
+            result.append(pos)
+        return result
+
+    def pathfind(self, start, goal):
+        &#34;&#34;&#34;Pathfinding between two tiles using the A* algorithm with norm-inf
+        distance as heuristic.
+
+        Parameters
+        ----------
+        start : hoplite.utils.HexagonalCoordinates
+            Starting position.
+        goal : hoplite.utils.HexagonalCoordinates
+            Target position.
+
+        Returns
+        -------
+        List[hoplite.utils.HexagonalCoordinates]
+            Path from `start` to `goal`, both included.
+
+        &#34;&#34;&#34;
+
+        open_set = {start}
+        came_from = dict()
+        cost = dict()
+        heuristic = dict()
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            cost[pos] = float(&#34;inf&#34;)
+            heuristic[pos] = float(&#34;inf&#34;)
+        cost[start] = 0.
+        heuristic[start] = (goal - start).norm()
+        while len(open_set) &gt; 0:
+            # TODO: use heapq to represent the open_set
+            current = min(open_set, key=lambda node: heuristic[node])
+            if current == goal:
+                path = [current]
+                while current in came_from:
+                    current = came_from[current]
+                    path.insert(0, current)
+                return path
+            open_set.remove(current)
+            for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+                tentative_cost = cost[current] + 1
+                if tentative_cost &lt; cost[neighbor]:
+                    came_from[neighbor] = current
+                    cost[neighbor] = tentative_cost
+                    heuristic[neighbor] = tentative_cost + \
+                        (goal - neighbor).norm()
+                    open_set.add(neighbor)
+        return None</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="hoplite.game.terrain.Terrain.from_list"><code class="name flex">
+<span>def <span class="ident">from_list</span></span>(<span>source)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return a Terrain object from a <code><a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a></code> list.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>source</code></strong> :&ensp;<code>List[<a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a>]</code></dt>
+<dd>List of surface elements in the <code>SURFACE_COORDINATES</code> order.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code></dt>
+<dd>Terrain corresponding to this list of elements.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_list(cls, source):  # pylint: disable=R0912
+    &#34;&#34;&#34;Create and return a Terrain object from a `SurfaceElement` list.
+
+    Parameters
+    ----------
+    source : List[SurfaceElement]
+        List of surface elements in the `SURFACE_COORDINATES` order.
+
+    Returns
+    -------
+    Terrain
+        Terrain corresponding to this list of elements.
+
+    &#34;&#34;&#34;
+    terrain = cls()
+    for pos, elt in zip(hoplite.utils.SURFACE_COORDINATES, source):
+        terrain.surface[pos] = Tile.GROUND
+        if elt == SurfaceElement.MAGMA:
+            terrain.surface[pos] = Tile.MAGMA
+        if elt == SurfaceElement.FOOTMAN:
+            terrain.demons[pos] = hoplite.game.demons.Footman()
+        elif elt == SurfaceElement.ARCHER:
+            terrain.demons[pos] = hoplite.game.demons.Archer()
+        elif elt == SurfaceElement.DEMOLITIONIST_HOLDING_BOMB:
+            terrain.demons[pos] = hoplite.game.demons.Demolitionist(True)
+        elif elt == SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB:
+            terrain.demons[pos] = hoplite.game.demons.Demolitionist(False)
+        elif elt == SurfaceElement.WIZARD_CHARGED:
+            terrain.demons[pos] = hoplite.game.demons.Wizard(True)
+        elif elt == SurfaceElement.WIZARD_DISCHARGED:
+            terrain.demons[pos] = hoplite.game.demons.Wizard(False)
+        elif elt == SurfaceElement.SPEAR:
+            terrain.spear = pos
+        elif elt == SurfaceElement.BOMB:
+            terrain.bombs.add(pos)
+        elif elt == SurfaceElement.PLAYER:
+            terrain.player = pos
+        elif elt == SurfaceElement.STAIRS:
+            terrain.stairs = pos
+        elif elt == SurfaceElement.ALTAR_ON:
+            terrain.altar = pos
+            terrain.altar_prayable = True
+        elif elt == SurfaceElement.ALTAR_OFF:
+            terrain.altar = pos
+            terrain.altar_prayable = False
+        elif elt == SurfaceElement.FLEECE:
+            terrain.fleece = pos
+        elif elt == SurfaceElement.PORTAL:
+            terrain.portal = pos
+    return terrain</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.game.terrain.Terrain.pathfind"><code class="name flex">
+<span>def <span class="ident">pathfind</span></span>(<span>self, start, goal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pathfinding between two tiles using the A* algorithm with norm-inf
+distance as heuristic.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>start</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Starting position.</dd>
+<dt><strong><code>goal</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Target position.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[<a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Path from <code>start</code> to <code>goal</code>, both included.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pathfind(self, start, goal):
+    &#34;&#34;&#34;Pathfinding between two tiles using the A* algorithm with norm-inf
+    distance as heuristic.
+
+    Parameters
+    ----------
+    start : hoplite.utils.HexagonalCoordinates
+        Starting position.
+    goal : hoplite.utils.HexagonalCoordinates
+        Target position.
+
+    Returns
+    -------
+    List[hoplite.utils.HexagonalCoordinates]
+        Path from `start` to `goal`, both included.
+
+    &#34;&#34;&#34;
+
+    open_set = {start}
+    came_from = dict()
+    cost = dict()
+    heuristic = dict()
+    for pos in hoplite.utils.SURFACE_COORDINATES:
+        cost[pos] = float(&#34;inf&#34;)
+        heuristic[pos] = float(&#34;inf&#34;)
+    cost[start] = 0.
+    heuristic[start] = (goal - start).norm()
+    while len(open_set) &gt; 0:
+        # TODO: use heapq to represent the open_set
+        current = min(open_set, key=lambda node: heuristic[node])
+        if current == goal:
+            path = [current]
+            while current in came_from:
+                current = came_from[current]
+                path.insert(0, current)
+            return path
+        open_set.remove(current)
+        for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+            tentative_cost = cost[current] + 1
+            if tentative_cost &lt; cost[neighbor]:
+                came_from[neighbor] = current
+                cost[neighbor] = tentative_cost
+                heuristic[neighbor] = tentative_cost + \
+                    (goal - neighbor).norm()
+                open_set.add(neighbor)
+    return None</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.terrain.Terrain.render"><code class="name flex">
+<span>def <span class="ident">render</span></span>(<span>self, show_ranges=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call a terrain renderer to render itself.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>show_ranges</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether to show demon ranges.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def render(self, show_ranges=False):
+    &#34;&#34;&#34; Call a terrain renderer to render itself.
+
+    Parameters
+    ----------
+    show_ranges : bool
+        Whether to show demon ranges.
+
+    &#34;&#34;&#34;
+    TerrainRenderer(self).render(show_ranges=show_ranges)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.terrain.Terrain.to_list"><code class="name flex">
+<span>def <span class="ident">to_list</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represent the terrain as a list of <code><a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a></code>.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list[<a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a>]</code></dt>
+<dd>SurfaceElement representing the terrain map in the order of
+<code>SURFACE_COORDINATES</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_list(self):  # pylint: disable=R0912
+    &#34;&#34;&#34;Represent the terrain as a list of `SurfaceElement`.
+
+    Returns
+    -------
+    list[SurfaceElement]
+        SurfaceElement representing the terrain map in the order of
+        `SURFACE_COORDINATES`.
+
+    &#34;&#34;&#34;
+    result = list()
+    for pos in hoplite.utils.SURFACE_COORDINATES:
+        if pos == self.player:
+            result.append(SurfaceElement.PLAYER)
+        elif pos == self.spear:
+            result.append(SurfaceElement.SPEAR)
+        elif pos == self.altar:
+            if self.altar_prayable:
+                result.append(SurfaceElement.ALTAR_ON)
+            else:
+                result.append(SurfaceElement.ALTAR_OFF)
+        elif pos == self.fleece:
+            result.append(SurfaceElement.FLEECE)
+        elif pos == self.portal:
+            result.append(SurfaceElement.PORTAL)
+        elif pos == self.stairs:
+            result.append(SurfaceElement.STAIRS)
+        elif pos in self.bombs:
+            result.append(SurfaceElement.BOMB)
+        elif pos in self.demons:
+            demon = self.demons[pos]
+            if demon.skill == hoplite.game.demons.DemonSkill.FOOTMAN:
+                result.append(SurfaceElement.FOOTMAN)
+            elif demon.skill == hoplite.game.demons.DemonSkill.ARCHER:
+                result.append(SurfaceElement.ARCHER)
+            elif demon.skill == hoplite.game.demons.DemonSkill.DEMOLITIONIST:
+                if demon.holds_bomb:
+                    result.append(
+                        SurfaceElement.DEMOLITIONIST_HOLDING_BOMB)
+                else:
+                    result.append(
+                        SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB)
+            elif demon.skill == hoplite.game.demons.DemonSkill.WIZARD:
+                if demon.charged_wand:
+                    result.append(SurfaceElement.WIZARD_CHARGED)
+                else:
+                    result.append(SurfaceElement.WIZARD_DISCHARGED)
+        elif pos in self.surface:
+            if self.surface[pos] == Tile.GROUND:
+                result.append(SurfaceElement.GROUND)
+            elif self.surface[pos] == Tile.MAGMA:
+                result.append(SurfaceElement.MAGMA)
+        else:
+            raise ValueError(&#34;Wrong position: %s&#34; % pos)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.terrain.Terrain.walkable"><code class="name flex">
+<span>def <span class="ident">walkable</span></span>(<span>self, *positions)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute walkable tiles.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>positions</code></strong> :&ensp;<code>List[<a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Candidate tiles.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[<a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Subset of <code>positions</code> only containing tiles a player can currently
+walk on (ie. not over magma or an altar).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def walkable(self, *positions):
+    &#34;&#34;&#34;Compute walkable tiles.
+
+    Parameters
+    ----------
+    positions : List[hoplite.utils.HexagonalCoordinates]
+        Candidate tiles.
+
+    Returns
+    -------
+    List[hoplite.utils.HexagonalCoordinates]
+        Subset of `positions` only containing tiles a player can currently
+        walk on (ie. not over magma or an altar).
+
+    &#34;&#34;&#34;
+    result = list()
+    for pos in positions:
+        if self.surface.get(pos) != Tile.GROUND:
+            continue
+        if pos == self.altar:
+            continue
+        result.append(pos)
+    return result</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.game.terrain.TerrainRenderer"><code class="flex name class">
+<span>class <span class="ident">TerrainRenderer</span></span>
+<span>(</span><span>terrain)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a Pygame window to display a simplified version of the game
+terrain.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>terrain</code></strong> :&ensp;<code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code></dt>
+<dd>Terrain to render.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>tile_width</code></strong> :&ensp;<code>int</code></dt>
+<dd>Pixel width of a tile when rendered. May differ from <code><a title="hoplite.game.terrain.Sprite.WIDTH" href="#hoplite.game.terrain.Sprite.WIDTH">Sprite.WIDTH</a></code>.</dd>
+<dt><strong><code>tile_height</code></strong> :&ensp;<code>int</code></dt>
+<dd>Pixel height of a tile when rendered. May differ from <code><a title="hoplite.game.terrain.Sprite.HEIGHT" href="#hoplite.game.terrain.Sprite.HEIGHT">Sprite.HEIGHT</a></code>.</dd>
+<dt><strong><code>screen_width</code></strong> :&ensp;<code>int</code></dt>
+<dd>Pygame window width in pixels.</dd>
+<dt><strong><code>screen_height</code></strong> :&ensp;<code>int</code></dt>
+<dd>Pygame window height in pixels.</dd>
+<dt><strong><code>sprites</code></strong> :&ensp;<code>dict[<a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a>, <a title="hoplite.game.terrain.Sprite" href="#hoplite.game.terrain.Sprite">Sprite</a>]</code></dt>
+<dd>Registry of sprites used to render each possible surface element.</dd>
+<dt><strong><code>font</code></strong> :&ensp;<code>pygame.font.Font</code></dt>
+<dd>Font used to render coordinates. <code>None</code> before it is initialized.</dd>
+<dt><strong><code>terrain</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TerrainRenderer:  # pylint: disable=R0903
+    &#34;&#34;&#34;Create a Pygame window to display a simplified version of the game
+    terrain.
+
+    Parameters
+    ----------
+    terrain : Terrain
+        Terrain to render.
+
+    Attributes
+    ----------
+    tile_width : int
+        Pixel width of a tile when rendered. May differ from `Sprite.WIDTH`.
+    tile_height : int
+        Pixel height of a tile when rendered. May differ from `Sprite.HEIGHT`.
+    screen_width : int
+        Pygame window width in pixels.
+    screen_height : int
+        Pygame window height in pixels.
+    sprites : dict[SurfaceElement, Sprite]
+        Registry of sprites used to render each possible surface element.
+    font : pygame.font.Font
+        Font used to render coordinates. `None` before it is initialized.
+    terrain
+
+    &#34;&#34;&#34;
+
+    def __init__(self, terrain):
+        self.tile_width = 64
+        self.tile_height = 64
+        self.screen_width = 800
+        self.screen_height = 800
+        self.sprites = {
+            SurfaceElement.GROUND:
+                Sprite(&#34;assets/ground.png&#34;),
+            SurfaceElement.MAGMA:
+                Sprite(&#34;assets/magma.png&#34;),
+            SurfaceElement.FOOTMAN:
+                Sprite(&#34;assets/footman.png&#34;),
+            SurfaceElement.ARCHER:
+                Sprite(&#34;assets/archer.png&#34;),
+            SurfaceElement.DEMOLITIONIST_HOLDING_BOMB:
+                Sprite(&#34;assets/demolitionist_holding_bomb.png&#34;),
+            SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB:
+                Sprite(&#34;assets/demolitionist_without_bomb.png&#34;),
+            SurfaceElement.WIZARD_CHARGED:
+                Sprite(&#34;assets/wizard_charged.png&#34;),
+            SurfaceElement.WIZARD_DISCHARGED:
+                Sprite(&#34;assets/wizard_discharged.png&#34;),
+            SurfaceElement.SPEAR:
+                Sprite(&#34;assets/spear.png&#34;),
+            SurfaceElement.BOMB:
+                Sprite(&#34;assets/bomb.png&#34;),
+            SurfaceElement.PLAYER:
+                Sprite(&#34;assets/player.png&#34;),
+            SurfaceElement.STAIRS:
+                Sprite(&#34;assets/stairs.png&#34;),
+            SurfaceElement.ALTAR_ON:
+                Sprite(&#34;assets/altar_on.png&#34;),
+            SurfaceElement.ALTAR_OFF:
+                Sprite(&#34;assets/altar_off.png&#34;),
+            SurfaceElement.FLEECE:
+                Sprite(&#34;assets/fleece.png&#34;),
+            SurfaceElement.PORTAL:
+                Sprite(&#34;assets/portal.png&#34;),
+        }
+        self.terrain = terrain
+        self.font = None
+
+    def _render_sprite(self, screen, key, pos):
+        column, row = pos.doubled()
+        sprite = pygame.transform.scale2x(self.sprites[key])
+        screen.blit(sprite, (
+            int(self.tile_width * column) +
+            (self.screen_width - sprite.get_width()) // 2,
+            int(-self.tile_height * row) +
+            (self.screen_height - sprite.get_height()) // 2,
+        ))
+
+    def _render_coordinates(self, screen, pos):
+        column, row = pos.doubled()
+        text = self.font.render(str(pos), True, (255, 255, 255))
+        screen.blit(text, (
+            int(self.tile_width * column) +
+            (self.screen_width - text.get_width()) // 2,
+            int(-self.tile_height * row) +
+            (self.screen_height - text.get_height()) // 2,
+        ))
+
+    def _render_ranges(self, screen):
+        for demon_pos, demon in self.terrain.demons.items():
+            range_surface = pygame.Surface(  # pylint: disable=E1121
+                (screen.get_width(), screen.get_height()),
+                pygame.SRCALPHA,  # pylint: disable=E1101
+                32
+            ).convert_alpha()
+            demon_color = {
+                hoplite.game.demons.DemonSkill.FOOTMAN: (255, 255, 0, 70),
+                hoplite.game.demons.DemonSkill.ARCHER: (0, 255, 0, 70),
+                hoplite.game.demons.DemonSkill.DEMOLITIONIST: (255, 0, 0, 70),
+                hoplite.game.demons.DemonSkill.WIZARD: (0, 0, 255, 70)
+            }[demon.skill]
+            for pos in demon.range(self.terrain, demon_pos):
+                column, row = pos.doubled()
+                position = (
+                    int(self.tile_width * column) + self.screen_width // 2,
+                    int(-self.tile_height * row) + self.screen_height // 2,
+                )
+                draw_regular_polygon(range_surface, demon_color, 6, 32, position)
+            screen.blit(range_surface, (0, 0))
+
+    def render(self, show_ranges=False):
+        &#34;&#34;&#34;Create a Pygame window, blit the terrain, and wait for a quit event.
+
+        Parameters
+        ----------
+        show_ranges : bool
+            Whether to show demons ranges
+
+        &#34;&#34;&#34;
+        pygame.init()  # pylint: disable=E1101
+        screen = pygame.display.set_mode(
+            (self.screen_width, self.screen_height),
+            pygame.DOUBLEBUF | pygame.HWSURFACE  # pylint: disable=E1101
+        )
+        for sprite in self.sprites.values():
+            sprite.load()
+        pygame.display.set_caption(&#34;Hoplite&#34;)
+        pygame.display.set_icon(pygame.image.load(&#34;assets/icon.png&#34;))
+        self.font = pygame.font.SysFont(&#34;consolas&#34;, 10)
+        screen.fill((25, 25, 25))
+        for pos, elt in zip(hoplite.utils.SURFACE_COORDINATES, self.terrain.to_list()):
+            self._render_sprite(screen, elt, pos)
+        if show_ranges:
+            self._render_ranges(screen)
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            self._render_coordinates(screen, pos)
+        pygame.display.flip()
+        running = True
+
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:  # pylint: disable=E1101
+                    running = False</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.game.terrain.TerrainRenderer.render"><code class="name flex">
+<span>def <span class="ident">render</span></span>(<span>self, show_ranges=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a Pygame window, blit the terrain, and wait for a quit event.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>show_ranges</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether to show demons ranges</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def render(self, show_ranges=False):
+    &#34;&#34;&#34;Create a Pygame window, blit the terrain, and wait for a quit event.
+
+    Parameters
+    ----------
+    show_ranges : bool
+        Whether to show demons ranges
+
+    &#34;&#34;&#34;
+    pygame.init()  # pylint: disable=E1101
+    screen = pygame.display.set_mode(
+        (self.screen_width, self.screen_height),
+        pygame.DOUBLEBUF | pygame.HWSURFACE  # pylint: disable=E1101
+    )
+    for sprite in self.sprites.values():
+        sprite.load()
+    pygame.display.set_caption(&#34;Hoplite&#34;)
+    pygame.display.set_icon(pygame.image.load(&#34;assets/icon.png&#34;))
+    self.font = pygame.font.SysFont(&#34;consolas&#34;, 10)
+    screen.fill((25, 25, 25))
+    for pos, elt in zip(hoplite.utils.SURFACE_COORDINATES, self.terrain.to_list()):
+        self._render_sprite(screen, elt, pos)
+    if show_ranges:
+        self._render_ranges(screen)
+    for pos in hoplite.utils.SURFACE_COORDINATES:
+        self._render_coordinates(screen, pos)
+    pygame.display.flip()
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # pylint: disable=E1101
+                running = False</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.game.terrain.Tile"><code class="flex name class">
+<span>class <span class="ident">Tile</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enumeration of tiles composing the surface of the map.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Tile(enum.Enum):
+    &#34;&#34;&#34;
+    Enumeration of tiles composing the surface of the map.
+    &#34;&#34;&#34;
+
+    GROUND = 0
+    MAGMA = 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.game.terrain.Tile.GROUND"><code class="name">var <span class="ident">GROUND</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.terrain.Tile.MAGMA"><code class="name">var <span class="ident">MAGMA</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hoplite.game" href="index.html">hoplite.game</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="hoplite.game.terrain.draw_regular_polygon" href="#hoplite.game.terrain.draw_regular_polygon">draw_regular_polygon</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="hoplite.game.terrain.Sprite" href="#hoplite.game.terrain.Sprite">Sprite</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.game.terrain.Sprite.HEIGHT" href="#hoplite.game.terrain.Sprite.HEIGHT">HEIGHT</a></code></li>
+<li><code><a title="hoplite.game.terrain.Sprite.SURFLAGS" href="#hoplite.game.terrain.Sprite.SURFLAGS">SURFLAGS</a></code></li>
+<li><code><a title="hoplite.game.terrain.Sprite.WIDTH" href="#hoplite.game.terrain.Sprite.WIDTH">WIDTH</a></code></li>
+<li><code><a title="hoplite.game.terrain.Sprite.load" href="#hoplite.game.terrain.Sprite.load">load</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.game.terrain.SurfaceElement.ALTAR_OFF" href="#hoplite.game.terrain.SurfaceElement.ALTAR_OFF">ALTAR_OFF</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.ALTAR_ON" href="#hoplite.game.terrain.SurfaceElement.ALTAR_ON">ALTAR_ON</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.ARCHER" href="#hoplite.game.terrain.SurfaceElement.ARCHER">ARCHER</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.BOMB" href="#hoplite.game.terrain.SurfaceElement.BOMB">BOMB</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_HOLDING_BOMB" href="#hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_HOLDING_BOMB">DEMOLITIONIST_HOLDING_BOMB</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB" href="#hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB">DEMOLITIONIST_WITHOUT_BOMB</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.FLEECE" href="#hoplite.game.terrain.SurfaceElement.FLEECE">FLEECE</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.FOOTMAN" href="#hoplite.game.terrain.SurfaceElement.FOOTMAN">FOOTMAN</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.GROUND" href="#hoplite.game.terrain.SurfaceElement.GROUND">GROUND</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.MAGMA" href="#hoplite.game.terrain.SurfaceElement.MAGMA">MAGMA</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.PLAYER" href="#hoplite.game.terrain.SurfaceElement.PLAYER">PLAYER</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.PORTAL" href="#hoplite.game.terrain.SurfaceElement.PORTAL">PORTAL</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.SPEAR" href="#hoplite.game.terrain.SurfaceElement.SPEAR">SPEAR</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.STAIRS" href="#hoplite.game.terrain.SurfaceElement.STAIRS">STAIRS</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.WIZARD_CHARGED" href="#hoplite.game.terrain.SurfaceElement.WIZARD_CHARGED">WIZARD_CHARGED</a></code></li>
+<li><code><a title="hoplite.game.terrain.SurfaceElement.WIZARD_DISCHARGED" href="#hoplite.game.terrain.SurfaceElement.WIZARD_DISCHARGED">WIZARD_DISCHARGED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.game.terrain.Terrain.from_list" href="#hoplite.game.terrain.Terrain.from_list">from_list</a></code></li>
+<li><code><a title="hoplite.game.terrain.Terrain.pathfind" href="#hoplite.game.terrain.Terrain.pathfind">pathfind</a></code></li>
+<li><code><a title="hoplite.game.terrain.Terrain.render" href="#hoplite.game.terrain.Terrain.render">render</a></code></li>
+<li><code><a title="hoplite.game.terrain.Terrain.to_list" href="#hoplite.game.terrain.Terrain.to_list">to_list</a></code></li>
+<li><code><a title="hoplite.game.terrain.Terrain.walkable" href="#hoplite.game.terrain.Terrain.walkable">walkable</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.game.terrain.TerrainRenderer" href="#hoplite.game.terrain.TerrainRenderer">TerrainRenderer</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.game.terrain.TerrainRenderer.render" href="#hoplite.game.terrain.TerrainRenderer.render">render</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.game.terrain.Tile" href="#hoplite.game.terrain.Tile">Tile</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.game.terrain.Tile.GROUND" href="#hoplite.game.terrain.Tile.GROUND">GROUND</a></code></li>
+<li><code><a title="hoplite.game.terrain.Tile.MAGMA" href="#hoplite.game.terrain.Tile.MAGMA">MAGMA</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>hoplite.game.status API documentation</title>
+<meta name="description" content="Representation of the abstract status of the player." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hoplite.game.status</code></h1>
+</header>
+<section id="section-intro">
+<p>Representation of the abstract status of the player.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Representation of the abstract status of the player.
+&#34;&#34;&#34;
+
+import enum
+
+
+@enum.unique
+class Prayer(enum.Enum):
+    &#34;&#34;&#34;
+    Prayers obtained at the altars of Apollo.
+    &#34;&#34;&#34;
+
+    DIVINE_RESTORATION = 0
+    FORTITUDE = 1
+    BLOODLUST = 2
+    MIGHTY_BASH = 3
+    SWEEPING_BASH = 4
+    SPINNING_BASH = 5
+    QUICK_BASH = 6
+    GREATER_THROW = 7
+    GREATER_THROW_II = 8
+    GREATER_ENERGY = 9
+    GREATER_ENERGY_II = 10
+    DEEP_LUNGE = 11
+    PATIENCE = 12
+    SURGE = 13
+    REGENERATION = 14
+    WINGED_SANDALS = 15
+    STAGGERING_LEAP = 16
+
+
+class PlayerAttributes:  # pylint: disable=R0903
+    &#34;&#34;&#34;Representation of the attributes of the player, which will determine
+    the result of its actions.
+
+    Attributes
+    ----------
+    maximum_health : int
+        Maximum number of hearts (capped to 8 in the game).
+    maximum_energy : int
+        Maximum energy amount.
+    knockback_distance : int
+        Knockback distance in tiles for bash moves.
+    cooldown : int
+        Number of turns to wait after having used a bash move.
+    throw_distance : int
+        Radius of the reachable circle when throwing the spear.
+    leap_distance : int
+        Radius of the reachable circle when leaping.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.maximum_health = 3
+        self.maximum_energy = 100
+        self.knockback_distance = 1
+        self.cooldown = 4
+        self.throw_distance = 2
+        self.leap_distance = 2
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+class Status:
+    &#34;&#34;&#34;Logical representation of the player status.
+
+    Attributes
+    ----------
+    cooldown : int
+        Number of turns to wait before using bash again.
+    energy : int
+        Left energy.
+    spear : bool
+        `True` iff. the player has its spear in the inventory.
+    health : int
+        Number of full hearts.
+    prayers : List[Prayer]
+        List of prayers made by the player so far.
+    attributes : PlayerAttributes
+        Current abilities of the player.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.cooldown = 0
+        self.energy = 100
+        self.spear = True
+        self.health = 3
+        self.prayers = list()
+        self.attributes = PlayerAttributes()
+
+    def __repr__(self):
+        return &#34;Status%s&#34; % self.__dict__
+
+    def can_leap(self):
+        &#34;&#34;&#34;Check if the player can leap.
+
+        Returns
+        -------
+        bool
+            `True` if the player can perform a leap.
+
+        &#34;&#34;&#34;
+        return self.energy &gt;= 50
+
+    def can_bash(self):
+        &#34;&#34;&#34;Check if the player can bash.
+
+        Returns
+        -------
+        bool
+            `True` if the player can perform a bash.
+
+        &#34;&#34;&#34;
+        return self.cooldown == 0
+
+    def can_throw(self):
+        &#34;&#34;&#34;Check if the player can throw its spear.
+
+        Returns
+        -------
+        bool
+            `True` if the player can perform a throw.
+
+        &#34;&#34;&#34;
+        return self.spear
+
+    def restore_energy(self, amount):
+        &#34;&#34;&#34;Restore an amount of energy.
+
+        Parameters
+        ----------
+        amount : int
+            Amount of energy to restore.
+
+        &#34;&#34;&#34;
+        self.energy = min(self.energy + amount, self.attributes.maximum_energy)
+
+    def use_energy(self, amount=50):
+        &#34;&#34;&#34;Consume an amount of energy.
+
+        Parameters
+        ----------
+        amount : int
+            Amount of energy to remove.
+
+        &#34;&#34;&#34;
+        assert amount &gt;= self.energy
+        self.energy -= amount
+
+    def restore_health(self, amount=1):
+        &#34;&#34;&#34;Heal the player.
+
+        Parameters
+        ----------
+        amount : int
+            Number of hearts to restore.
+
+        &#34;&#34;&#34;
+        self.health = min(self.health + amount, self.attributes.maximum_health)
+
+    def deal_damage(self, amount=1):
+        &#34;&#34;&#34;Damage the player.
+
+        Parameters
+        ----------
+        amount : int
+            Number of hearts to remove.
+
+        Returns
+        -------
+        bool
+            `True` if the player is still alive after taking the damages.
+
+        &#34;&#34;&#34;
+        self.health = max(0, self.health - amount)
+        if self.health == 0:
+            # raise LostGameException()
+            return False
+        return True</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="hoplite.game.status.PlayerAttributes"><code class="flex name class">
+<span>class <span class="ident">PlayerAttributes</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Representation of the attributes of the player, which will determine
+the result of its actions.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>maximum_health</code></strong> :&ensp;<code>int</code></dt>
+<dd>Maximum number of hearts (capped to 8 in the game).</dd>
+<dt><strong><code>maximum_energy</code></strong> :&ensp;<code>int</code></dt>
+<dd>Maximum energy amount.</dd>
+<dt><strong><code>knockback_distance</code></strong> :&ensp;<code>int</code></dt>
+<dd>Knockback distance in tiles for bash moves.</dd>
+<dt><strong><code>cooldown</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of turns to wait after having used a bash move.</dd>
+<dt><strong><code>throw_distance</code></strong> :&ensp;<code>int</code></dt>
+<dd>Radius of the reachable circle when throwing the spear.</dd>
+<dt><strong><code>leap_distance</code></strong> :&ensp;<code>int</code></dt>
+<dd>Radius of the reachable circle when leaping.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PlayerAttributes:  # pylint: disable=R0903
+    &#34;&#34;&#34;Representation of the attributes of the player, which will determine
+    the result of its actions.
+
+    Attributes
+    ----------
+    maximum_health : int
+        Maximum number of hearts (capped to 8 in the game).
+    maximum_energy : int
+        Maximum energy amount.
+    knockback_distance : int
+        Knockback distance in tiles for bash moves.
+    cooldown : int
+        Number of turns to wait after having used a bash move.
+    throw_distance : int
+        Radius of the reachable circle when throwing the spear.
+    leap_distance : int
+        Radius of the reachable circle when leaping.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.maximum_health = 3
+        self.maximum_energy = 100
+        self.knockback_distance = 1
+        self.cooldown = 4
+        self.throw_distance = 2
+        self.leap_distance = 2
+
+    def __repr__(self):
+        return str(self.__dict__)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Prayer"><code class="flex name class">
+<span>class <span class="ident">Prayer</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Prayers obtained at the altars of Apollo.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Prayer(enum.Enum):
+    &#34;&#34;&#34;
+    Prayers obtained at the altars of Apollo.
+    &#34;&#34;&#34;
+
+    DIVINE_RESTORATION = 0
+    FORTITUDE = 1
+    BLOODLUST = 2
+    MIGHTY_BASH = 3
+    SWEEPING_BASH = 4
+    SPINNING_BASH = 5
+    QUICK_BASH = 6
+    GREATER_THROW = 7
+    GREATER_THROW_II = 8
+    GREATER_ENERGY = 9
+    GREATER_ENERGY_II = 10
+    DEEP_LUNGE = 11
+    PATIENCE = 12
+    SURGE = 13
+    REGENERATION = 14
+    WINGED_SANDALS = 15
+    STAGGERING_LEAP = 16</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.game.status.Prayer.BLOODLUST"><code class="name">var <span class="ident">BLOODLUST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.DEEP_LUNGE"><code class="name">var <span class="ident">DEEP_LUNGE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.DIVINE_RESTORATION"><code class="name">var <span class="ident">DIVINE_RESTORATION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.FORTITUDE"><code class="name">var <span class="ident">FORTITUDE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.GREATER_ENERGY"><code class="name">var <span class="ident">GREATER_ENERGY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.GREATER_ENERGY_II"><code class="name">var <span class="ident">GREATER_ENERGY_II</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.GREATER_THROW"><code class="name">var <span class="ident">GREATER_THROW</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.GREATER_THROW_II"><code class="name">var <span class="ident">GREATER_THROW_II</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.MIGHTY_BASH"><code class="name">var <span class="ident">MIGHTY_BASH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.PATIENCE"><code class="name">var <span class="ident">PATIENCE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.QUICK_BASH"><code class="name">var <span class="ident">QUICK_BASH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.REGENERATION"><code class="name">var <span class="ident">REGENERATION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.SPINNING_BASH"><code class="name">var <span class="ident">SPINNING_BASH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.STAGGERING_LEAP"><code class="name">var <span class="ident">STAGGERING_LEAP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.SURGE"><code class="name">var <span class="ident">SURGE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.SWEEPING_BASH"><code class="name">var <span class="ident">SWEEPING_BASH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.status.Prayer.WINGED_SANDALS"><code class="name">var <span class="ident">WINGED_SANDALS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.game.status.Status"><code class="flex name class">
+<span>class <span class="ident">Status</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Logical representation of the player status.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>cooldown</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of turns to wait before using bash again.</dd>
+<dt><strong><code>energy</code></strong> :&ensp;<code>int</code></dt>
+<dd>Left energy.</dd>
+<dt><strong><code>spear</code></strong> :&ensp;<code>bool</code></dt>
+<dd><code>True</code> iff. the player has its spear in the inventory.</dd>
+<dt><strong><code>health</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of full hearts.</dd>
+<dt><strong><code>prayers</code></strong> :&ensp;<code>List[<a title="hoplite.game.status.Prayer" href="#hoplite.game.status.Prayer">Prayer</a>]</code></dt>
+<dd>List of prayers made by the player so far.</dd>
+<dt><strong><code>attributes</code></strong> :&ensp;<code><a title="hoplite.game.status.PlayerAttributes" href="#hoplite.game.status.PlayerAttributes">PlayerAttributes</a></code></dt>
+<dd>Current abilities of the player.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Status:
+    &#34;&#34;&#34;Logical representation of the player status.
+
+    Attributes
+    ----------
+    cooldown : int
+        Number of turns to wait before using bash again.
+    energy : int
+        Left energy.
+    spear : bool
+        `True` iff. the player has its spear in the inventory.
+    health : int
+        Number of full hearts.
+    prayers : List[Prayer]
+        List of prayers made by the player so far.
+    attributes : PlayerAttributes
+        Current abilities of the player.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.cooldown = 0
+        self.energy = 100
+        self.spear = True
+        self.health = 3
+        self.prayers = list()
+        self.attributes = PlayerAttributes()
+
+    def __repr__(self):
+        return &#34;Status%s&#34; % self.__dict__
+
+    def can_leap(self):
+        &#34;&#34;&#34;Check if the player can leap.
+
+        Returns
+        -------
+        bool
+            `True` if the player can perform a leap.
+
+        &#34;&#34;&#34;
+        return self.energy &gt;= 50
+
+    def can_bash(self):
+        &#34;&#34;&#34;Check if the player can bash.
+
+        Returns
+        -------
+        bool
+            `True` if the player can perform a bash.
+
+        &#34;&#34;&#34;
+        return self.cooldown == 0
+
+    def can_throw(self):
+        &#34;&#34;&#34;Check if the player can throw its spear.
+
+        Returns
+        -------
+        bool
+            `True` if the player can perform a throw.
+
+        &#34;&#34;&#34;
+        return self.spear
+
+    def restore_energy(self, amount):
+        &#34;&#34;&#34;Restore an amount of energy.
+
+        Parameters
+        ----------
+        amount : int
+            Amount of energy to restore.
+
+        &#34;&#34;&#34;
+        self.energy = min(self.energy + amount, self.attributes.maximum_energy)
+
+    def use_energy(self, amount=50):
+        &#34;&#34;&#34;Consume an amount of energy.
+
+        Parameters
+        ----------
+        amount : int
+            Amount of energy to remove.
+
+        &#34;&#34;&#34;
+        assert amount &gt;= self.energy
+        self.energy -= amount
+
+    def restore_health(self, amount=1):
+        &#34;&#34;&#34;Heal the player.
+
+        Parameters
+        ----------
+        amount : int
+            Number of hearts to restore.
+
+        &#34;&#34;&#34;
+        self.health = min(self.health + amount, self.attributes.maximum_health)
+
+    def deal_damage(self, amount=1):
+        &#34;&#34;&#34;Damage the player.
+
+        Parameters
+        ----------
+        amount : int
+            Number of hearts to remove.
+
+        Returns
+        -------
+        bool
+            `True` if the player is still alive after taking the damages.
+
+        &#34;&#34;&#34;
+        self.health = max(0, self.health - amount)
+        if self.health == 0:
+            # raise LostGameException()
+            return False
+        return True</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.game.status.Status.can_bash"><code class="name flex">
+<span>def <span class="ident">can_bash</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the player can bash.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd><code>True</code> if the player can perform a bash.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def can_bash(self):
+    &#34;&#34;&#34;Check if the player can bash.
+
+    Returns
+    -------
+    bool
+        `True` if the player can perform a bash.
+
+    &#34;&#34;&#34;
+    return self.cooldown == 0</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Status.can_leap"><code class="name flex">
+<span>def <span class="ident">can_leap</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the player can leap.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd><code>True</code> if the player can perform a leap.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def can_leap(self):
+    &#34;&#34;&#34;Check if the player can leap.
+
+    Returns
+    -------
+    bool
+        `True` if the player can perform a leap.
+
+    &#34;&#34;&#34;
+    return self.energy &gt;= 50</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Status.can_throw"><code class="name flex">
+<span>def <span class="ident">can_throw</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the player can throw its spear.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd><code>True</code> if the player can perform a throw.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def can_throw(self):
+    &#34;&#34;&#34;Check if the player can throw its spear.
+
+    Returns
+    -------
+    bool
+        `True` if the player can perform a throw.
+
+    &#34;&#34;&#34;
+    return self.spear</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Status.deal_damage"><code class="name flex">
+<span>def <span class="ident">deal_damage</span></span>(<span>self, amount=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Damage the player.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>amount</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of hearts to remove.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd><code>True</code> if the player is still alive after taking the damages.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deal_damage(self, amount=1):
+    &#34;&#34;&#34;Damage the player.
+
+    Parameters
+    ----------
+    amount : int
+        Number of hearts to remove.
+
+    Returns
+    -------
+    bool
+        `True` if the player is still alive after taking the damages.
+
+    &#34;&#34;&#34;
+    self.health = max(0, self.health - amount)
+    if self.health == 0:
+        # raise LostGameException()
+        return False
+    return True</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Status.restore_energy"><code class="name flex">
+<span>def <span class="ident">restore_energy</span></span>(<span>self, amount)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Restore an amount of energy.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>amount</code></strong> :&ensp;<code>int</code></dt>
+<dd>Amount of energy to restore.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def restore_energy(self, amount):
+    &#34;&#34;&#34;Restore an amount of energy.
+
+    Parameters
+    ----------
+    amount : int
+        Amount of energy to restore.
+
+    &#34;&#34;&#34;
+    self.energy = min(self.energy + amount, self.attributes.maximum_energy)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Status.restore_health"><code class="name flex">
+<span>def <span class="ident">restore_health</span></span>(<span>self, amount=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Heal the player.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>amount</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of hearts to restore.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def restore_health(self, amount=1):
+    &#34;&#34;&#34;Heal the player.
+
+    Parameters
+    ----------
+    amount : int
+        Number of hearts to restore.
+
+    &#34;&#34;&#34;
+    self.health = min(self.health + amount, self.attributes.maximum_health)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.status.Status.use_energy"><code class="name flex">
+<span>def <span class="ident">use_energy</span></span>(<span>self, amount=50)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Consume an amount of energy.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>amount</code></strong> :&ensp;<code>int</code></dt>
+<dd>Amount of energy to remove.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def use_energy(self, amount=50):
+    &#34;&#34;&#34;Consume an amount of energy.
+
+    Parameters
+    ----------
+    amount : int
+        Amount of energy to remove.
+
+    &#34;&#34;&#34;
+    assert amount &gt;= self.energy
+    self.energy -= amount</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hoplite.game" href="index.html">hoplite.game</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="hoplite.game.status.PlayerAttributes" href="#hoplite.game.status.PlayerAttributes">PlayerAttributes</a></code></h4>
+</li>
+<li>
+<h4><code><a title="hoplite.game.status.Prayer" href="#hoplite.game.status.Prayer">Prayer</a></code></h4>
+<ul class="two-column">
+<li><code><a title="hoplite.game.status.Prayer.BLOODLUST" href="#hoplite.game.status.Prayer.BLOODLUST">BLOODLUST</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.DEEP_LUNGE" href="#hoplite.game.status.Prayer.DEEP_LUNGE">DEEP_LUNGE</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.DIVINE_RESTORATION" href="#hoplite.game.status.Prayer.DIVINE_RESTORATION">DIVINE_RESTORATION</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.FORTITUDE" href="#hoplite.game.status.Prayer.FORTITUDE">FORTITUDE</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.GREATER_ENERGY" href="#hoplite.game.status.Prayer.GREATER_ENERGY">GREATER_ENERGY</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.GREATER_ENERGY_II" href="#hoplite.game.status.Prayer.GREATER_ENERGY_II">GREATER_ENERGY_II</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.GREATER_THROW" href="#hoplite.game.status.Prayer.GREATER_THROW">GREATER_THROW</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.GREATER_THROW_II" href="#hoplite.game.status.Prayer.GREATER_THROW_II">GREATER_THROW_II</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.MIGHTY_BASH" href="#hoplite.game.status.Prayer.MIGHTY_BASH">MIGHTY_BASH</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.PATIENCE" href="#hoplite.game.status.Prayer.PATIENCE">PATIENCE</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.QUICK_BASH" href="#hoplite.game.status.Prayer.QUICK_BASH">QUICK_BASH</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.REGENERATION" href="#hoplite.game.status.Prayer.REGENERATION">REGENERATION</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.SPINNING_BASH" href="#hoplite.game.status.Prayer.SPINNING_BASH">SPINNING_BASH</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.STAGGERING_LEAP" href="#hoplite.game.status.Prayer.STAGGERING_LEAP">STAGGERING_LEAP</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.SURGE" href="#hoplite.game.status.Prayer.SURGE">SURGE</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.SWEEPING_BASH" href="#hoplite.game.status.Prayer.SWEEPING_BASH">SWEEPING_BASH</a></code></li>
+<li><code><a title="hoplite.game.status.Prayer.WINGED_SANDALS" href="#hoplite.game.status.Prayer.WINGED_SANDALS">WINGED_SANDALS</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.game.status.Status" href="#hoplite.game.status.Status">Status</a></code></h4>
+<ul class="two-column">
+<li><code><a title="hoplite.game.status.Status.can_bash" href="#hoplite.game.status.Status.can_bash">can_bash</a></code></li>
+<li><code><a title="hoplite.game.status.Status.can_leap" href="#hoplite.game.status.Status.can_leap">can_leap</a></code></li>
+<li><code><a title="hoplite.game.status.Status.can_throw" href="#hoplite.game.status.Status.can_throw">can_throw</a></code></li>
+<li><code><a title="hoplite.game.status.Status.deal_damage" href="#hoplite.game.status.Status.deal_damage">deal_damage</a></code></li>
+<li><code><a title="hoplite.game.status.Status.restore_energy" href="#hoplite.game.status.Status.restore_energy">restore_energy</a></code></li>
+<li><code><a title="hoplite.game.status.Status.restore_health" href="#hoplite.game.status.Status.restore_health">restore_health</a></code></li>
+<li><code><a title="hoplite.game.status.Status.use_energy" href="#hoplite.game.status.Status.use_energy">use_energy</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

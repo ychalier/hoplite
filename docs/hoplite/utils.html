@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>hoplite.utils API documentation</title>
+<meta name="description" content="General utilities. Mostly hexagonal coordinates tools." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hoplite.utils</code></h1>
+</header>
+<section id="section-intro">
+<p>General utilities. Mostly hexagonal coordinates tools.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;General utilities. Mostly hexagonal coordinates tools.
+&#34;&#34;&#34;
+
+
+class HexagonalCoordinates:
+    &#34;&#34;&#34;Wrapper for hexagonal coordinates.
+
+    Attributes
+    ----------
+    x : float
+        Horizontal axis.
+    y : float
+        Diagonal axis pointing toward the northwest corner.
+    z : float
+        Diagonal axis pointing toward the southwest corner.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, x, y):
+        # pylint: disable=C0103
+        self.x = x
+        self.y = y
+        self.z = - x - y
+
+    def __repr__(self):
+        return str((self.x, self.y))
+
+    def __str__(self):
+        return str((self.x, self.y, self.z))
+
+    def __iter__(self):
+        return iter([self.x, self.y])
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return self.x == other.x and self.y == other.y
+
+    def __add__(self, other):
+        return HexagonalCoordinates(
+            self.x + other.x,
+            self.y + other.y
+        )
+
+    def __sub__(self, other):
+        return HexagonalCoordinates(
+            self.x - other.x,
+            self.y - other.y
+        )
+
+    def __mul__(self, value):
+        return HexagonalCoordinates(
+            self.x * value,
+            self.y * value
+        )
+
+    def __truediv__(self, value):
+        return HexagonalCoordinates(
+            self.x / value,
+            self.y / value
+        )
+
+    def __floordiv__(self, value):
+        return HexagonalCoordinates(
+            self.x // value,
+            self.y // value
+        )
+
+    def norm(self):
+        &#34;&#34;&#34;Compute the infinite norm of the vector.
+
+        Returns
+        -------
+        float
+            Infinite norm of the position considered as a vector.
+
+        &#34;&#34;&#34;
+        return max(abs(self.x), abs(self.y), abs(self.z))
+
+    def gradient(self, other):
+        &#34;&#34;&#34;Compute the direction between two positions.
+
+        Parameters
+        ----------
+        other : HexagonalCoordinates
+            Destination position.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Gradient vector of the displacement from `self` to `other`.
+
+        &#34;&#34;&#34;
+        gap = other - self
+        return gap / gap.norm()
+
+    def doubled(self):
+        &#34;&#34;&#34;Doubled coordinates of the position.
+
+        Returns
+        -------
+        tuple[float, float]
+            Doubled coordinates equivalent of the position.
+
+        &#34;&#34;&#34;
+        return (self.x, self.y + .5 * self.x)
+
+    def copy(self):
+        &#34;&#34;&#34;Copy itself.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Same position but different address.
+
+        &#34;&#34;&#34;
+        return HexagonalCoordinates(self.x, self.y)
+
+
+def iter_coords():
+    &#34;&#34;&#34;Iterates over the coordinates of the map.
+
+    Returns
+    -------
+    Iterator[HexagonalCoordinates]
+        Iterator over the 79 tiles of the map.
+
+    &#34;&#34;&#34;
+    # pylint: disable=C0103
+    for x, height in zip(range(-4, 5), [7, 8, 9, 10, 11, 10, 9, 8, 7]):
+        if x &gt;= 0:
+            start = -5
+        else:
+            start = - 5 - x
+        for y in range(start, start + height):
+            yield HexagonalCoordinates(x, y)
+
+
+SURFACE_COORDINATES = list(iter_coords())
+HEXAGONAL_DIRECTIONS = [
+    HexagonalCoordinates(1, 0),
+    HexagonalCoordinates(-1, 0),
+    HexagonalCoordinates(0, 1),
+    HexagonalCoordinates(0, -1),
+    HexagonalCoordinates(-1, 1),
+    HexagonalCoordinates(1, -1),
+]
+
+
+def hexagonal_neighbors(pos):
+    &#34;&#34;&#34;Return the set of surrounding positions in an hexagonal grid.
+
+    Parameters
+    ----------
+    pos : HexagonalCoordinates
+        Center position.
+
+    Returns
+    -------
+    set[HexagonalCoordinates]
+        Set of positions surrounding the center.
+
+    &#34;&#34;&#34;
+    return set(pos + direction for direction in HEXAGONAL_DIRECTIONS)\
+        .intersection(SURFACE_COORDINATES)
+
+
+def hexagonal_circle(center, radius):
+    &#34;&#34;&#34;Compute an hexagonal circle given a center and a radius.
+
+    Parameters
+    ----------
+    center : HexagonalCoordinates
+        Center of the hexagonal circle.
+    radius : int
+        Radius of the hexagonal circle (using the infinite norm
+        of `HexagonalCoordinates.norm`).
+
+    Returns
+    -------
+    set[HexagonalCoordinates]
+        Set of positions within the hexagonal circle of given center and radius.
+
+    &#34;&#34;&#34;
+    return {
+        pos for pos in SURFACE_COORDINATES
+        if (pos - center).norm() &lt;= radius
+    }
+
+
+def hexagonal_line(start, direction):
+    &#34;&#34;&#34;Compute an hexagonal line given a starting position and a direction.
+
+    Parameters
+    ----------
+    start : HexagonalCoordinates
+        Beginning of the line.
+    direction : HexagonalCoordinates
+        Direction (vector of norm 1) of the line.
+
+    Returns
+    -------
+    list[HexagonalCoordinates]
+        Tiles within the hexagonal line, from `start` and going.
+
+    &#34;&#34;&#34;
+    result = [start]
+    while True:
+        current = result[-1] + direction
+        if current not in SURFACE_COORDINATES:
+            break
+        result.append(current)
+    return result</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="hoplite.utils.hexagonal_circle"><code class="name flex">
+<span>def <span class="ident">hexagonal_circle</span></span>(<span>center, radius)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute an hexagonal circle given a center and a radius.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>center</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Center of the hexagonal circle.</dd>
+<dt><strong><code>radius</code></strong> :&ensp;<code>int</code></dt>
+<dd>Radius of the hexagonal circle (using the infinite norm
+of <code><a title="hoplite.utils.HexagonalCoordinates.norm" href="#hoplite.utils.HexagonalCoordinates.norm">HexagonalCoordinates.norm()</a></code>).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>set[<a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Set of positions within the hexagonal circle of given center and radius.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def hexagonal_circle(center, radius):
+    &#34;&#34;&#34;Compute an hexagonal circle given a center and a radius.
+
+    Parameters
+    ----------
+    center : HexagonalCoordinates
+        Center of the hexagonal circle.
+    radius : int
+        Radius of the hexagonal circle (using the infinite norm
+        of `HexagonalCoordinates.norm`).
+
+    Returns
+    -------
+    set[HexagonalCoordinates]
+        Set of positions within the hexagonal circle of given center and radius.
+
+    &#34;&#34;&#34;
+    return {
+        pos for pos in SURFACE_COORDINATES
+        if (pos - center).norm() &lt;= radius
+    }</code></pre>
+</details>
+</dd>
+<dt id="hoplite.utils.hexagonal_line"><code class="name flex">
+<span>def <span class="ident">hexagonal_line</span></span>(<span>start, direction)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute an hexagonal line given a starting position and a direction.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>start</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Beginning of the line.</dd>
+<dt><strong><code>direction</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Direction (vector of norm 1) of the line.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list[<a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Tiles within the hexagonal line, from <code>start</code> and going.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def hexagonal_line(start, direction):
+    &#34;&#34;&#34;Compute an hexagonal line given a starting position and a direction.
+
+    Parameters
+    ----------
+    start : HexagonalCoordinates
+        Beginning of the line.
+    direction : HexagonalCoordinates
+        Direction (vector of norm 1) of the line.
+
+    Returns
+    -------
+    list[HexagonalCoordinates]
+        Tiles within the hexagonal line, from `start` and going.
+
+    &#34;&#34;&#34;
+    result = [start]
+    while True:
+        current = result[-1] + direction
+        if current not in SURFACE_COORDINATES:
+            break
+        result.append(current)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="hoplite.utils.hexagonal_neighbors"><code class="name flex">
+<span>def <span class="ident">hexagonal_neighbors</span></span>(<span>pos)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the set of surrounding positions in an hexagonal grid.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pos</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Center position.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>set[<a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Set of positions surrounding the center.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def hexagonal_neighbors(pos):
+    &#34;&#34;&#34;Return the set of surrounding positions in an hexagonal grid.
+
+    Parameters
+    ----------
+    pos : HexagonalCoordinates
+        Center position.
+
+    Returns
+    -------
+    set[HexagonalCoordinates]
+        Set of positions surrounding the center.
+
+    &#34;&#34;&#34;
+    return set(pos + direction for direction in HEXAGONAL_DIRECTIONS)\
+        .intersection(SURFACE_COORDINATES)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.utils.iter_coords"><code class="name flex">
+<span>def <span class="ident">iter_coords</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Iterates over the coordinates of the map.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Iterator[<a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a>]</code></dt>
+<dd>Iterator over the 79 tiles of the map.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def iter_coords():
+    &#34;&#34;&#34;Iterates over the coordinates of the map.
+
+    Returns
+    -------
+    Iterator[HexagonalCoordinates]
+        Iterator over the 79 tiles of the map.
+
+    &#34;&#34;&#34;
+    # pylint: disable=C0103
+    for x, height in zip(range(-4, 5), [7, 8, 9, 10, 11, 10, 9, 8, 7]):
+        if x &gt;= 0:
+            start = -5
+        else:
+            start = - 5 - x
+        for y in range(start, start + height):
+            yield HexagonalCoordinates(x, y)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="hoplite.utils.HexagonalCoordinates"><code class="flex name class">
+<span>class <span class="ident">HexagonalCoordinates</span></span>
+<span>(</span><span>x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper for hexagonal coordinates.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>float</code></dt>
+<dd>Horizontal axis.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Diagonal axis pointing toward the northwest corner.</dd>
+<dt><strong><code>z</code></strong> :&ensp;<code>float</code></dt>
+<dd>Diagonal axis pointing toward the southwest corner.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HexagonalCoordinates:
+    &#34;&#34;&#34;Wrapper for hexagonal coordinates.
+
+    Attributes
+    ----------
+    x : float
+        Horizontal axis.
+    y : float
+        Diagonal axis pointing toward the northwest corner.
+    z : float
+        Diagonal axis pointing toward the southwest corner.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, x, y):
+        # pylint: disable=C0103
+        self.x = x
+        self.y = y
+        self.z = - x - y
+
+    def __repr__(self):
+        return str((self.x, self.y))
+
+    def __str__(self):
+        return str((self.x, self.y, self.z))
+
+    def __iter__(self):
+        return iter([self.x, self.y])
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return self.x == other.x and self.y == other.y
+
+    def __add__(self, other):
+        return HexagonalCoordinates(
+            self.x + other.x,
+            self.y + other.y
+        )
+
+    def __sub__(self, other):
+        return HexagonalCoordinates(
+            self.x - other.x,
+            self.y - other.y
+        )
+
+    def __mul__(self, value):
+        return HexagonalCoordinates(
+            self.x * value,
+            self.y * value
+        )
+
+    def __truediv__(self, value):
+        return HexagonalCoordinates(
+            self.x / value,
+            self.y / value
+        )
+
+    def __floordiv__(self, value):
+        return HexagonalCoordinates(
+            self.x // value,
+            self.y // value
+        )
+
+    def norm(self):
+        &#34;&#34;&#34;Compute the infinite norm of the vector.
+
+        Returns
+        -------
+        float
+            Infinite norm of the position considered as a vector.
+
+        &#34;&#34;&#34;
+        return max(abs(self.x), abs(self.y), abs(self.z))
+
+    def gradient(self, other):
+        &#34;&#34;&#34;Compute the direction between two positions.
+
+        Parameters
+        ----------
+        other : HexagonalCoordinates
+            Destination position.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Gradient vector of the displacement from `self` to `other`.
+
+        &#34;&#34;&#34;
+        gap = other - self
+        return gap / gap.norm()
+
+    def doubled(self):
+        &#34;&#34;&#34;Doubled coordinates of the position.
+
+        Returns
+        -------
+        tuple[float, float]
+            Doubled coordinates equivalent of the position.
+
+        &#34;&#34;&#34;
+        return (self.x, self.y + .5 * self.x)
+
+    def copy(self):
+        &#34;&#34;&#34;Copy itself.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Same position but different address.
+
+        &#34;&#34;&#34;
+        return HexagonalCoordinates(self.x, self.y)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.utils.HexagonalCoordinates.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Copy itself.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Same position but different address.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self):
+    &#34;&#34;&#34;Copy itself.
+
+    Returns
+    -------
+    HexagonalCoordinates
+        Same position but different address.
+
+    &#34;&#34;&#34;
+    return HexagonalCoordinates(self.x, self.y)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.utils.HexagonalCoordinates.doubled"><code class="name flex">
+<span>def <span class="ident">doubled</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Doubled coordinates of the position.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple[float, float]</code></dt>
+<dd>Doubled coordinates equivalent of the position.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def doubled(self):
+    &#34;&#34;&#34;Doubled coordinates of the position.
+
+    Returns
+    -------
+    tuple[float, float]
+        Doubled coordinates equivalent of the position.
+
+    &#34;&#34;&#34;
+    return (self.x, self.y + .5 * self.x)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.utils.HexagonalCoordinates.gradient"><code class="name flex">
+<span>def <span class="ident">gradient</span></span>(<span>self, other)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the direction between two positions.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>other</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Destination position.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Gradient vector of the displacement from <code>self</code> to <code>other</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gradient(self, other):
+    &#34;&#34;&#34;Compute the direction between two positions.
+
+    Parameters
+    ----------
+    other : HexagonalCoordinates
+        Destination position.
+
+    Returns
+    -------
+    HexagonalCoordinates
+        Gradient vector of the displacement from `self` to `other`.
+
+    &#34;&#34;&#34;
+    gap = other - self
+    return gap / gap.norm()</code></pre>
+</details>
+</dd>
+<dt id="hoplite.utils.HexagonalCoordinates.norm"><code class="name flex">
+<span>def <span class="ident">norm</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the infinite norm of the vector.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>Infinite norm of the position considered as a vector.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def norm(self):
+    &#34;&#34;&#34;Compute the infinite norm of the vector.
+
+    Returns
+    -------
+    float
+        Infinite norm of the position considered as a vector.
+
+    &#34;&#34;&#34;
+    return max(abs(self.x), abs(self.y), abs(self.z))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hoplite" href="index.html">hoplite</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="hoplite.utils.hexagonal_circle" href="#hoplite.utils.hexagonal_circle">hexagonal_circle</a></code></li>
+<li><code><a title="hoplite.utils.hexagonal_line" href="#hoplite.utils.hexagonal_line">hexagonal_line</a></code></li>
+<li><code><a title="hoplite.utils.hexagonal_neighbors" href="#hoplite.utils.hexagonal_neighbors">hexagonal_neighbors</a></code></li>
+<li><code><a title="hoplite.utils.iter_coords" href="#hoplite.utils.iter_coords">iter_coords</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.utils.HexagonalCoordinates.copy" href="#hoplite.utils.HexagonalCoordinates.copy">copy</a></code></li>
+<li><code><a title="hoplite.utils.HexagonalCoordinates.doubled" href="#hoplite.utils.HexagonalCoordinates.doubled">doubled</a></code></li>
+<li><code><a title="hoplite.utils.HexagonalCoordinates.gradient" href="#hoplite.utils.HexagonalCoordinates.gradient">gradient</a></code></li>
+<li><code><a title="hoplite.utils.HexagonalCoordinates.norm" href="#hoplite.utils.HexagonalCoordinates.norm">norm</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

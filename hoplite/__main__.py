@@ -33,7 +33,6 @@ def play(monkey_runner):
     Play with the monkey runner interface.
     """
     observer = hoplite.observer.Observer()
-    observer.build()
     controller = hoplite.controller.Controller()
     mr_if = hoplite.monkey_runner.MonkeyRunnerInterface(monkey_runner)
     actuator = hoplite.actuator.Actuator(mr_if)
@@ -42,7 +41,7 @@ def play(monkey_runner):
         state = observer.observe_stream(mr_if.snapshot(as_stream=True))
         move = controller.pick_move(state)
         actuator.make_move(move)
-        observer.wait(mr_if, .05)  # TODO: allow user input & improve
+        observer.wait(mr_if, 0)  # TODO: allow user input & improve
     mr_if.close()
 
 
@@ -51,7 +50,6 @@ def observe(path, save_parts, show_ranges):
     Observe a screenshot.
     """
     observer = hoplite.observer.Observer(save_parts)
-    observer.build()
     controller = hoplite.controller.Controller()
     state = observer.observe_stream(path)
     print(state)
@@ -60,13 +58,11 @@ def observe(path, save_parts, show_ranges):
     state.terrain.render(show_ranges=show_ranges)
 
 
-
 def observe_and_move(path, move, target):
     """
     Observe a screenshot and make a move.
     """
     observer = hoplite.observer.Observer()
-    observer.build()
     prev_state = observer.observe_stream(path)
     print(prev_state)
     prev_state.terrain.render()

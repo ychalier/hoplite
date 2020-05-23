@@ -80,6 +80,14 @@ class Controller:
             Vector with extracted features.
 
         &#34;&#34;&#34;
+        path = game_state.terrain.pathfind(
+            game_state.terrain.player,
+            game_state.terrain.stairs
+        )
+        if path is None:
+            path_length = 20
+        else:
+            path_length = len(path)
         features = [
             int(game_state.status.health == 0),  # from 0 to 1
             .125 * game_state.status.health,  # from 0 to 8
@@ -91,10 +99,7 @@ class Controller:
                 game_state.terrain.demons.values()
             )),
             # if no obstacle, path at the beginning is 9 tiles long
-            .11 * len(game_state.terrain.pathfind(
-                game_state.terrain.player,
-                game_state.terrain.stairs
-            )),
+            .11 * path_length,
         ]
         return numpy.array(features)
 
@@ -217,6 +222,14 @@ class Controller:
             Vector with extracted features.
 
         &#34;&#34;&#34;
+        path = game_state.terrain.pathfind(
+            game_state.terrain.player,
+            game_state.terrain.stairs
+        )
+        if path is None:
+            path_length = 20
+        else:
+            path_length = len(path)
         features = [
             int(game_state.status.health == 0),  # from 0 to 1
             .125 * game_state.status.health,  # from 0 to 8
@@ -228,10 +241,7 @@ class Controller:
                 game_state.terrain.demons.values()
             )),
             # if no obstacle, path at the beginning is 9 tiles long
-            .11 * len(game_state.terrain.pathfind(
-                game_state.terrain.player,
-                game_state.terrain.stairs
-            )),
+            .11 * path_length,
         ]
         return numpy.array(features)
 
@@ -352,6 +362,14 @@ remain around [0, 1].</p>
         Vector with extracted features.
 
     &#34;&#34;&#34;
+    path = game_state.terrain.pathfind(
+        game_state.terrain.player,
+        game_state.terrain.stairs
+    )
+    if path is None:
+        path_length = 20
+    else:
+        path_length = len(path)
     features = [
         int(game_state.status.health == 0),  # from 0 to 1
         .125 * game_state.status.health,  # from 0 to 8
@@ -363,10 +381,7 @@ remain around [0, 1].</p>
             game_state.terrain.demons.values()
         )),
         # if no obstacle, path at the beginning is 9 tiles long
-        .11 * len(game_state.terrain.pathfind(
-            game_state.terrain.player,
-            game_state.terrain.stairs
-        )),
+        .11 * path_length,
     ]
     return numpy.array(features)</code></pre>
 </details>

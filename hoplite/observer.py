@@ -11,6 +11,181 @@ import hoplite.game.terrain
 import hoplite.game.state
 
 
+def is_close(tgt, ref):
+    """Check if two pixels are of same color.
+
+    Parameters
+    ----------
+    tgt : numpy.ndarray
+        Target pixel (vector).
+    ref : numpy.ndarray
+        Rerence pixel (vector).
+
+    Returns
+    -------
+    bool
+        `True` if pixels are the same.
+
+    """
+    return numpy.isclose(tgt - ref, 0, atol=.001).all()
+
+
+def classify_terrain(part):  # pylint: disable=R0911, R0912
+    """Classify a terrain tile.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Extracted tile image of shape (52, 52, 3).
+
+    Returns
+    -------
+    hoplite.game.terrain.SurfaceElement
+        Classification of the given tile.
+
+    """
+    if is_close(part[10, 0], [0.290196, 0.301961, 0.290196])\
+        or is_close(part[10, 0], [0.223529, 0.235294, 0.223529]):
+        if is_close(part[45, 40], [0.937255, 0.541176, 0.192157]):
+            return hoplite.game.terrain.SurfaceElement.FOOTMAN
+        if is_close(part[15, 26], [0.611765, 0.890196, 0.352941]):
+            return hoplite.game.terrain.SurfaceElement.ARCHER
+        if is_close(part[37, 37], [0.741176, 0.141176, 0.192157]):
+            return hoplite.game.terrain.SurfaceElement.PLAYER
+        if is_close(part[20, 23], [1.000000, 0.764706, 0.258824]):
+            return hoplite.game.terrain.SurfaceElement.BOMB
+        if is_spear(part):
+            return hoplite.game.terrain.SurfaceElement.SPEAR
+        return hoplite.game.terrain.SurfaceElement.GROUND
+    if is_close(part[15, 15], numpy.array([0.41960785, 0.07843138, 0.0627451])):
+        return hoplite.game.terrain.SurfaceElement.MAGMA
+    if is_close(part[33, 28], [0.905882, 0.364706, 0.352941]):
+        return hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_HOLDING_BOMB
+    if is_close(part[33, 28], [0.160784, 0.254902, 0.258824]):
+        return hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB
+    if is_close(part[48, 26], [0.741176, 0.286275, 0.517647]):
+        if is_close(part[0, 0], [0.741176, 0.141176, 0.192157]):
+            return hoplite.game.terrain.SurfaceElement.WIZARD_CHARGED
+        return hoplite.game.terrain.SurfaceElement.WIZARD_DISCHARGED
+    if is_close(part[37, 37], [0.741176, 0.141176, 0.192157]):
+        return hoplite.game.terrain.SurfaceElement.PLAYER
+    if is_close(part[15, 15], [0.321569, 0.427451, 0.223529]):
+        return hoplite.game.terrain.SurfaceElement.STAIRS
+    if is_close(part[42, 51], [0.905882, 0.364706, 0.352941]):
+        return hoplite.game.terrain.SurfaceElement.ALTAR_ON
+    if is_close(part[0, 0], numpy.array([0.321569, 0.427451, 0.223529])):
+        return hoplite.game.terrain.SurfaceElement.ALTAR_OFF
+    if is_close(part[26, 26], [0.709804, 0.572549, 0.000000]):
+        return hoplite.game.terrain.SurfaceElement.FLEECE
+    if is_close(part[26, 26], [0.937255, 0.780392, 0.000000]):
+        return hoplite.game.terrain.SurfaceElement.FLEECE
+    if is_close(part[37, 26], [0.062745, 0.556863, 0.580392]):
+        return hoplite.game.terrain.SurfaceElement.PORTAL
+    if is_close(part[20, 23], [1.000000, 0.764706, 0.258824]):
+        return hoplite.game.terrain.SurfaceElement.BOMB
+    return None
+
+
+def classify_font(part):  # pylint: disable=R0911
+    """Font classifier.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Extracted image of shape (28, 20, 3).
+
+    Returns
+    -------
+    str
+        Recognized character.
+
+    """
+    if is_close(part[0, 9], [1., 1., 1.]):
+        if is_close(part[0, 5], [1., 1., 1.]):
+            if is_close(part[0, 0], [1., 1., 1.]):
+                if is_close(part[20, 10], [1., 1., 1.]):
+                    if is_close(part[0, 17], [0., 0., 0.]):
+                        return "lightning"
+                    return "7"
+                return "5"
+            if is_close(part[20, 2], [1., 1., 1.]):
+                if is_close(part[17, 17], [0., 0., 0.]):
+                    return "2"
+                if is_close(part[10, 0], [1., 1., 1.]):
+                    if is_close(part[12, 0], [0., 0., 0.]):
+                        return "8"
+                    return "0"
+                return "3"
+            return "9"
+        if is_close(part[10, 0], [1., 1., 1.]):
+            return "6"
+        return "1"
+    if is_close(part[9, 5], [1., 1., 1.]):
+        return "4"
+    return "empty"
+
+
+def classify_hearts(part):
+    """Classify player's heart.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Extracted image of shape (80, 80, 3).
+
+    Returns
+    -------
+    str
+        Either `"healthy"`, `"hurt"` or `"empty"`.
+
+    """
+    if is_close(part[50, 40], [0.741176, 0.141176, 0.192157]):
+        return "healthy"
+    if is_close(part[50, 40], [0.321569, 0.333333, 0.321569]):
+        return "hurt"
+    return "empty"
+
+
+def classify_spear(part):
+    """Check if the player has a spear in inventory.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Extracted image of shape (96, 16, 3).
+
+    Returns
+    -------
+    bool
+        Whether the player has its spear in the inventory.
+
+    """
+    if is_close(part[40, 10], [0.937255, 0.541176, 0.192157]):
+        return True
+    return False
+
+
+def classify_energy(part):
+    """Count the number of digits in the energy number.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Extracted image of shape (28, 40, 3).
+
+    Returns
+    -------
+    int
+        Energy locator index.
+
+    """
+    if is_close(part[0, 0], [0.905882, 0.905882, 0.352941]):
+        return 0
+    if is_close(part[0, 39], [0.905882, 0.905882, 0.352941]):
+        return 2
+    return 1
+
+
 def image_distance(reference, target):
     """l2 norm between two arrays.
 
@@ -36,7 +211,7 @@ def is_spear(array):
     Parameters
     ----------
     array : numpy.ndarray
-        Image of a tile with shape (52, 52, 4).
+        Image of a tile with shape (52, 52, 3).
 
     Returns
     -------
@@ -45,8 +220,8 @@ def is_spear(array):
 
     """
     reference = numpy.array([
-        [.9372549, .5411765, .19215687, 1.],
-        [.4509804, .27058825, .09411765, 1.]
+        [.9372549, .5411765, .19215687],
+        [.4509804, .27058825, .09411765]
     ])
     for index in [(25, 25), (25, 26), (26, 25), (26, 26)]:
         if numpy.all(numpy.isclose(reference - array[index], 0, .001), axis=1).any():
@@ -97,111 +272,6 @@ class Thresholder(ImagePreprocessor):  # pylint: disable=R0903
         return array
 
 
-class TemplateClassifier:
-    """Compute the best matching template for a fixed-size input image.
-
-    Parameters
-    ----------
-    shape : tuple[int, int]
-        Template image shape.
-    labels : dict[A, list[str]]
-        Possible output labels, with their associated image file paths.
-    preprocessors : list[ImagePreprocessor]
-        Preprocessing steps to apply to images before classifying them.
-
-    Attributes
-    ----------
-    width : int
-        Template image width.
-    height : int
-        Template image height.
-    registry : dict[A, list[numpy.ndarray]]
-        Possible output labels, with their associated images.
-    labels
-    preprocessors
-
-    """
-
-    def __init__(self, shape, labels, preprocessors=None):
-        self.width = shape[0]
-        self.height = shape[1]
-        self.labels = labels
-        if preprocessors is None:
-            self.preprocessors = list()
-        else:
-            self.preprocessors = preprocessors
-        self.registry = dict()
-
-    def build(self):
-        """Load template image files.
-        """
-        self.registry = {
-            label: [
-                mpimg.imread(template)
-                for template in templates
-            ]
-            for label, templates in self.labels.items()
-        }
-
-
-    def _preprocess(self, array):
-        preprocessed = numpy.copy(array)
-        for preprocessor in self.preprocessors:
-            preprocessed = preprocessor.apply(preprocessed)
-        return preprocessed
-
-    def _classify(self, array):
-        distances = {
-            label: self._test(array, label)
-            for label in self.registry
-        }
-        return min(distances.items(), key=lambda x: x[1])
-
-    def _test(self, array, label):
-        distance = float("inf")
-        for template in self.registry[label]:
-            distance = min(
-                distance,
-                image_distance(self._preprocess(array), template)
-            )
-        return distance
-
-    def test(self, array, label):
-        """Test a label.
-
-        Parameters
-        ----------
-        array : numpy.ndarray
-            Image to classify.
-        label : A
-            Candidate label.
-
-        Returns
-        -------
-        float
-            Minimum l2 norm between the preprocessed input `array` and the
-            templates associated to the input `label`.
-
-        """
-        return self._test(self._preprocess(array), label)
-
-    def classify(self, array):
-        """Classify an image array.
-
-        Parameters
-        ----------
-        array : numpy.ndarray
-            Image to classify.
-
-        Returns
-        -------
-        A
-            Best matching label.
-
-        """
-        return self._classify(self._preprocess(array))[0]
-
-
 class Locator:  # pylint: disable=R0903
     """Target specific locations within an image array.
 
@@ -249,7 +319,7 @@ class Locator:  # pylint: disable=R0903
         part = array[
             element_y:element_y + self.height,
             element_x:element_x + self.width,
-            :
+            :3
         ]
         self._save_part(part)
         return part
@@ -344,92 +414,17 @@ class Observer:
             "hearts": TopLeftLocator((80, 80), (26, 1664), save_parts=save_parts),
             "energy_one": TopLeftLocator((20, 28), (520, 1885), 4, save_parts=save_parts),
             "energy_two": TopLeftLocator((20, 28), (508, 1885), 4, save_parts=save_parts),
-            "energy_three": TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts)
+            "energy_three": TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts),
+            "energy": TopLeftLocator((40, 28), (544, 1885), save_parts=save_parts),
         }
-        self.classifiers = {
-            "terrain": TemplateClassifier(
-                (52, 52),
-                {
-                    hoplite.game.terrain.SurfaceElement.GROUND:
-                        ["templates/terrain/ground.png"],
-                    hoplite.game.terrain.SurfaceElement.MAGMA:
-                        ["templates/terrain/magma.png"],
-                    hoplite.game.terrain.SurfaceElement.STAIRS:
-                        ["templates/terrain/stairs.png"],
-                    hoplite.game.terrain.SurfaceElement.ALTAR_ON:
-                        ["templates/terrain/altar_on.png",
-                         "templates/terrain/altar_on2.png"],
-                    hoplite.game.terrain.SurfaceElement.ALTAR_OFF:
-                        ["templates/terrain/altar_off.png"],
-                    hoplite.game.terrain.SurfaceElement.PLAYER:
-                        ["templates/terrain/player.png"],
-                    hoplite.game.terrain.SurfaceElement.ARCHER:
-                        ["templates/terrain/archer.png"],
-                    hoplite.game.terrain.SurfaceElement.FOOTMAN:
-                        ["templates/terrain/footman.png"],
-                    hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB:
-                        ["templates/terrain/demolitionist_no_bomb.png"],
-                    hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_HOLDING_BOMB:
-                        ["templates/terrain/demolitionist_bomb.png"],
-                    hoplite.game.terrain.SurfaceElement.WIZARD_CHARGED:
-                        ["templates/terrain/wizard_charged.png"],
-                    hoplite.game.terrain.SurfaceElement.WIZARD_DISCHARGED:
-                        ["templates/terrain/wizard_discharged.png"],
-                    hoplite.game.terrain.SurfaceElement.BOMB:
-                        ["templates/terrain/bomb.png"],
-                    hoplite.game.terrain.SurfaceElement.FLEECE:
-                        ["templates/terrain/fleece.png"],
-                    hoplite.game.terrain.SurfaceElement.PORTAL:
-                        ["templates/terrain/portal.png"],
-                }
-            ),
-            "font": TemplateClassifier(
-                (20, 28),
-                {
-                    "0": ["templates/font/0.png"],
-                    "1": ["templates/font/1.png"],
-                    "2": ["templates/font/2.png"],
-                    "3": ["templates/font/3.png"],
-                    "4": ["templates/font/4.png"],
-                    "5": ["templates/font/5.png"],
-                    "6": ["templates/font/6.png"],
-                    "7": ["templates/font/7.png"],
-                    "8": ["templates/font/8.png"],
-                    "9": ["templates/font/9.png"],
-                    "empty": ["templates/font/empty.png"],
-                    "lightning": ["templates/font/lightning.png"],
-                },
-                [Thresholder(.5)]
-            ),
-            "hearts": TemplateClassifier((80, 80), {
-                "empty": ["templates/hearts/empty.png"],
-                "healthy": ["templates/hearts/healthy.png"],
-                "hurt": ["templates/hearts/hurt.png"]
-            }),
-            "spear": TemplateClassifier((16, 96), {
-                "on": ["templates/spear/on.png"],
-                "off": ["templates/spear/off.png"]
-            })
-        }
-
-    def build(self):
-        """Prepare all classifiers.
-        """
-        time_start = time.time()
-        for name, classifier in self.classifiers.items():
-            self.logger.debug("Building %s classifier", name)
-            classifier.build()
-        self.logger.info(
-            "Built classifiers in %f seconds",
-            time.time() - time_start
-        )
 
     def _observe_integer(self, array, locator):
         buffer = ""
         column = 0
+        thresholder = Thresholder(.5)
         while True:
-            part = self.locators[locator].get(array, 0, column)
-            label = self.classifiers["font"].classify(part)
+            part = thresholder.apply(self.locators[locator].get(array, 0, column))
+            label = classify_font(part)
             if label not in "0123456789":
                 if buffer == "":
                     return 0
@@ -438,61 +433,57 @@ class Observer:
             column += 1
 
     def _observe_depth(self, array):
-        self.logger.debug("Observing depth")
-        return self._observe_integer(array, "depth")
+        time_start = time.time()
+        depth = self._observe_integer(array, "depth")
+        self.logger.debug("Observed depth in %.1f ms", 1000 * (time.time() - time_start))
+        return depth
 
     def _observe_cooldown(self, array):
-        self.logger.debug("Observing cooldown")
-        return self._observe_integer(array, "cooldown")
+        time_start = time.time()
+        cooldown = self._observe_integer(array, "cooldown")
+        self.logger.debug("Observed cooldown in %.1f ms", 1000 * (time.time() - time_start))
+        return cooldown
 
     def _observe_energy(self, array):
-        self.logger.debug("Observing energy")
-        distances = {
-            locator: self.classifiers["font"].test(
-                self.locators[locator].get(array, 0, i + 1),
-                "lightning"
-            )
-            for i, locator in enumerate([
-                "energy_one",
-                "energy_two",
-                "energy_three"
-            ])
-        }
-        return self._observe_integer(
-            array,
-            min(distances.items(), key=lambda x: x[1])[0]
-        )
+        time_start = time.time()
+        locators = ["energy_one", "energy_two", "energy_three"]
+        locator_index = classify_energy(self.locators["energy"].get(array, 0, 0))
+        energy = self._observe_integer(array, locators[locator_index])
+        self.logger.debug("Observed energy in %.1f ms", 1000 * (time.time() - time_start))
+        return energy
 
     def _observe_hearts(self, array):
-        self.logger.debug("Observing hearts")
+        time_start = time.time()
         life = [0, 0]
         column = 0
         while True:
             part = self.locators["hearts"].get(array, 0, column)
-            label = self.classifiers["hearts"].classify(part)
+            label = classify_hearts(part)
             if label == "empty":
-                return tuple(life)
+                break
             if label == "healthy":
                 life[0] += 1
             life[1] += 1
             column += 1
+        self.logger.debug("Observed hearts in %.1f ms", 1000 * (time.time() - time_start))
         return tuple(life)
 
     def _observe_spear(self, array):
-        self.logger.debug("Observing spear")
-        return self.classifiers["spear"].classify(self.locators["spear"].get(array, 0, 0)) == "on"
+        time_start = time.time()
+        spear = classify_spear(self.locators["spear"].get(array, 0, 0))
+        self.logger.debug("Observed spear in %.1f ms", 1000 * (time.time() - time_start))
+        return spear
 
     def _observe_terrain(self, array):
-        self.logger.debug("Observing terrain")
+        time_start = time.time()
         surface = list()
         for pos in hoplite.utils.SURFACE_COORDINATES:
             part = self.locators["terrain"].get(array, pos.y, pos.x)
-            label = self.classifiers["terrain"].classify(part)
-            if label == hoplite.game.terrain.SurfaceElement.GROUND and is_spear(part):
-                surface.append(hoplite.game.terrain.SurfaceElement.SPEAR)
-            else:
-                surface.append(label)
-        return hoplite.game.terrain.Terrain.from_list(surface)
+            label = classify_terrain(part)
+            surface.append(label)
+        terrain = hoplite.game.terrain.Terrain.from_list(surface)
+        self.logger.debug("Observed terrain in %.1f ms", 1000 * (time.time() - time_start))
+        return terrain
 
     def observe(self, array):
         """Parse a screenshot.
@@ -519,7 +510,7 @@ class Observer:
         state.status.attributes.maximum_health = max_health
         state.status.spear = self._observe_spear(array)
         self.logger.info(
-            "Observed screenshot in %f seconds",
+            "Observed screenshot in %.3f seconds",
             time.time() - time_start
         )
         return state

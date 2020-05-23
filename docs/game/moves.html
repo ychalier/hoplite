@@ -56,7 +56,7 @@ class PlayerMove:
     def __repr__(self):
         if self.target is None:
             return self.__class__.__name__
-        return self.__class__.__name__ + &#34;&lt;%s&gt;&#34; % self.target
+        return self.__class__.__name__ + str(self.target)
 
     def apply(self, prev_state):
         &#34;&#34;&#34;Perform the move: move entities, check for enemies killed or knocked
@@ -315,7 +315,7 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
     def __repr__(self):
         if self.target is None:
             return self.__class__.__name__
-        return self.__class__.__name__ + &#34;&lt;%s&gt;&#34; % self.target
+        return self.__class__.__name__ + str(self.target)
 
     def apply(self, prev_state):
         &#34;&#34;&#34;Perform the move: move entities, check for enemies killed or knocked

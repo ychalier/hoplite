@@ -133,10 +133,10 @@ class Terrain:  # pylint: disable=R0902
                 result.append(SurfaceElement.FLEECE)
             elif pos == self.portal:
                 result.append(SurfaceElement.PORTAL)
-            elif pos == self.stairs:
-                result.append(SurfaceElement.STAIRS)
             elif pos in self.bombs:
                 result.append(SurfaceElement.BOMB)
+            elif pos == self.stairs:
+                result.append(SurfaceElement.STAIRS)
             elif pos in self.demons:
                 demon = self.demons[pos]
                 if demon.skill == hoplite.game.demons.DemonSkill.FOOTMAN:

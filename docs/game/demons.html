@@ -98,16 +98,6 @@ class Demon:  # pylint: disable=R0903
             if not self.careful\
                 or len(line_targets.intersection(terrain.demons)) == 0:
                 targets = targets.union(line_targets)
-            # step = 0
-            # current_position = demon_pos
-            # for _ in range(max_range):
-            #     step += 1
-            #     current_position = current_position + direction
-            #     if step &gt; min_range:
-            #         targets.add(current_position)
-            #     if current_position == game_state.terrain.altar\
-            #             or current_position in game_state.terrain.demons:
-                #     break
         return targets.intersection(hoplite.utils.SURFACE_COORDINATES)
 
     def attack(self, game_state, demon_pos):
@@ -350,16 +340,6 @@ class Wizard(Demon):  # pylint: disable=R0903
             if not self.careful\
                 or len(line_targets.intersection(terrain.demons)) == 0:
                 targets = targets.union(line_targets)
-            # step = 0
-            # current_position = demon_pos
-            # for _ in range(max_range):
-            #     step += 1
-            #     current_position = current_position + direction
-            #     if step &gt; min_range:
-            #         targets.add(current_position)
-            #     if current_position == game_state.terrain.altar\
-            #             or current_position in game_state.terrain.demons:
-                #     break
         return targets.intersection(hoplite.utils.SURFACE_COORDINATES)
 
     def attack(self, game_state, demon_pos):
@@ -484,16 +464,6 @@ altars and other demons, as well as minimum and maximum range.</p>
         if not self.careful\
             or len(line_targets.intersection(terrain.demons)) == 0:
             targets = targets.union(line_targets)
-        # step = 0
-        # current_position = demon_pos
-        # for _ in range(max_range):
-        #     step += 1
-        #     current_position = current_position + direction
-        #     if step &gt; min_range:
-        #         targets.add(current_position)
-        #     if current_position == game_state.terrain.altar\
-        #             or current_position in game_state.terrain.demons:
-            #     break
     return targets.intersection(hoplite.utils.SURFACE_COORDINATES)</code></pre>
 </details>
 </dd>

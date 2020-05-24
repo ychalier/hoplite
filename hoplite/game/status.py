@@ -93,6 +93,22 @@ class Status:
     def __repr__(self):
         return "Status%s" % self.__dict__
 
+    def update(self, new_status):
+        """Update the current status with a newly parsed one.
+
+        Parameters
+        ----------
+        new_status : Status
+            New status, recently parsed.
+
+        """
+        self.cooldown = new_status.cooldown
+        self.energy = new_status.energy
+        self.spear = new_status.spear
+        self.health = new_status.health
+        self.prayers += new_status.prayers
+        self.attributes = new_status.attributes
+
     def can_leap(self):
         """Check if the player can leap.
 

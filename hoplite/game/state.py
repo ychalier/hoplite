@@ -59,6 +59,19 @@ class GameState:
         """
         return copy.deepcopy(self)
 
+    def update(self, new_state):
+        """Update the current state with a newly parsed one.
+
+        Parameters
+        ----------
+        new_state : GameState
+            New game state, recently parsed.
+
+        """
+        self.depth = new_state.depth
+        self.terrain = new_state.terrain
+        self.status.update(new_state.status)
+
     def apply_attacks(self, prev_state, attacks):
         """Resolve player attacks.
 

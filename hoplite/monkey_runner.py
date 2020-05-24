@@ -49,17 +49,21 @@ class MonkeyRunnerInterface:
         """Connect to the server.
         """
         self.process = subprocess.Popen(
-            [self.mr_script, os.path.realpath("monkey.py")],
+            [self.mr_script, os.path.realpath("monkey.py"), str(logging.root.level)],
             cwd=os.path.dirname(self.mr_script)
         )
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connected = False
         for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
             try:
                 LOGGER.debug("Connection attempt no. %d", attempt + 1)
                 self.client.connect(self.SERVER_ADDRESS)
+                connected = True
                 break
             except ConnectionRefusedError:
                 time.sleep(self.DELAY_BETWEEN_ATTEMPTS)
+        if not connected:
+            raise ConnectionRefusedError()
 
     def snapshot(self, as_stream=False):
         """Take a snapshot of the screen.

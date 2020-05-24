@@ -6,11 +6,10 @@ MonkeyRunner tool executable.
 """
 
 
+import sys
 import socket
 import logging
 from com.android.monkeyrunner import MonkeyRunner, MonkeyDevice  # pylint: disable=E0401
-
-logging.basicConfig(level=logging.INFO)
 
 
 class MonkeyServer:
@@ -49,6 +48,10 @@ class MonkeyServer:
         """
         Main server loop.
         """
+        log_level = logging.INFO
+        if len(sys.argv) > 1:
+            log_level = int(sys.argv[1])
+        logging.basicConfig(level=log_level)
         self.logger.debug("Waiting for Android device...")
         self.device = MonkeyRunner.waitForConnection()
         self.logger.debug("Android device connected")

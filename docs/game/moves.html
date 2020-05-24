@@ -33,6 +33,9 @@ import hoplite.game.attacks
 import hoplite.game.terrain
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class PlayerMove:
     &#34;&#34;&#34;Abstract class for possible player moves.
 
@@ -43,14 +46,11 @@ class PlayerMove:
 
     Attributes
     ----------
-    logger : logging.Logger
-        Logger to output debugging information.
     target
 
     &#34;&#34;&#34;
 
     def __init__(self, target=None):
-        self.logger = logging.getLogger(&#34;game&#34;)
         self.target = target
 
     def __repr__(self):
@@ -121,7 +121,7 @@ class ThrowMove(PlayerMove):  # pylint: disable=R0903
     def _apply(self, prev_state, next_state):
         next_state.status.spear = False
         if self.target in next_state.terrain.demons:
-            self.logger.debug(
+            LOGGER.debug(
                 &#34;Killing %s with spear&#34;,
                 next_state.terrain.demons[self.target].skill.name
             )
@@ -142,14 +142,14 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             next_state.terrain.player.gradient(self.target)
         if self.target in prev_state.terrain.demons:
             if pushed_to not in next_state.terrain.surface:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Pushed %s at %s out of bound&#34;,
                     next_state.terrain.demons[self.target].skill.name,
                     self.target
                 )
                 del next_state.terrain.demons[self.target]
             elif next_state.terrain.surface[pushed_to] == hoplite.game.terrain.Tile.MAGMA:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Pushed %s at %s into magma&#34;,
                     next_state.terrain.demons[self.target].skill.name,
                     self.target
@@ -162,7 +162,23 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             next_state.terrain.bombs.remove(self.target)
             next_state.terrain.bombs.add(pushed_to)
         # TODO: set appropriate cooldown value
-        next_state.status.cooldown = 4</code></pre>
+        next_state.status.cooldown = 4
+
+
+class IdleMove(PlayerMove):  # pylint: disable=R0903
+    &#34;&#34;&#34;Player uses the `hoplite.game.status.Prayer.PATIENCE` prayer.
+    &#34;&#34;&#34;
+
+    def _apply(self, prev_state, next_state):
+        pass
+
+
+class AltarMove(PlayerMove):  # pylint: disable=R0903
+    &#34;&#34;&#34;Player prays at the altar.
+    &#34;&#34;&#34;
+
+    def _apply(self, prev_state, next_state):
+        next_state.terrain.altar_prayable = False</code></pre>
 </details>
 </section>
 <section>
@@ -174,6 +190,36 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="hoplite.game.moves.AltarMove"><code class="flex name class">
+<span>class <span class="ident">AltarMove</span></span>
+<span>(</span><span>target=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Player prays at the altar.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AltarMove(PlayerMove):  # pylint: disable=R0903
+    &#34;&#34;&#34;Player prays at the altar.
+    &#34;&#34;&#34;
+
+    def _apply(self, prev_state, next_state):
+        next_state.terrain.altar_prayable = False</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
+<ul class="hlist">
+<li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="hoplite.game.moves.BashMove"><code class="flex name class">
 <span>class <span class="ident">BashMove</span></span>
 <span>(</span><span>target=None)</span>
@@ -196,14 +242,14 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             next_state.terrain.player.gradient(self.target)
         if self.target in prev_state.terrain.demons:
             if pushed_to not in next_state.terrain.surface:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Pushed %s at %s out of bound&#34;,
                     next_state.terrain.demons[self.target].skill.name,
                     self.target
                 )
                 del next_state.terrain.demons[self.target]
             elif next_state.terrain.surface[pushed_to] == hoplite.game.terrain.Tile.MAGMA:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Pushed %s at %s into magma&#34;,
                     next_state.terrain.demons[self.target].skill.name,
                     self.target
@@ -217,6 +263,36 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             next_state.terrain.bombs.add(pushed_to)
         # TODO: set appropriate cooldown value
         next_state.status.cooldown = 4</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
+<ul class="hlist">
+<li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="hoplite.game.moves.IdleMove"><code class="flex name class">
+<span>class <span class="ident">IdleMove</span></span>
+<span>(</span><span>target=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Player uses the <code><a title="hoplite.game.status.Prayer.PATIENCE" href="status.html#hoplite.game.status.Prayer.PATIENCE">Prayer.PATIENCE</a></code> prayer.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IdleMove(PlayerMove):  # pylint: disable=R0903
+    &#34;&#34;&#34;Player uses the `hoplite.game.status.Prayer.PATIENCE` prayer.
+    &#34;&#34;&#34;
+
+    def _apply(self, prev_state, next_state):
+        pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -283,8 +359,6 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
-<dt><strong><code>logger</code></strong> :&ensp;<code>logging.Logger</code></dt>
-<dd>Logger to output debugging information.</dd>
 <dt><strong><code>target</code></strong></dt>
 <dd>&nbsp;</dd>
 </dl></div>
@@ -302,14 +376,11 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
 
     Attributes
     ----------
-    logger : logging.Logger
-        Logger to output debugging information.
     target
 
     &#34;&#34;&#34;
 
     def __init__(self, target=None):
-        self.logger = logging.getLogger(&#34;game&#34;)
         self.target = target
 
     def __repr__(self):
@@ -342,7 +413,9 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="hoplite.game.moves.AltarMove" href="#hoplite.game.moves.AltarMove">AltarMove</a></li>
 <li><a title="hoplite.game.moves.BashMove" href="#hoplite.game.moves.BashMove">BashMove</a></li>
+<li><a title="hoplite.game.moves.IdleMove" href="#hoplite.game.moves.IdleMove">IdleMove</a></li>
 <li><a title="hoplite.game.moves.LeapMove" href="#hoplite.game.moves.LeapMove">LeapMove</a></li>
 <li><a title="hoplite.game.moves.ThrowMove" href="#hoplite.game.moves.ThrowMove">ThrowMove</a></li>
 <li><a title="hoplite.game.moves.WalkMove" href="#hoplite.game.moves.WalkMove">WalkMove</a></li>
@@ -409,7 +482,7 @@ and damage taken. Enemy movements are not taken into account.</p>
     def _apply(self, prev_state, next_state):
         next_state.status.spear = False
         if self.target in next_state.terrain.demons:
-            self.logger.debug(
+            LOGGER.debug(
                 &#34;Killing %s with spear&#34;,
                 next_state.terrain.demons[self.target].skill.name
             )
@@ -484,7 +557,13 @@ and damage taken. Enemy movements are not taken into account.</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="hoplite.game.moves.AltarMove" href="#hoplite.game.moves.AltarMove">AltarMove</a></code></h4>
+</li>
+<li>
 <h4><code><a title="hoplite.game.moves.BashMove" href="#hoplite.game.moves.BashMove">BashMove</a></code></h4>
+</li>
+<li>
+<h4><code><a title="hoplite.game.moves.IdleMove" href="#hoplite.game.moves.IdleMove">IdleMove</a></code></h4>
 </li>
 <li>
 <h4><code><a title="hoplite.game.moves.LeapMove" href="#hoplite.game.moves.LeapMove">LeapMove</a></code></h4>

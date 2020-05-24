@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>hoplite.vision.observer API documentation</title>
+<meta name="description" content="Parse game screenshots." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hoplite.vision.observer</code></h1>
+</header>
+<section id="section-intro">
+<p>Parse game screenshots.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Parse game screenshots.
+&#34;&#34;&#34;
+
+import os
+import time
+import logging
+import matplotlib.image
+import hoplite.vision.classifiers
+import hoplite.utils
+import hoplite.game.terrain
+import hoplite.game.state
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+class ImagePreprocessor:  # pylint: disable=R0903
+    &#34;&#34;&#34;Image preprocessor interface.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        pass
+
+    def apply(self, array):
+        &#34;&#34;&#34;Apply the preprocessing to an array.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Image array to preprocess.
+
+        Returns
+        -------
+        numpy.ndarray
+            Modified array.
+
+        &#34;&#34;&#34;
+        raise NotImplementedError
+
+
+class Thresholder(ImagePreprocessor):  # pylint: disable=R0903
+    &#34;&#34;&#34;Apply a threshold to an image.
+    &#34;&#34;&#34;
+
+    def __init__(self, threshold):
+        self.threshold = threshold
+        super(Thresholder, self).__init__()
+
+    def apply(self, array):
+        # TODO: use a Numpy way of doing this efficiently
+        for i in range(array.shape[0]):
+            for j in range(array.shape[1]):
+                value = 0.
+                if sum(array[i, j, :3]) &gt; 3 * self.threshold:
+                    value = 1.
+                for k in range(3):
+                    array[i, j, k] = value
+        return array
+
+
+class Locator:  # pylint: disable=R0903
+    &#34;&#34;&#34;Target specific locations within an image array.
+
+    Parameters
+    ----------
+    shape : tuple[int, int]
+        Shape of arrays to extract.
+    anchor : tuple[int, int]
+        Array coordinates used as reference for the localisation.
+    hmargin : int
+        Horizontal margin between parts, in pixels.
+    vmargin : int
+        Vertical margin between parts, in pixels.
+    save_parts : bool
+        Whether to save extracted parts to disk.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, shape, anchor, hmargin=0, vmargin=0, save_parts=False):  # pylint: disable=R0913
+        self.width = shape[0]
+        self.height = shape[1]
+        self.anchor_x = anchor[0]
+        self.anchor_y = anchor[1]
+        self.hmargin = hmargin
+        self.vmargin = vmargin
+        self.save_parts = save_parts
+
+    def _save_part(self, part):
+        if not self.save_parts:
+            return
+        if not os.path.isdir(&#34;parts&#34;):
+            os.mkdir(&#34;parts&#34;)
+        filename = os.path.join(
+            &#34;parts&#34;,
+            str(len(next(os.walk(&#34;parts&#34;))[2])).zfill(4)
+            + &#34;-&#34;
+            + self.__class__.__name__
+            + &#34;-&#34;
+            + str(time.time()).replace(&#34;.&#34;, &#34;&#34;).ljust(17, &#34;0&#34;)
+            + &#34;.png&#34;
+        )
+        matplotlib.image.imsave(filename, part)
+
+    def _extract(self, array, element_x, element_y):
+        part = array[
+            element_y:element_y + self.height,
+            element_x:element_x + self.width,
+            :3
+        ]
+        self._save_part(part)
+        return part
+
+    def _locate(self, i, j):
+        raise NotImplementedError
+
+    def get(self, array, i, j):
+        &#34;&#34;&#34;Locate and extract a part of an image array.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Array to extract parts from.
+        i : int
+            ith-row to extract.
+        j : int
+            jth-row to extract.
+
+        Returns
+        -------
+        numpy.ndarray
+            Extracted part.
+
+        &#34;&#34;&#34;
+        element_x, element_y = self._locate(i, j)
+        return self._extract(array, element_x, element_y)
+
+
+class TopLeftLocator(Locator):  # pylint: disable=R0903
+    &#34;&#34;&#34;
+    Locator where the `anchor` is the top-left corner of the first element.
+    Elements are aligned in a grid with same-sized cells spaced by given
+    margins.
+    `i` refers to the rows and `j` to the columns in this grid arragement,
+    0 refering to the `anchor`.
+    &#34;&#34;&#34;
+
+    def _locate(self, i, j):
+        return (
+            self.anchor_x + (self.width + self.hmargin) * j,
+            self.anchor_y + (self.height + self.vmargin) * i
+        )
+
+
+class TerrainLocator(Locator):  # pylint: disable=R0903
+    &#34;&#34;&#34;
+    Locator for the hexagonal tiles of the terrain.
+    `i` refers to the `y` axis and `j` to the `x` axis of the
+    `hoplite.utils.HexagonalCoordinates`.
+    &#34;&#34;&#34;
+
+    def _locate(self, i, j):
+        column = j
+        row = i + .5 * j
+        return (
+            int(self.anchor_x + self.hmargin * column - .5 * self.width),
+            int(self.anchor_y - self.vmargin * row - .5 * self.height),
+        )
+
+
+class ScreenParser:
+    &#34;&#34;&#34;Wrapper for screenshot parsing tools.
+
+    Parameters
+    ----------
+    save_parts : bool
+        Whether to save extracted parts to disk.
+
+    Attributes
+    ----------
+    locators : dict[str, Locator]
+        Locators that will be used for the observation.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, save_parts=False):
+        self.locators = {
+            &#34;terrain&#34;: TerrainLocator((52, 52), (540, 903), 104, 112, save_parts=save_parts),
+            &#34;cooldown&#34;: TopLeftLocator((20, 28), (158, 1885), save_parts=save_parts),
+            &#34;depth&#34;: TopLeftLocator((20, 28), (178, 70), 4, save_parts=save_parts),
+            &#34;spear&#34;: TopLeftLocator((16, 96), (892, 1776), save_parts=save_parts),
+            &#34;hearts&#34;: TopLeftLocator((80, 80), (26, 1664), save_parts=save_parts),
+            &#34;energy_one&#34;: TopLeftLocator((20, 28), (520, 1885), 4, save_parts=save_parts),
+            &#34;energy_two&#34;: TopLeftLocator((20, 28), (508, 1885), 4, save_parts=save_parts),
+            &#34;energy_three&#34;: TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts),
+            &#34;energy&#34;: TopLeftLocator((40, 28), (544, 1885), save_parts=save_parts),
+        }
+
+    def _observe_integer(self, array, locator):
+        buffer = &#34;&#34;
+        column = 0
+        thresholder = Thresholder(.5)
+        while True:
+            part = thresholder.apply(
+                self.locators[locator].get(array, 0, column))
+            label = hoplite.vision.classifiers.font(part)
+            if label not in &#34;0123456789&#34;:
+                if buffer == &#34;&#34;:
+                    return 0
+                return int(buffer)
+            buffer += label
+            column += 1
+
+    def _observe_depth(self, array):
+        time_start = time.time()
+        depth = self._observe_integer(array, &#34;depth&#34;)
+        LOGGER.debug(&#34;Observed depth in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return depth
+
+    def _observe_cooldown(self, array):
+        time_start = time.time()
+        cooldown = self._observe_integer(array, &#34;cooldown&#34;)
+        LOGGER.debug(&#34;Observed cooldown in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return cooldown
+
+    def _observe_energy(self, array):
+        time_start = time.time()
+        locators = [&#34;energy_one&#34;, &#34;energy_two&#34;, &#34;energy_three&#34;]
+        n_digits = hoplite.vision.classifiers.energy(
+            self.locators[&#34;energy&#34;].get(array, 0, 0))
+        energy = self._observe_integer(array, locators[n_digits - 1])
+        LOGGER.debug(&#34;Observed energy in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return energy
+
+    def _observe_hearts(self, array):
+        time_start = time.time()
+        life = [0, 0]
+        column = 0
+        while True:
+            part = self.locators[&#34;hearts&#34;].get(array, 0, column)
+            label = hoplite.vision.classifiers.hearts(part)
+            if label == &#34;empty&#34;:
+                break
+            if label == &#34;healthy&#34;:
+                life[0] += 1
+            life[1] += 1
+            column += 1
+        LOGGER.debug(&#34;Observed hearts in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return tuple(life)
+
+    def _observe_spear(self, array):
+        time_start = time.time()
+        spear = hoplite.vision.classifiers.spear(
+            self.locators[&#34;spear&#34;].get(array, 0, 0))
+        LOGGER.debug(&#34;Observed spear in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return spear
+
+    def _observe_terrain(self, array):
+        time_start = time.time()
+        surface = list()
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            part = self.locators[&#34;terrain&#34;].get(array, pos.y, pos.x)
+            label = hoplite.vision.classifiers.terrain(part)
+            surface.append(label)
+        terrain = hoplite.game.terrain.Terrain.from_list(surface)
+        LOGGER.debug(&#34;Observed terrain in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return terrain
+
+    def observe_game(self, array):
+        &#34;&#34;&#34;Parse a screenshot.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Screenshot array of shape `(1920, 1080, 3)`.
+
+        Returns
+        -------
+        hoplite.game.state.GameState
+            Parsed game state.
+
+        &#34;&#34;&#34;
+        time_start = time.time()
+        state = hoplite.game.state.GameState()
+        state.depth = self._observe_depth(array)
+        state.terrain = self._observe_terrain(array)
+        state.status.energy = self._observe_energy(array)
+        state.status.cooldown = self._observe_cooldown(array)
+        current_health, max_health = self._observe_hearts(array)
+        state.status.health = current_health
+        state.status.attributes.maximum_health = max_health
+        state.status.spear = self._observe_spear(array)
+        LOGGER.info(
+            &#34;Observed screenshot in %.3f seconds&#34;,
+            time.time() - time_start
+        )
+        return state
+
+    @staticmethod
+    def read_stream(path):
+        &#34;&#34;&#34;Read a screenshot from a stream or a file.
+
+        Parameters
+        ----------
+        path : str or file-like
+            The image file to read: a filename, a URL or a file-like object
+            opened in read-binary mode.
+
+        Returns
+        -------
+        numpy.ndarray
+            RGB matrix of the stream.
+
+        &#34;&#34;&#34;
+        return matplotlib.image.imread(path)[:, :, :3]
+
+
+class Observer:
+    &#34;&#34;&#34;Proper interface between MonkeyRunner and the game.
+
+    Parameters
+    ----------
+    monkey_runner : hoplite.monkey_runner.MonkeyRunnerInterface
+        Interface controlling the game, to retrieve screenshots froms.
+    save_screenshots : bool
+        Whether to store screenshots as they are taken.
+
+    Attributes
+    ----------
+    screenshot : numpy.ndarray
+        Last screenshot taken of the screen. Should have shape `(1920, 1080, 3)`.
+    parser : ScreenParser
+        Parser for the screenshot.
+    monkey_runner
+    save_screenshots
+
+    &#34;&#34;&#34;
+
+    def __init__(self, monkey_runner, save_screenshots=False):
+        self.monkey_runner = monkey_runner
+        self.screenshot = None
+        self.parser = ScreenParser()
+        self.save_screenshots = save_screenshots
+
+    def fetch_screenshot(self):
+        &#34;&#34;&#34;Take a screenshot and check the currently displayed interface.
+
+        Returns
+        -------
+        hoplite.game.state.Interface
+            Interface recognized by the game.
+
+        &#34;&#34;&#34;
+        self.screenshot = self.parser.read_stream(
+            self.monkey_runner.snapshot(as_stream=True))
+        if self.save_screenshots:
+            matplotlib.image.imsave(
+                &#34;%d.png&#34; % (time.time() * 1000),
+                self.screenshot
+            )
+        return hoplite.vision.classifiers.interface(self.screenshot)
+
+    def parse_game(self):
+        &#34;&#34;&#34;Parse the current screenshot looking for the game interface.
+
+        Returns
+        -------
+        hoplite.game.state.GameState
+            Current parsed game state.
+
+        &#34;&#34;&#34;
+        return self.parser.observe_game(self.screenshot)
+
+    def parse_altar(self):
+        &#34;&#34;&#34;Parse the current screenshot looking for the altar interface.
+
+        Returns
+        -------
+        hoplite.game.state.AltarState
+            Current parsed altar state.
+
+        &#34;&#34;&#34;
+        altar = hoplite.game.state.AltarState()
+        j = 40
+        min_i = 450
+        max_i = 1600
+        width = 900
+        height = 120
+        last_value = None
+        for i in range(min_i, max_i):
+            if last_value is None:
+                last_value = self.screenshot[i, j, :]
+            if (last_value == self.screenshot[i, j, :]).all():
+                continue
+            if hoplite.vision.classifiers.is_close(self.screenshot[i, j, :],
+                                                   [.3529412, .27058825, .16078432]):
+                part = self.screenshot[i:i + height, j:j + width, :]
+                label = hoplite.vision.classifiers.prayer(part)
+                altar.prayers[label] = i
+            last_value = self.screenshot[i, j, :]
+        return altar</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="hoplite.vision.observer.ImagePreprocessor"><code class="flex name class">
+<span>class <span class="ident">ImagePreprocessor</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Image preprocessor interface.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ImagePreprocessor:  # pylint: disable=R0903
+    &#34;&#34;&#34;Image preprocessor interface.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        pass
+
+    def apply(self, array):
+        &#34;&#34;&#34;Apply the preprocessing to an array.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Image array to preprocess.
+
+        Returns
+        -------
+        numpy.ndarray
+            Modified array.
+
+        &#34;&#34;&#34;
+        raise NotImplementedError</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="hoplite.vision.observer.Thresholder" href="#hoplite.vision.observer.Thresholder">Thresholder</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.vision.observer.ImagePreprocessor.apply"><code class="name flex">
+<span>def <span class="ident">apply</span></span>(<span>self, array)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Apply the preprocessing to an array.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>array</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
+<dd>Image array to preprocess.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>numpy.ndarray</code></dt>
+<dd>Modified array.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply(self, array):
+    &#34;&#34;&#34;Apply the preprocessing to an array.
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        Image array to preprocess.
+
+    Returns
+    -------
+    numpy.ndarray
+        Modified array.
+
+    &#34;&#34;&#34;
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.vision.observer.Locator"><code class="flex name class">
+<span>class <span class="ident">Locator</span></span>
+<span>(</span><span>shape, anchor, hmargin=0, vmargin=0, save_parts=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Target specific locations within an image array.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>shape</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Shape of arrays to extract.</dd>
+<dt><strong><code>anchor</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Array coordinates used as reference for the localisation.</dd>
+<dt><strong><code>hmargin</code></strong> :&ensp;<code>int</code></dt>
+<dd>Horizontal margin between parts, in pixels.</dd>
+<dt><strong><code>vmargin</code></strong> :&ensp;<code>int</code></dt>
+<dd>Vertical margin between parts, in pixels.</dd>
+<dt><strong><code>save_parts</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether to save extracted parts to disk.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Locator:  # pylint: disable=R0903
+    &#34;&#34;&#34;Target specific locations within an image array.
+
+    Parameters
+    ----------
+    shape : tuple[int, int]
+        Shape of arrays to extract.
+    anchor : tuple[int, int]
+        Array coordinates used as reference for the localisation.
+    hmargin : int
+        Horizontal margin between parts, in pixels.
+    vmargin : int
+        Vertical margin between parts, in pixels.
+    save_parts : bool
+        Whether to save extracted parts to disk.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, shape, anchor, hmargin=0, vmargin=0, save_parts=False):  # pylint: disable=R0913
+        self.width = shape[0]
+        self.height = shape[1]
+        self.anchor_x = anchor[0]
+        self.anchor_y = anchor[1]
+        self.hmargin = hmargin
+        self.vmargin = vmargin
+        self.save_parts = save_parts
+
+    def _save_part(self, part):
+        if not self.save_parts:
+            return
+        if not os.path.isdir(&#34;parts&#34;):
+            os.mkdir(&#34;parts&#34;)
+        filename = os.path.join(
+            &#34;parts&#34;,
+            str(len(next(os.walk(&#34;parts&#34;))[2])).zfill(4)
+            + &#34;-&#34;
+            + self.__class__.__name__
+            + &#34;-&#34;
+            + str(time.time()).replace(&#34;.&#34;, &#34;&#34;).ljust(17, &#34;0&#34;)
+            + &#34;.png&#34;
+        )
+        matplotlib.image.imsave(filename, part)
+
+    def _extract(self, array, element_x, element_y):
+        part = array[
+            element_y:element_y + self.height,
+            element_x:element_x + self.width,
+            :3
+        ]
+        self._save_part(part)
+        return part
+
+    def _locate(self, i, j):
+        raise NotImplementedError
+
+    def get(self, array, i, j):
+        &#34;&#34;&#34;Locate and extract a part of an image array.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Array to extract parts from.
+        i : int
+            ith-row to extract.
+        j : int
+            jth-row to extract.
+
+        Returns
+        -------
+        numpy.ndarray
+            Extracted part.
+
+        &#34;&#34;&#34;
+        element_x, element_y = self._locate(i, j)
+        return self._extract(array, element_x, element_y)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="hoplite.vision.observer.TerrainLocator" href="#hoplite.vision.observer.TerrainLocator">TerrainLocator</a></li>
+<li><a title="hoplite.vision.observer.TopLeftLocator" href="#hoplite.vision.observer.TopLeftLocator">TopLeftLocator</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.vision.observer.Locator.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, array, i, j)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Locate and extract a part of an image array.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>array</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
+<dd>Array to extract parts from.</dd>
+<dt><strong><code>i</code></strong> :&ensp;<code>int</code></dt>
+<dd>ith-row to extract.</dd>
+<dt><strong><code>j</code></strong> :&ensp;<code>int</code></dt>
+<dd>jth-row to extract.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>numpy.ndarray</code></dt>
+<dd>Extracted part.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, array, i, j):
+    &#34;&#34;&#34;Locate and extract a part of an image array.
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        Array to extract parts from.
+    i : int
+        ith-row to extract.
+    j : int
+        jth-row to extract.
+
+    Returns
+    -------
+    numpy.ndarray
+        Extracted part.
+
+    &#34;&#34;&#34;
+    element_x, element_y = self._locate(i, j)
+    return self._extract(array, element_x, element_y)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.vision.observer.Observer"><code class="flex name class">
+<span>class <span class="ident">Observer</span></span>
+<span>(</span><span>monkey_runner, save_screenshots=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Proper interface between MonkeyRunner and the game.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>monkey_runner</code></strong> :&ensp;<code><a title="hoplite.monkey_runner.MonkeyRunnerInterface" href="../monkey_runner.html#hoplite.monkey_runner.MonkeyRunnerInterface">MonkeyRunnerInterface</a></code></dt>
+<dd>Interface controlling the game, to retrieve screenshots froms.</dd>
+<dt><strong><code>save_screenshots</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether to store screenshots as they are taken.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>screenshot</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
+<dd>Last screenshot taken of the screen. Should have shape <code>(1920, 1080, 3)</code>.</dd>
+<dt><strong><code>parser</code></strong> :&ensp;<code><a title="hoplite.vision.observer.ScreenParser" href="#hoplite.vision.observer.ScreenParser">ScreenParser</a></code></dt>
+<dd>Parser for the screenshot.</dd>
+<dt><strong><code>monkey_runner</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>save_screenshots</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Observer:
+    &#34;&#34;&#34;Proper interface between MonkeyRunner and the game.
+
+    Parameters
+    ----------
+    monkey_runner : hoplite.monkey_runner.MonkeyRunnerInterface
+        Interface controlling the game, to retrieve screenshots froms.
+    save_screenshots : bool
+        Whether to store screenshots as they are taken.
+
+    Attributes
+    ----------
+    screenshot : numpy.ndarray
+        Last screenshot taken of the screen. Should have shape `(1920, 1080, 3)`.
+    parser : ScreenParser
+        Parser for the screenshot.
+    monkey_runner
+    save_screenshots
+
+    &#34;&#34;&#34;
+
+    def __init__(self, monkey_runner, save_screenshots=False):
+        self.monkey_runner = monkey_runner
+        self.screenshot = None
+        self.parser = ScreenParser()
+        self.save_screenshots = save_screenshots
+
+    def fetch_screenshot(self):
+        &#34;&#34;&#34;Take a screenshot and check the currently displayed interface.
+
+        Returns
+        -------
+        hoplite.game.state.Interface
+            Interface recognized by the game.
+
+        &#34;&#34;&#34;
+        self.screenshot = self.parser.read_stream(
+            self.monkey_runner.snapshot(as_stream=True))
+        if self.save_screenshots:
+            matplotlib.image.imsave(
+                &#34;%d.png&#34; % (time.time() * 1000),
+                self.screenshot
+            )
+        return hoplite.vision.classifiers.interface(self.screenshot)
+
+    def parse_game(self):
+        &#34;&#34;&#34;Parse the current screenshot looking for the game interface.
+
+        Returns
+        -------
+        hoplite.game.state.GameState
+            Current parsed game state.
+
+        &#34;&#34;&#34;
+        return self.parser.observe_game(self.screenshot)
+
+    def parse_altar(self):
+        &#34;&#34;&#34;Parse the current screenshot looking for the altar interface.
+
+        Returns
+        -------
+        hoplite.game.state.AltarState
+            Current parsed altar state.
+
+        &#34;&#34;&#34;
+        altar = hoplite.game.state.AltarState()
+        j = 40
+        min_i = 450
+        max_i = 1600
+        width = 900
+        height = 120
+        last_value = None
+        for i in range(min_i, max_i):
+            if last_value is None:
+                last_value = self.screenshot[i, j, :]
+            if (last_value == self.screenshot[i, j, :]).all():
+                continue
+            if hoplite.vision.classifiers.is_close(self.screenshot[i, j, :],
+                                                   [.3529412, .27058825, .16078432]):
+                part = self.screenshot[i:i + height, j:j + width, :]
+                label = hoplite.vision.classifiers.prayer(part)
+                altar.prayers[label] = i
+            last_value = self.screenshot[i, j, :]
+        return altar</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.vision.observer.Observer.fetch_screenshot"><code class="name flex">
+<span>def <span class="ident">fetch_screenshot</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Take a screenshot and check the currently displayed interface.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.state.Interface" href="../game/state.html#hoplite.game.state.Interface">Interface</a></code></dt>
+<dd>Interface recognized by the game.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fetch_screenshot(self):
+    &#34;&#34;&#34;Take a screenshot and check the currently displayed interface.
+
+    Returns
+    -------
+    hoplite.game.state.Interface
+        Interface recognized by the game.
+
+    &#34;&#34;&#34;
+    self.screenshot = self.parser.read_stream(
+        self.monkey_runner.snapshot(as_stream=True))
+    if self.save_screenshots:
+        matplotlib.image.imsave(
+            &#34;%d.png&#34; % (time.time() * 1000),
+            self.screenshot
+        )
+    return hoplite.vision.classifiers.interface(self.screenshot)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.vision.observer.Observer.parse_altar"><code class="name flex">
+<span>def <span class="ident">parse_altar</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parse the current screenshot looking for the altar interface.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.state.AltarState" href="../game/state.html#hoplite.game.state.AltarState">AltarState</a></code></dt>
+<dd>Current parsed altar state.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_altar(self):
+    &#34;&#34;&#34;Parse the current screenshot looking for the altar interface.
+
+    Returns
+    -------
+    hoplite.game.state.AltarState
+        Current parsed altar state.
+
+    &#34;&#34;&#34;
+    altar = hoplite.game.state.AltarState()
+    j = 40
+    min_i = 450
+    max_i = 1600
+    width = 900
+    height = 120
+    last_value = None
+    for i in range(min_i, max_i):
+        if last_value is None:
+            last_value = self.screenshot[i, j, :]
+        if (last_value == self.screenshot[i, j, :]).all():
+            continue
+        if hoplite.vision.classifiers.is_close(self.screenshot[i, j, :],
+                                               [.3529412, .27058825, .16078432]):
+            part = self.screenshot[i:i + height, j:j + width, :]
+            label = hoplite.vision.classifiers.prayer(part)
+            altar.prayers[label] = i
+        last_value = self.screenshot[i, j, :]
+    return altar</code></pre>
+</details>
+</dd>
+<dt id="hoplite.vision.observer.Observer.parse_game"><code class="name flex">
+<span>def <span class="ident">parse_game</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parse the current screenshot looking for the game interface.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.state.GameState" href="../game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
+<dd>Current parsed game state.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_game(self):
+    &#34;&#34;&#34;Parse the current screenshot looking for the game interface.
+
+    Returns
+    -------
+    hoplite.game.state.GameState
+        Current parsed game state.
+
+    &#34;&#34;&#34;
+    return self.parser.observe_game(self.screenshot)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.vision.observer.ScreenParser"><code class="flex name class">
+<span>class <span class="ident">ScreenParser</span></span>
+<span>(</span><span>save_parts=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper for screenshot parsing tools.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>save_parts</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether to save extracted parts to disk.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>locators</code></strong> :&ensp;<code>dict[str, <a title="hoplite.vision.observer.Locator" href="#hoplite.vision.observer.Locator">Locator</a>]</code></dt>
+<dd>Locators that will be used for the observation.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ScreenParser:
+    &#34;&#34;&#34;Wrapper for screenshot parsing tools.
+
+    Parameters
+    ----------
+    save_parts : bool
+        Whether to save extracted parts to disk.
+
+    Attributes
+    ----------
+    locators : dict[str, Locator]
+        Locators that will be used for the observation.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, save_parts=False):
+        self.locators = {
+            &#34;terrain&#34;: TerrainLocator((52, 52), (540, 903), 104, 112, save_parts=save_parts),
+            &#34;cooldown&#34;: TopLeftLocator((20, 28), (158, 1885), save_parts=save_parts),
+            &#34;depth&#34;: TopLeftLocator((20, 28), (178, 70), 4, save_parts=save_parts),
+            &#34;spear&#34;: TopLeftLocator((16, 96), (892, 1776), save_parts=save_parts),
+            &#34;hearts&#34;: TopLeftLocator((80, 80), (26, 1664), save_parts=save_parts),
+            &#34;energy_one&#34;: TopLeftLocator((20, 28), (520, 1885), 4, save_parts=save_parts),
+            &#34;energy_two&#34;: TopLeftLocator((20, 28), (508, 1885), 4, save_parts=save_parts),
+            &#34;energy_three&#34;: TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts),
+            &#34;energy&#34;: TopLeftLocator((40, 28), (544, 1885), save_parts=save_parts),
+        }
+
+    def _observe_integer(self, array, locator):
+        buffer = &#34;&#34;
+        column = 0
+        thresholder = Thresholder(.5)
+        while True:
+            part = thresholder.apply(
+                self.locators[locator].get(array, 0, column))
+            label = hoplite.vision.classifiers.font(part)
+            if label not in &#34;0123456789&#34;:
+                if buffer == &#34;&#34;:
+                    return 0
+                return int(buffer)
+            buffer += label
+            column += 1
+
+    def _observe_depth(self, array):
+        time_start = time.time()
+        depth = self._observe_integer(array, &#34;depth&#34;)
+        LOGGER.debug(&#34;Observed depth in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return depth
+
+    def _observe_cooldown(self, array):
+        time_start = time.time()
+        cooldown = self._observe_integer(array, &#34;cooldown&#34;)
+        LOGGER.debug(&#34;Observed cooldown in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return cooldown
+
+    def _observe_energy(self, array):
+        time_start = time.time()
+        locators = [&#34;energy_one&#34;, &#34;energy_two&#34;, &#34;energy_three&#34;]
+        n_digits = hoplite.vision.classifiers.energy(
+            self.locators[&#34;energy&#34;].get(array, 0, 0))
+        energy = self._observe_integer(array, locators[n_digits - 1])
+        LOGGER.debug(&#34;Observed energy in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return energy
+
+    def _observe_hearts(self, array):
+        time_start = time.time()
+        life = [0, 0]
+        column = 0
+        while True:
+            part = self.locators[&#34;hearts&#34;].get(array, 0, column)
+            label = hoplite.vision.classifiers.hearts(part)
+            if label == &#34;empty&#34;:
+                break
+            if label == &#34;healthy&#34;:
+                life[0] += 1
+            life[1] += 1
+            column += 1
+        LOGGER.debug(&#34;Observed hearts in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return tuple(life)
+
+    def _observe_spear(self, array):
+        time_start = time.time()
+        spear = hoplite.vision.classifiers.spear(
+            self.locators[&#34;spear&#34;].get(array, 0, 0))
+        LOGGER.debug(&#34;Observed spear in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return spear
+
+    def _observe_terrain(self, array):
+        time_start = time.time()
+        surface = list()
+        for pos in hoplite.utils.SURFACE_COORDINATES:
+            part = self.locators[&#34;terrain&#34;].get(array, pos.y, pos.x)
+            label = hoplite.vision.classifiers.terrain(part)
+            surface.append(label)
+        terrain = hoplite.game.terrain.Terrain.from_list(surface)
+        LOGGER.debug(&#34;Observed terrain in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return terrain
+
+    def observe_game(self, array):
+        &#34;&#34;&#34;Parse a screenshot.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Screenshot array of shape `(1920, 1080, 3)`.
+
+        Returns
+        -------
+        hoplite.game.state.GameState
+            Parsed game state.
+
+        &#34;&#34;&#34;
+        time_start = time.time()
+        state = hoplite.game.state.GameState()
+        state.depth = self._observe_depth(array)
+        state.terrain = self._observe_terrain(array)
+        state.status.energy = self._observe_energy(array)
+        state.status.cooldown = self._observe_cooldown(array)
+        current_health, max_health = self._observe_hearts(array)
+        state.status.health = current_health
+        state.status.attributes.maximum_health = max_health
+        state.status.spear = self._observe_spear(array)
+        LOGGER.info(
+            &#34;Observed screenshot in %.3f seconds&#34;,
+            time.time() - time_start
+        )
+        return state
+
+    @staticmethod
+    def read_stream(path):
+        &#34;&#34;&#34;Read a screenshot from a stream or a file.
+
+        Parameters
+        ----------
+        path : str or file-like
+            The image file to read: a filename, a URL or a file-like object
+            opened in read-binary mode.
+
+        Returns
+        -------
+        numpy.ndarray
+            RGB matrix of the stream.
+
+        &#34;&#34;&#34;
+        return matplotlib.image.imread(path)[:, :, :3]</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="hoplite.vision.observer.ScreenParser.read_stream"><code class="name flex">
+<span>def <span class="ident">read_stream</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a screenshot from a stream or a file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>path</code></strong> :&ensp;<code>str</code> or <code>file-like</code></dt>
+<dd>The image file to read: a filename, a URL or a file-like object
+opened in read-binary mode.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>numpy.ndarray</code></dt>
+<dd>RGB matrix of the stream.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def read_stream(path):
+    &#34;&#34;&#34;Read a screenshot from a stream or a file.
+
+    Parameters
+    ----------
+    path : str or file-like
+        The image file to read: a filename, a URL or a file-like object
+        opened in read-binary mode.
+
+    Returns
+    -------
+    numpy.ndarray
+        RGB matrix of the stream.
+
+    &#34;&#34;&#34;
+    return matplotlib.image.imread(path)[:, :, :3]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.vision.observer.ScreenParser.observe_game"><code class="name flex">
+<span>def <span class="ident">observe_game</span></span>(<span>self, array)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parse a screenshot.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>array</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
+<dd>Screenshot array of shape <code>(1920, 1080, 3)</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.state.GameState" href="../game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
+<dd>Parsed game state.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def observe_game(self, array):
+    &#34;&#34;&#34;Parse a screenshot.
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        Screenshot array of shape `(1920, 1080, 3)`.
+
+    Returns
+    -------
+    hoplite.game.state.GameState
+        Parsed game state.
+
+    &#34;&#34;&#34;
+    time_start = time.time()
+    state = hoplite.game.state.GameState()
+    state.depth = self._observe_depth(array)
+    state.terrain = self._observe_terrain(array)
+    state.status.energy = self._observe_energy(array)
+    state.status.cooldown = self._observe_cooldown(array)
+    current_health, max_health = self._observe_hearts(array)
+    state.status.health = current_health
+    state.status.attributes.maximum_health = max_health
+    state.status.spear = self._observe_spear(array)
+    LOGGER.info(
+        &#34;Observed screenshot in %.3f seconds&#34;,
+        time.time() - time_start
+    )
+    return state</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.vision.observer.TerrainLocator"><code class="flex name class">
+<span>class <span class="ident">TerrainLocator</span></span>
+<span>(</span><span>shape, anchor, hmargin=0, vmargin=0, save_parts=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Locator for the hexagonal tiles of the terrain.
+<code>i</code> refers to the <code>y</code> axis and <code>j</code> to the <code>x</code> axis of the
+<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TerrainLocator(Locator):  # pylint: disable=R0903
+    &#34;&#34;&#34;
+    Locator for the hexagonal tiles of the terrain.
+    `i` refers to the `y` axis and `j` to the `x` axis of the
+    `hoplite.utils.HexagonalCoordinates`.
+    &#34;&#34;&#34;
+
+    def _locate(self, i, j):
+        column = j
+        row = i + .5 * j
+        return (
+            int(self.anchor_x + self.hmargin * column - .5 * self.width),
+            int(self.anchor_y - self.vmargin * row - .5 * self.height),
+        )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="hoplite.vision.observer.Locator" href="#hoplite.vision.observer.Locator">Locator</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="hoplite.vision.observer.Locator" href="#hoplite.vision.observer.Locator">Locator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="hoplite.vision.observer.Locator.get" href="#hoplite.vision.observer.Locator.get">get</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="hoplite.vision.observer.Thresholder"><code class="flex name class">
+<span>class <span class="ident">Thresholder</span></span>
+<span>(</span><span>threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Apply a threshold to an image.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Thresholder(ImagePreprocessor):  # pylint: disable=R0903
+    &#34;&#34;&#34;Apply a threshold to an image.
+    &#34;&#34;&#34;
+
+    def __init__(self, threshold):
+        self.threshold = threshold
+        super(Thresholder, self).__init__()
+
+    def apply(self, array):
+        # TODO: use a Numpy way of doing this efficiently
+        for i in range(array.shape[0]):
+            for j in range(array.shape[1]):
+                value = 0.
+                if sum(array[i, j, :3]) &gt; 3 * self.threshold:
+                    value = 1.
+                for k in range(3):
+                    array[i, j, k] = value
+        return array</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="hoplite.vision.observer.ImagePreprocessor" href="#hoplite.vision.observer.ImagePreprocessor">ImagePreprocessor</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="hoplite.vision.observer.ImagePreprocessor" href="#hoplite.vision.observer.ImagePreprocessor">ImagePreprocessor</a></b></code>:
+<ul class="hlist">
+<li><code><a title="hoplite.vision.observer.ImagePreprocessor.apply" href="#hoplite.vision.observer.ImagePreprocessor.apply">apply</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="hoplite.vision.observer.TopLeftLocator"><code class="flex name class">
+<span>class <span class="ident">TopLeftLocator</span></span>
+<span>(</span><span>shape, anchor, hmargin=0, vmargin=0, save_parts=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Locator where the <code>anchor</code> is the top-left corner of the first element.
+Elements are aligned in a grid with same-sized cells spaced by given
+margins.
+<code>i</code> refers to the rows and <code>j</code> to the columns in this grid arragement,
+0 refering to the <code>anchor</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TopLeftLocator(Locator):  # pylint: disable=R0903
+    &#34;&#34;&#34;
+    Locator where the `anchor` is the top-left corner of the first element.
+    Elements are aligned in a grid with same-sized cells spaced by given
+    margins.
+    `i` refers to the rows and `j` to the columns in this grid arragement,
+    0 refering to the `anchor`.
+    &#34;&#34;&#34;
+
+    def _locate(self, i, j):
+        return (
+            self.anchor_x + (self.width + self.hmargin) * j,
+            self.anchor_y + (self.height + self.vmargin) * i
+        )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="hoplite.vision.observer.Locator" href="#hoplite.vision.observer.Locator">Locator</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="hoplite.vision.observer.Locator" href="#hoplite.vision.observer.Locator">Locator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="hoplite.vision.observer.Locator.get" href="#hoplite.vision.observer.Locator.get">get</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hoplite.vision" href="index.html">hoplite.vision</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="hoplite.vision.observer.ImagePreprocessor" href="#hoplite.vision.observer.ImagePreprocessor">ImagePreprocessor</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.vision.observer.ImagePreprocessor.apply" href="#hoplite.vision.observer.ImagePreprocessor.apply">apply</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.vision.observer.Locator" href="#hoplite.vision.observer.Locator">Locator</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.vision.observer.Locator.get" href="#hoplite.vision.observer.Locator.get">get</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.vision.observer.Observer" href="#hoplite.vision.observer.Observer">Observer</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.vision.observer.Observer.fetch_screenshot" href="#hoplite.vision.observer.Observer.fetch_screenshot">fetch_screenshot</a></code></li>
+<li><code><a title="hoplite.vision.observer.Observer.parse_altar" href="#hoplite.vision.observer.Observer.parse_altar">parse_altar</a></code></li>
+<li><code><a title="hoplite.vision.observer.Observer.parse_game" href="#hoplite.vision.observer.Observer.parse_game">parse_game</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.vision.observer.ScreenParser" href="#hoplite.vision.observer.ScreenParser">ScreenParser</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.vision.observer.ScreenParser.observe_game" href="#hoplite.vision.observer.ScreenParser.observe_game">observe_game</a></code></li>
+<li><code><a title="hoplite.vision.observer.ScreenParser.read_stream" href="#hoplite.vision.observer.ScreenParser.read_stream">read_stream</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.vision.observer.TerrainLocator" href="#hoplite.vision.observer.TerrainLocator">TerrainLocator</a></code></h4>
+</li>
+<li>
+<h4><code><a title="hoplite.vision.observer.Thresholder" href="#hoplite.vision.observer.Thresholder">Thresholder</a></code></h4>
+</li>
+<li>
+<h4><code><a title="hoplite.vision.observer.TopLeftLocator" href="#hoplite.vision.observer.TopLeftLocator">TopLeftLocator</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -28,12 +28,29 @@
 <pre><code class="python">&#34;&#34;&#34;Gathering of all of the game components.
 &#34;&#34;&#34;
 
+import enum
 import copy
 import logging
 import hoplite.utils
 import hoplite.game.terrain
 import hoplite.game.status
 import hoplite.game.moves
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+@enum.unique
+class Interface(enum.Enum):
+    &#34;&#34;&#34;Enumeration of possible game interface displayed on screen.
+    &#34;&#34;&#34;
+
+    EMBARK = 0
+    PLAYING = 1
+    ALTAR = 2
+    FLEECE = 3
+    VICTORY = 4
+    DEATH = 5
 
 
 class GameState:
@@ -47,8 +64,6 @@ class GameState:
         Logical representation of the terrain.
     status : hoplite.game.status.Status
         Logical representation of the player status.
-    logger : logging.Logger
-        Logger to output debug information.
 
     &#34;&#34;&#34;
 
@@ -56,7 +71,6 @@ class GameState:
         self.depth = 1
         self.terrain = hoplite.game.terrain.Terrain()
         self.status = hoplite.game.status.Status()
-        self.logger = logging.getLogger(&#34;game&#34;)
 
     def __repr__(self):
         return &#34;GameState%s&#34; % self.__dict__
@@ -96,13 +110,13 @@ class GameState:
         for bomb_pos in list(self.terrain.bombs):
             for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
                 if neighbor == self.terrain.player:
-                    self.logger.debug(
+                    LOGGER.debug(
                         &#34;Taking a damage because of BOMB at %s&#34;,
                         bomb_pos
                     )
                     damages += 1
                 elif neighbor in self.terrain.demons:
-                    self.logger.debug(
+                    LOGGER.debug(
                         &#34;Killing with BOMB: %s at %s&#34;,
                         self.terrain.demons[neighbor].skill.name,
                         neighbor
@@ -112,13 +126,13 @@ class GameState:
         for demon_pos, demon in self.terrain.demons.items():
             demon_damage = demon.attack(self, demon_pos)
             if demon_damage &gt; 0:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Taking a damage because of %s at %s&#34;,
                     demon.skill.name,
                     demon_pos
                 )
             damages += demon_damage
-        self.logger.debug(&#34;Total damages received: %d&#34;, damages)
+        LOGGER.debug(&#34;Total damages received: %d&#34;, damages)
         self.status.deal_damage(damages)
 
     def possible_moves(self):
@@ -160,12 +174,33 @@ class GameState:
                         or (pos in self.terrain.bombs):
                     continue
                 yield hoplite.game.moves.ThrowMove(pos)
+        if self.terrain.altar_prayable\
+                and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
+            yield hoplite.game.moves.AltarMove(self.terrain.altar)
 
 
 class LostGameException(Exception):
     &#34;&#34;&#34;
     Exception to be raised when the game is lost.
-    &#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;
+
+
+class AltarState:  # pylint: disable=R0903
+    &#34;&#34;&#34;Represent the state of an Altar.
+
+    Attributes
+    ----------
+    prayers : dict[hoplite.game.status.Prayer, int]
+            Prayers available at the altar, and their observed height
+            (in pixels).
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.prayers = dict()
+
+    def __str__(self):
+        return str(list(self.prayers.keys()))</code></pre>
 </details>
 </section>
 <section>
@@ -177,6 +212,39 @@ class LostGameException(Exception):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="hoplite.game.state.AltarState"><code class="flex name class">
+<span>class <span class="ident">AltarState</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represent the state of an Altar.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>prayers</code></strong> :&ensp;<code>dict[<a title="hoplite.game.status.Prayer" href="status.html#hoplite.game.status.Prayer">Prayer</a>, int]</code></dt>
+<dd>Prayers available at the altar, and their observed height
+(in pixels).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AltarState:  # pylint: disable=R0903
+    &#34;&#34;&#34;Represent the state of an Altar.
+
+    Attributes
+    ----------
+    prayers : dict[hoplite.game.status.Prayer, int]
+            Prayers available at the altar, and their observed height
+            (in pixels).
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.prayers = dict()
+
+    def __str__(self):
+        return str(list(self.prayers.keys()))</code></pre>
+</details>
+</dd>
 <dt id="hoplite.game.state.GameState"><code class="flex name class">
 <span>class <span class="ident">GameState</span></span>
 </code></dt>
@@ -190,8 +258,6 @@ class LostGameException(Exception):
 <dd>Logical representation of the terrain.</dd>
 <dt><strong><code>status</code></strong> :&ensp;<code><a title="hoplite.game.status.Status" href="status.html#hoplite.game.status.Status">Status</a></code></dt>
 <dd>Logical representation of the player status.</dd>
-<dt><strong><code>logger</code></strong> :&ensp;<code>logging.Logger</code></dt>
-<dd>Logger to output debug information.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -208,8 +274,6 @@ class LostGameException(Exception):
         Logical representation of the terrain.
     status : hoplite.game.status.Status
         Logical representation of the player status.
-    logger : logging.Logger
-        Logger to output debug information.
 
     &#34;&#34;&#34;
 
@@ -217,7 +281,6 @@ class LostGameException(Exception):
         self.depth = 1
         self.terrain = hoplite.game.terrain.Terrain()
         self.status = hoplite.game.status.Status()
-        self.logger = logging.getLogger(&#34;game&#34;)
 
     def __repr__(self):
         return &#34;GameState%s&#34; % self.__dict__
@@ -257,13 +320,13 @@ class LostGameException(Exception):
         for bomb_pos in list(self.terrain.bombs):
             for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
                 if neighbor == self.terrain.player:
-                    self.logger.debug(
+                    LOGGER.debug(
                         &#34;Taking a damage because of BOMB at %s&#34;,
                         bomb_pos
                     )
                     damages += 1
                 elif neighbor in self.terrain.demons:
-                    self.logger.debug(
+                    LOGGER.debug(
                         &#34;Killing with BOMB: %s at %s&#34;,
                         self.terrain.demons[neighbor].skill.name,
                         neighbor
@@ -273,13 +336,13 @@ class LostGameException(Exception):
         for demon_pos, demon in self.terrain.demons.items():
             demon_damage = demon.attack(self, demon_pos)
             if demon_damage &gt; 0:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Taking a damage because of %s at %s&#34;,
                     demon.skill.name,
                     demon_pos
                 )
             damages += demon_damage
-        self.logger.debug(&#34;Total damages received: %d&#34;, damages)
+        LOGGER.debug(&#34;Total damages received: %d&#34;, damages)
         self.status.deal_damage(damages)
 
     def possible_moves(self):
@@ -320,7 +383,10 @@ class LostGameException(Exception):
                         or (pos == self.terrain.altar)\
                         or (pos in self.terrain.bombs):
                     continue
-                yield hoplite.game.moves.ThrowMove(pos)</code></pre>
+                yield hoplite.game.moves.ThrowMove(pos)
+        if self.terrain.altar_prayable\
+                and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
+            yield hoplite.game.moves.AltarMove(self.terrain.altar)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -372,13 +438,13 @@ class LostGameException(Exception):
     for bomb_pos in list(self.terrain.bombs):
         for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
             if neighbor == self.terrain.player:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Taking a damage because of BOMB at %s&#34;,
                     bomb_pos
                 )
                 damages += 1
             elif neighbor in self.terrain.demons:
-                self.logger.debug(
+                LOGGER.debug(
                     &#34;Killing with BOMB: %s at %s&#34;,
                     self.terrain.demons[neighbor].skill.name,
                     neighbor
@@ -388,13 +454,13 @@ class LostGameException(Exception):
     for demon_pos, demon in self.terrain.demons.items():
         demon_damage = demon.attack(self, demon_pos)
         if demon_damage &gt; 0:
-            self.logger.debug(
+            LOGGER.debug(
                 &#34;Taking a damage because of %s at %s&#34;,
                 demon.skill.name,
                 demon_pos
             )
         damages += demon_damage
-    self.logger.debug(&#34;Total damages received: %d&#34;, damages)
+    LOGGER.debug(&#34;Total damages received: %d&#34;, damages)
     self.status.deal_damage(damages)</code></pre>
 </details>
 </dd>
@@ -476,8 +542,64 @@ class LostGameException(Exception):
                     or (pos == self.terrain.altar)\
                     or (pos in self.terrain.bombs):
                 continue
-            yield hoplite.game.moves.ThrowMove(pos)</code></pre>
+            yield hoplite.game.moves.ThrowMove(pos)
+    if self.terrain.altar_prayable\
+            and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
+        yield hoplite.game.moves.AltarMove(self.terrain.altar)</code></pre>
 </details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.game.state.Interface"><code class="flex name class">
+<span>class <span class="ident">Interface</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enumeration of possible game interface displayed on screen.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Interface(enum.Enum):
+    &#34;&#34;&#34;Enumeration of possible game interface displayed on screen.
+    &#34;&#34;&#34;
+
+    EMBARK = 0
+    PLAYING = 1
+    ALTAR = 2
+    FLEECE = 3
+    VICTORY = 4
+    DEATH = 5</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.game.state.Interface.ALTAR"><code class="name">var <span class="ident">ALTAR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.state.Interface.DEATH"><code class="name">var <span class="ident">DEATH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.state.Interface.EMBARK"><code class="name">var <span class="ident">EMBARK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.state.Interface.FLEECE"><code class="name">var <span class="ident">FLEECE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.state.Interface.PLAYING"><code class="name">var <span class="ident">PLAYING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.state.Interface.VICTORY"><code class="name">var <span class="ident">VICTORY</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -519,12 +641,26 @@ class LostGameException(Exception):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="hoplite.game.state.AltarState" href="#hoplite.game.state.AltarState">AltarState</a></code></h4>
+</li>
+<li>
 <h4><code><a title="hoplite.game.state.GameState" href="#hoplite.game.state.GameState">GameState</a></code></h4>
 <ul class="">
 <li><code><a title="hoplite.game.state.GameState.apply_attacks" href="#hoplite.game.state.GameState.apply_attacks">apply_attacks</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.apply_damages" href="#hoplite.game.state.GameState.apply_damages">apply_damages</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.copy" href="#hoplite.game.state.GameState.copy">copy</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.possible_moves" href="#hoplite.game.state.GameState.possible_moves">possible_moves</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.game.state.Interface" href="#hoplite.game.state.Interface">Interface</a></code></h4>
+<ul class="two-column">
+<li><code><a title="hoplite.game.state.Interface.ALTAR" href="#hoplite.game.state.Interface.ALTAR">ALTAR</a></code></li>
+<li><code><a title="hoplite.game.state.Interface.DEATH" href="#hoplite.game.state.Interface.DEATH">DEATH</a></code></li>
+<li><code><a title="hoplite.game.state.Interface.EMBARK" href="#hoplite.game.state.Interface.EMBARK">EMBARK</a></code></li>
+<li><code><a title="hoplite.game.state.Interface.FLEECE" href="#hoplite.game.state.Interface.FLEECE">FLEECE</a></code></li>
+<li><code><a title="hoplite.game.state.Interface.PLAYING" href="#hoplite.game.state.Interface.PLAYING">PLAYING</a></code></li>
+<li><code><a title="hoplite.game.state.Interface.VICTORY" href="#hoplite.game.state.Interface.VICTORY">VICTORY</a></code></li>
 </ul>
 </li>
 <li>

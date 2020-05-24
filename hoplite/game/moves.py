@@ -6,6 +6,9 @@ import hoplite.game.attacks
 import hoplite.game.terrain
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class PlayerMove:
     """Abstract class for possible player moves.
 
@@ -16,14 +19,11 @@ class PlayerMove:
 
     Attributes
     ----------
-    logger : logging.Logger
-        Logger to output debugging information.
     target
 
     """
 
     def __init__(self, target=None):
-        self.logger = logging.getLogger("game")
         self.target = target
 
     def __repr__(self):
@@ -94,7 +94,7 @@ class ThrowMove(PlayerMove):  # pylint: disable=R0903
     def _apply(self, prev_state, next_state):
         next_state.status.spear = False
         if self.target in next_state.terrain.demons:
-            self.logger.debug(
+            LOGGER.debug(
                 "Killing %s with spear",
                 next_state.terrain.demons[self.target].skill.name
             )
@@ -115,14 +115,14 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             next_state.terrain.player.gradient(self.target)
         if self.target in prev_state.terrain.demons:
             if pushed_to not in next_state.terrain.surface:
-                self.logger.debug(
+                LOGGER.debug(
                     "Pushed %s at %s out of bound",
                     next_state.terrain.demons[self.target].skill.name,
                     self.target
                 )
                 del next_state.terrain.demons[self.target]
             elif next_state.terrain.surface[pushed_to] == hoplite.game.terrain.Tile.MAGMA:
-                self.logger.debug(
+                LOGGER.debug(
                     "Pushed %s at %s into magma",
                     next_state.terrain.demons[self.target].skill.name,
                     self.target
@@ -136,3 +136,19 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             next_state.terrain.bombs.add(pushed_to)
         # TODO: set appropriate cooldown value
         next_state.status.cooldown = 4
+
+
+class IdleMove(PlayerMove):  # pylint: disable=R0903
+    """Player uses the `hoplite.game.status.Prayer.PATIENCE` prayer.
+    """
+
+    def _apply(self, prev_state, next_state):
+        pass
+
+
+class AltarMove(PlayerMove):  # pylint: disable=R0903
+    """Player prays at the altar.
+    """
+
+    def _apply(self, prev_state, next_state):
+        next_state.terrain.altar_prayable = False

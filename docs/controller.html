@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>hoplite.controller API documentation</title>
-<meta name="description" content="Game AI components." />
+<meta name="description" content="Interface between the `hoplite.vision.observer.Observer`,
+the `hoplite.brain.Brain` the `hoplite.actuator.Actuator`. Plays the game." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,132 +21,88 @@
 <h1 class="title">Module <code>hoplite.controller</code></h1>
 </header>
 <section id="section-intro">
-<p>Game AI components.</p>
+<p>Interface between the <code><a title="hoplite.vision.observer.Observer" href="vision/observer.html#hoplite.vision.observer.Observer">Observer</a></code>,
+the <code><a title="hoplite.brain.Brain" href="brain.html#hoplite.brain.Brain">Brain</a></code> the <code><a title="hoplite.actuator.Actuator" href="actuator.html#hoplite.actuator.Actuator">Actuator</a></code>. Plays the game.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Game AI components.
+<pre><code class="python">&#34;&#34;&#34;Interface between the `hoplite.vision.observer.Observer`,
+the `hoplite.brain.Brain` the `hoplite.actuator.Actuator`. Plays the game.
 &#34;&#34;&#34;
 
+import time
 import logging
-import numpy
-import hoplite.game.demons
+import hoplite.game.state
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Controller:
-    &#34;&#34;&#34;Brain central unit: makes decisions.
+    &#34;&#34;&#34;Game controller.
+
+    Parameters
+    ----------
+    observer : hoplite.vision.observer.Observer
+        Eyes of the controller.
+    actuator : hoplite.actuator.Actuator
+        Fingers of the controller.
+    brain : hoplite.brain.Brain
+        Mind of the controller.
 
     Attributes
     ----------
-    demon_weights : dict[hoplite.game.demons.DemonSkill, float]
-        Estimated dangerosity of demons.
-    weights : numpy.ndarray
-        Vector with the weights for the game state features.
-    logger : logging.Logger
-        Logger to write debug information.
+    stop : bool
+        Whether the controller main loop should be stopped.
+    observer
+    actuator
+    brain
 
     &#34;&#34;&#34;
 
-    def __init__(self):
-        self.demon_weights = {
-            hoplite.game.demons.DemonSkill.FOOTMAN: 1,
-            hoplite.game.demons.DemonSkill.DEMOLITIONIST: 2,
-            hoplite.game.demons.DemonSkill.ARCHER: 3,
-            hoplite.game.demons.DemonSkill.WIZARD: 4
-        }
-        self.weights = numpy.array([
-            -100,  # being dead is very bad
-            10,
-            .5,
-            1,
-            -.5,
-            -5,
-            -1,
-        ])
-        self.logger = logging.getLogger(&#34;brain&#34;)
+    def __init__(self, observer, actuator, brain):
+        self.observer = observer
+        self.actuator = actuator
+        self.brain = brain
+        self.stop = False
 
-    def extract(self, game_state):
-        &#34;&#34;&#34;Extract features of a game state. Values are manually scaled to
-        remain around [0, 1].
-
-        Parameters
-        ----------
-        game_state : hoplite.game.state.GameState
-            State to extract the features of.
-
-        Returns
-        -------
-        numpy.ndarray
-            Vector with extracted features.
-
+    def step(self):
+        &#34;&#34;&#34;One step of the game: recognition, decision and action.
         &#34;&#34;&#34;
-        path = game_state.terrain.pathfind(
-            game_state.terrain.player,
-            game_state.terrain.stairs
-        )
-        if path is None:
-            path_length = 20
-        else:
-            path_length = len(path)
-        features = [
-            int(game_state.status.health == 0),  # from 0 to 1
-            .125 * game_state.status.health,  # from 0 to 8
-            int(game_state.status.spear),  # from 0 to 1
-            .01 * game_state.status.energy,  # usually around 100, but possibly above
-            .25 * game_state.status.cooldown,  # from 0 to 4
-            .04 * sum(map(  # depth 1 starts with 4, depth 16 starts with 28
-                lambda demon: self.demon_weights[demon.skill],
-                game_state.terrain.demons.values()
-            )),
-            # if no obstacle, path at the beginning is 9 tiles long
-            .11 * path_length,
-        ]
-        return numpy.array(features)
+        interface = self.observer.fetch_screenshot()
+        LOGGER.debug(&#34;Interface: %s&#34;, interface)
+        if interface == hoplite.game.state.Interface.PLAYING:
+            game = self.observer.parse_game()
+            move = self.brain.pick_move(game)
+            self.actuator.make_move(move)
+        elif interface == hoplite.game.state.Interface.EMBARK:
+            self.actuator.close_interface(interface)
+        elif interface == hoplite.game.state.Interface.DEATH:
+            self.stop = True
+            LOGGER.info(&#34;The player is dead.&#34;)
+        elif interface == hoplite.game.state.Interface.VICTORY:
+            self.stop = True
+            LOGGER.info(&#34;The player has won!&#34;)
+        elif interface == hoplite.game.state.Interface.ALTAR:
+            altar = self.observer.parse_altar()
+            LOGGER.info(&#34;Available prayers: %s&#34;, altar)
+            prayer = self.brain.pick_prayer(altar)
+            LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
+            self.actuator.choose_prayer(altar, prayer)
+        elif interface == hoplite.game.state.Interface.FLEECE:
+            self.actuator.close_interface(interface)
+        time.sleep(1)
 
-    def _evaluate(self, features):
-        return features.dot(self.weights)
-
-    def evaluate(self, game_state):
-        &#34;&#34;&#34;Extract the features and evaluate a game state.
-
-        Parameters
-        ----------
-        game_state : hoplite.game.state.GameState
-            State to evaluate.
-
-        Returns
-        -------
-        float
-            Evaluation of the game state.
-
+    def run(self):
+        &#34;&#34;&#34;Main loop. Stops when the `stop` attribute is `False`.
         &#34;&#34;&#34;
-        return self._evaluate(self.extract(game_state))
-
-    def pick_move(self, game_state):
-        &#34;&#34;&#34;Pick the best move for the player to perform.
-
-        Parameters
-        ----------
-        game_state : hoplite.game.state.GameState
-            Current game state.
-
-        Returns
-        -------
-        hoplite.game.moves.PlayerMove
-            Best legal move to perform according the the model.
-
-        &#34;&#34;&#34;
-        outcomes = dict()
-        for move in game_state.possible_moves():
-            self.logger.debug(&#34;Checking move: %s&#34;, move)
-            next_state = move.apply(game_state)
-            evaluation = self.evaluate(next_state)
-            outcomes[move] = evaluation
-            self.logger.debug(&#34;Evaluation of %s: %f&#34;, move, evaluation)
-        best_move = max(outcomes.items(), key=lambda x: x[1])[0]
-        self.logger.info(&#34;Best move found: %s&#34;, best_move)
-        return best_move</code></pre>
+        while not self.stop:
+            try:
+                self.step()
+            except KeyboardInterrupt:
+                LOGGER.warning(&#34;Interrupting the controller.&#34;)
+                self.stop = True</code></pre>
 </details>
 </section>
 <section>
@@ -159,276 +116,156 @@ class Controller:
 <dl>
 <dt id="hoplite.controller.Controller"><code class="flex name class">
 <span>class <span class="ident">Controller</span></span>
+<span>(</span><span>observer, actuator, brain)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Brain central unit: makes decisions.</p>
+<div class="desc"><p>Game controller.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>observer</code></strong> :&ensp;<code><a title="hoplite.vision.observer.Observer" href="vision/observer.html#hoplite.vision.observer.Observer">Observer</a></code></dt>
+<dd>Eyes of the controller.</dd>
+<dt><strong><code>actuator</code></strong> :&ensp;<code><a title="hoplite.actuator.Actuator" href="actuator.html#hoplite.actuator.Actuator">Actuator</a></code></dt>
+<dd>Fingers of the controller.</dd>
+<dt><strong><code>brain</code></strong> :&ensp;<code><a title="hoplite.brain.Brain" href="brain.html#hoplite.brain.Brain">Brain</a></code></dt>
+<dd>Mind of the controller.</dd>
+</dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
-<dt><strong><code>demon_weights</code></strong> :&ensp;<code>dict[<a title="hoplite.game.demons.DemonSkill" href="game/demons.html#hoplite.game.demons.DemonSkill">DemonSkill</a>, float]</code></dt>
-<dd>Estimated dangerosity of demons.</dd>
-<dt><strong><code>weights</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
-<dd>Vector with the weights for the game state features.</dd>
-<dt><strong><code>logger</code></strong> :&ensp;<code>logging.Logger</code></dt>
-<dd>Logger to write debug information.</dd>
+<dt><strong><code>stop</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether the controller main loop should be stopped.</dd>
+<dt><strong><code>observer</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>actuator</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>brain</code></strong></dt>
+<dd>&nbsp;</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Controller:
-    &#34;&#34;&#34;Brain central unit: makes decisions.
+    &#34;&#34;&#34;Game controller.
+
+    Parameters
+    ----------
+    observer : hoplite.vision.observer.Observer
+        Eyes of the controller.
+    actuator : hoplite.actuator.Actuator
+        Fingers of the controller.
+    brain : hoplite.brain.Brain
+        Mind of the controller.
 
     Attributes
     ----------
-    demon_weights : dict[hoplite.game.demons.DemonSkill, float]
-        Estimated dangerosity of demons.
-    weights : numpy.ndarray
-        Vector with the weights for the game state features.
-    logger : logging.Logger
-        Logger to write debug information.
+    stop : bool
+        Whether the controller main loop should be stopped.
+    observer
+    actuator
+    brain
 
     &#34;&#34;&#34;
 
-    def __init__(self):
-        self.demon_weights = {
-            hoplite.game.demons.DemonSkill.FOOTMAN: 1,
-            hoplite.game.demons.DemonSkill.DEMOLITIONIST: 2,
-            hoplite.game.demons.DemonSkill.ARCHER: 3,
-            hoplite.game.demons.DemonSkill.WIZARD: 4
-        }
-        self.weights = numpy.array([
-            -100,  # being dead is very bad
-            10,
-            .5,
-            1,
-            -.5,
-            -5,
-            -1,
-        ])
-        self.logger = logging.getLogger(&#34;brain&#34;)
+    def __init__(self, observer, actuator, brain):
+        self.observer = observer
+        self.actuator = actuator
+        self.brain = brain
+        self.stop = False
 
-    def extract(self, game_state):
-        &#34;&#34;&#34;Extract features of a game state. Values are manually scaled to
-        remain around [0, 1].
-
-        Parameters
-        ----------
-        game_state : hoplite.game.state.GameState
-            State to extract the features of.
-
-        Returns
-        -------
-        numpy.ndarray
-            Vector with extracted features.
-
+    def step(self):
+        &#34;&#34;&#34;One step of the game: recognition, decision and action.
         &#34;&#34;&#34;
-        path = game_state.terrain.pathfind(
-            game_state.terrain.player,
-            game_state.terrain.stairs
-        )
-        if path is None:
-            path_length = 20
-        else:
-            path_length = len(path)
-        features = [
-            int(game_state.status.health == 0),  # from 0 to 1
-            .125 * game_state.status.health,  # from 0 to 8
-            int(game_state.status.spear),  # from 0 to 1
-            .01 * game_state.status.energy,  # usually around 100, but possibly above
-            .25 * game_state.status.cooldown,  # from 0 to 4
-            .04 * sum(map(  # depth 1 starts with 4, depth 16 starts with 28
-                lambda demon: self.demon_weights[demon.skill],
-                game_state.terrain.demons.values()
-            )),
-            # if no obstacle, path at the beginning is 9 tiles long
-            .11 * path_length,
-        ]
-        return numpy.array(features)
+        interface = self.observer.fetch_screenshot()
+        LOGGER.debug(&#34;Interface: %s&#34;, interface)
+        if interface == hoplite.game.state.Interface.PLAYING:
+            game = self.observer.parse_game()
+            move = self.brain.pick_move(game)
+            self.actuator.make_move(move)
+        elif interface == hoplite.game.state.Interface.EMBARK:
+            self.actuator.close_interface(interface)
+        elif interface == hoplite.game.state.Interface.DEATH:
+            self.stop = True
+            LOGGER.info(&#34;The player is dead.&#34;)
+        elif interface == hoplite.game.state.Interface.VICTORY:
+            self.stop = True
+            LOGGER.info(&#34;The player has won!&#34;)
+        elif interface == hoplite.game.state.Interface.ALTAR:
+            altar = self.observer.parse_altar()
+            LOGGER.info(&#34;Available prayers: %s&#34;, altar)
+            prayer = self.brain.pick_prayer(altar)
+            LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
+            self.actuator.choose_prayer(altar, prayer)
+        elif interface == hoplite.game.state.Interface.FLEECE:
+            self.actuator.close_interface(interface)
+        time.sleep(1)
 
-    def _evaluate(self, features):
-        return features.dot(self.weights)
-
-    def evaluate(self, game_state):
-        &#34;&#34;&#34;Extract the features and evaluate a game state.
-
-        Parameters
-        ----------
-        game_state : hoplite.game.state.GameState
-            State to evaluate.
-
-        Returns
-        -------
-        float
-            Evaluation of the game state.
-
+    def run(self):
+        &#34;&#34;&#34;Main loop. Stops when the `stop` attribute is `False`.
         &#34;&#34;&#34;
-        return self._evaluate(self.extract(game_state))
-
-    def pick_move(self, game_state):
-        &#34;&#34;&#34;Pick the best move for the player to perform.
-
-        Parameters
-        ----------
-        game_state : hoplite.game.state.GameState
-            Current game state.
-
-        Returns
-        -------
-        hoplite.game.moves.PlayerMove
-            Best legal move to perform according the the model.
-
-        &#34;&#34;&#34;
-        outcomes = dict()
-        for move in game_state.possible_moves():
-            self.logger.debug(&#34;Checking move: %s&#34;, move)
-            next_state = move.apply(game_state)
-            evaluation = self.evaluate(next_state)
-            outcomes[move] = evaluation
-            self.logger.debug(&#34;Evaluation of %s: %f&#34;, move, evaluation)
-        best_move = max(outcomes.items(), key=lambda x: x[1])[0]
-        self.logger.info(&#34;Best move found: %s&#34;, best_move)
-        return best_move</code></pre>
+        while not self.stop:
+            try:
+                self.step()
+            except KeyboardInterrupt:
+                LOGGER.warning(&#34;Interrupting the controller.&#34;)
+                self.stop = True</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="hoplite.controller.Controller.evaluate"><code class="name flex">
-<span>def <span class="ident">evaluate</span></span>(<span>self, game_state)</span>
+<dt id="hoplite.controller.Controller.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Extract the features and evaluate a game state.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>game_state</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
-<dd>State to evaluate.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>Evaluation of the game state.</dd>
-</dl></div>
+<div class="desc"><p>Main loop. Stops when the <code>stop</code> attribute is <code>False</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def evaluate(self, game_state):
-    &#34;&#34;&#34;Extract the features and evaluate a game state.
-
-    Parameters
-    ----------
-    game_state : hoplite.game.state.GameState
-        State to evaluate.
-
-    Returns
-    -------
-    float
-        Evaluation of the game state.
-
+<pre><code class="python">def run(self):
+    &#34;&#34;&#34;Main loop. Stops when the `stop` attribute is `False`.
     &#34;&#34;&#34;
-    return self._evaluate(self.extract(game_state))</code></pre>
+    while not self.stop:
+        try:
+            self.step()
+        except KeyboardInterrupt:
+            LOGGER.warning(&#34;Interrupting the controller.&#34;)
+            self.stop = True</code></pre>
 </details>
 </dd>
-<dt id="hoplite.controller.Controller.extract"><code class="name flex">
-<span>def <span class="ident">extract</span></span>(<span>self, game_state)</span>
+<dt id="hoplite.controller.Controller.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Extract features of a game state. Values are manually scaled to
-remain around [0, 1].</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>game_state</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
-<dd>State to extract the features of.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>numpy.ndarray</code></dt>
-<dd>Vector with extracted features.</dd>
-</dl></div>
+<div class="desc"><p>One step of the game: recognition, decision and action.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract(self, game_state):
-    &#34;&#34;&#34;Extract features of a game state. Values are manually scaled to
-    remain around [0, 1].
-
-    Parameters
-    ----------
-    game_state : hoplite.game.state.GameState
-        State to extract the features of.
-
-    Returns
-    -------
-    numpy.ndarray
-        Vector with extracted features.
-
+<pre><code class="python">def step(self):
+    &#34;&#34;&#34;One step of the game: recognition, decision and action.
     &#34;&#34;&#34;
-    path = game_state.terrain.pathfind(
-        game_state.terrain.player,
-        game_state.terrain.stairs
-    )
-    if path is None:
-        path_length = 20
-    else:
-        path_length = len(path)
-    features = [
-        int(game_state.status.health == 0),  # from 0 to 1
-        .125 * game_state.status.health,  # from 0 to 8
-        int(game_state.status.spear),  # from 0 to 1
-        .01 * game_state.status.energy,  # usually around 100, but possibly above
-        .25 * game_state.status.cooldown,  # from 0 to 4
-        .04 * sum(map(  # depth 1 starts with 4, depth 16 starts with 28
-            lambda demon: self.demon_weights[demon.skill],
-            game_state.terrain.demons.values()
-        )),
-        # if no obstacle, path at the beginning is 9 tiles long
-        .11 * path_length,
-    ]
-    return numpy.array(features)</code></pre>
-</details>
-</dd>
-<dt id="hoplite.controller.Controller.pick_move"><code class="name flex">
-<span>def <span class="ident">pick_move</span></span>(<span>self, game_state)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Pick the best move for the player to perform.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>game_state</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
-<dd>Current game state.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code><a title="hoplite.game.moves.PlayerMove" href="game/moves.html#hoplite.game.moves.PlayerMove">PlayerMove</a></code></dt>
-<dd>Best legal move to perform according the the model.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pick_move(self, game_state):
-    &#34;&#34;&#34;Pick the best move for the player to perform.
-
-    Parameters
-    ----------
-    game_state : hoplite.game.state.GameState
-        Current game state.
-
-    Returns
-    -------
-    hoplite.game.moves.PlayerMove
-        Best legal move to perform according the the model.
-
-    &#34;&#34;&#34;
-    outcomes = dict()
-    for move in game_state.possible_moves():
-        self.logger.debug(&#34;Checking move: %s&#34;, move)
-        next_state = move.apply(game_state)
-        evaluation = self.evaluate(next_state)
-        outcomes[move] = evaluation
-        self.logger.debug(&#34;Evaluation of %s: %f&#34;, move, evaluation)
-    best_move = max(outcomes.items(), key=lambda x: x[1])[0]
-    self.logger.info(&#34;Best move found: %s&#34;, best_move)
-    return best_move</code></pre>
+    interface = self.observer.fetch_screenshot()
+    LOGGER.debug(&#34;Interface: %s&#34;, interface)
+    if interface == hoplite.game.state.Interface.PLAYING:
+        game = self.observer.parse_game()
+        move = self.brain.pick_move(game)
+        self.actuator.make_move(move)
+    elif interface == hoplite.game.state.Interface.EMBARK:
+        self.actuator.close_interface(interface)
+    elif interface == hoplite.game.state.Interface.DEATH:
+        self.stop = True
+        LOGGER.info(&#34;The player is dead.&#34;)
+    elif interface == hoplite.game.state.Interface.VICTORY:
+        self.stop = True
+        LOGGER.info(&#34;The player has won!&#34;)
+    elif interface == hoplite.game.state.Interface.ALTAR:
+        altar = self.observer.parse_altar()
+        LOGGER.info(&#34;Available prayers: %s&#34;, altar)
+        prayer = self.brain.pick_prayer(altar)
+        LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
+        self.actuator.choose_prayer(altar, prayer)
+    elif interface == hoplite.game.state.Interface.FLEECE:
+        self.actuator.close_interface(interface)
+    time.sleep(1)</code></pre>
 </details>
 </dd>
 </dl>
@@ -452,9 +289,8 @@ remain around [0, 1].</p>
 <li>
 <h4><code><a title="hoplite.controller.Controller" href="#hoplite.controller.Controller">Controller</a></code></h4>
 <ul class="">
-<li><code><a title="hoplite.controller.Controller.evaluate" href="#hoplite.controller.Controller.evaluate">evaluate</a></code></li>
-<li><code><a title="hoplite.controller.Controller.extract" href="#hoplite.controller.Controller.extract">extract</a></code></li>
-<li><code><a title="hoplite.controller.Controller.pick_move" href="#hoplite.controller.Controller.pick_move">pick_move</a></code></li>
+<li><code><a title="hoplite.controller.Controller.run" href="#hoplite.controller.Controller.run">run</a></code></li>
+<li><code><a title="hoplite.controller.Controller.step" href="#hoplite.controller.Controller.step">step</a></code></li>
 </ul>
 </li>
 </ul>

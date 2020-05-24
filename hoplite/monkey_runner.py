@@ -9,6 +9,9 @@ import logging
 import subprocess
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class MonkeyRunnerInterface:
     """Socket client to communicate with the MonkeyRunner script.
 
@@ -23,10 +26,6 @@ class MonkeyRunnerInterface:
         Dedicated process for the MonkeyRunner script.
     client : socket.socket
         Socket client.
-    logger : logging.Logger
-        Logger to write debug information.
-    LOGGER_NAME : str
-        Name for the logger.
     SERVER_ADDRESS : tuple[str, int]
         Host and port of the socket server to connect to.
     MAX_CONNECTION_ATTEMPTS : int
@@ -38,7 +37,6 @@ class MonkeyRunnerInterface:
     """
 
     SERVER_ADDRESS = ("localhost", 9898)
-    LOGGER_NAME = "monkey_client"
     MAX_CONNECTION_ATTEMPTS = 10
     DELAY_BETWEEN_ATTEMPTS = .5  # seconds
 
@@ -46,7 +44,6 @@ class MonkeyRunnerInterface:
         self.mr_script = mr_script
         self.process = None
         self.client = None
-        self.logger = logging.getLogger(self.LOGGER_NAME)
 
     def open(self):
         """Connect to the server.
@@ -58,7 +55,7 @@ class MonkeyRunnerInterface:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
             try:
-                self.logger.debug("Connection attempt no. %d", attempt + 1)
+                LOGGER.debug("Connection attempt no. %d", attempt + 1)
                 self.client.connect(self.SERVER_ADDRESS)
                 break
             except ConnectionRefusedError:

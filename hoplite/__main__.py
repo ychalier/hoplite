@@ -12,58 +12,46 @@ import hoplite.utils
 import hoplite.game.terrain
 import hoplite.game.moves
 import hoplite.game.state
-import hoplite.observer
+import hoplite.vision.observer
 import hoplite.controller
 import hoplite.monkey_runner
 import hoplite.actuator
+import hoplite.brain
 
 
-def dev():
-    """
-    Temporary function to test some features
-    """
-    state = hoplite.game.state.GameState()
-    for pos in hoplite.utils.SURFACE_COORDINATES:
-        state.terrain.surface[pos] = hoplite.game.terrain.Tile.GROUND
-    state.terrain.render()
-
-
-def play(monkey_runner):
+def play(monkey_runner, save_screenshots):
     """
     Play with the monkey runner interface.
     """
-    observer = hoplite.observer.Observer()
-    controller = hoplite.controller.Controller()
     mr_if = hoplite.monkey_runner.MonkeyRunnerInterface(monkey_runner)
+    observer = hoplite.vision.observer.Observer(mr_if, save_screenshots=save_screenshots)
     actuator = hoplite.actuator.Actuator(mr_if)
+    brain = hoplite.brain.Brain()
+    controller = hoplite.controller.Controller(observer, actuator, brain)
     mr_if.open()
-    while True:
-        state = observer.observe_stream(mr_if.snapshot(as_stream=True))
-        move = controller.pick_move(state)
-        actuator.make_move(move)
-        observer.wait(mr_if, 0)  # TODO: allow user input & improve
+    controller.run()
     mr_if.close()
 
 
-def observe(path, save_parts, show_ranges):
+def parse(path, save_parts, show_ranges):
     """
-    Observe a screenshot.
+    Parse a screenshot.
     """
-    observer = hoplite.observer.Observer(save_parts)
-    controller = hoplite.controller.Controller()
-    state = observer.observe_stream(path)
-    print(state)
-    print("Evaluation:", controller.evaluate(state))
-    print("Best move:", controller.pick_move(state))
-    state.terrain.render(show_ranges=show_ranges)
+    parser = hoplite.vision.observer.ScreenParser(save_parts=save_parts)
+    brain = hoplite.brain.Brain()
+    game = parser.observe_game(parser.read_stream(path))
+    print(game)
+    print("Evaluation:", brain.evaluate(game))
+    print("Best move:", brain.pick_move(game))
+    game.terrain.render(show_ranges=show_ranges)
 
 
-def observe_and_move(path, move, target):
+def move(path, move_name, target):
     """
     Observe a screenshot and make a move.
     """
-    observer = hoplite.observer.Observer()
-    prev_state = observer.observe_stream(path)
+    parser = hoplite.vision.observer.ScreenParser()
+    prev_state = parser.observe_game(parser.read_stream(path))
     print(prev_state)
     prev_state.terrain.render()
     move_class = {
@@ -71,9 +59,9 @@ def observe_and_move(path, move, target):
         "leap": hoplite.game.moves.LeapMove,
         "bash": hoplite.game.moves.BashMove,
         "throw": hoplite.game.moves.ThrowMove
-    }[move]
-    move = move_class(hoplite.utils.HexagonalCoordinates(*target))
-    next_state = move.apply(prev_state)
+    }[move_name]
+    player_move = move_class(hoplite.utils.HexagonalCoordinates(*target))
+    next_state = player_move.apply(prev_state)
     print(next_state)
     next_state.terrain.render()
 
@@ -109,45 +97,49 @@ def main():
         help="no logging output"
     )
     subparsers = parser.add_subparsers(dest="action", required=True)
-    observe_parser = subparsers.add_parser("observe")
-    observe_parser.add_argument(
+    parse_parser = subparsers.add_parser("parse")
+    parse_parser.add_argument(
         "path",
         type=str,
         help="path to PNG screenshot file"
     )
-    observe_parser.add_argument(
+    parse_parser.add_argument(
         "--save-parts",
         action="store_true",
         help="save extracted parts to disk"
     )
-    observe_parser.add_argument(
+    parse_parser.add_argument(
         "--show-ranges",
         action="store_true",
         help="show ranges",
     )
-    observer_and_move_parser = subparsers.add_parser("observe_and_move")
-    observer_and_move_parser.add_argument(
+    move_parser = subparsers.add_parser("move")
+    move_parser.add_argument(
         "path",
         type=str,
         help="path to PNG screenshot file"
     )
-    observer_and_move_parser.add_argument(
+    move_parser.add_argument(
         "move",
         choices=["walk", "leap", "bash", "throw"],
         help="player move to perform"
     )
-    observer_and_move_parser.add_argument(
+    move_parser.add_argument(
         "x",
         type=int,
         help="move target x"
     )
-    observer_and_move_parser.add_argument(
+    move_parser.add_argument(
         "y",
         type=int,
         help="move target y"
     )
-    subparsers.add_parser("dev")
-    subparsers.add_parser("play")
+    play_parser = subparsers.add_parser("play")
+    play_parser.add_argument(
+        "--save-screenshots",
+        action="store_true",
+        help="store screenshots as they are taken"
+    )
     args = parser.parse_args()
     log_level = logging.INFO
     if args.verbose:
@@ -157,14 +149,12 @@ def main():
     elif args.silent:
         log_level = logging.CRITICAL
     logging.basicConfig(level=log_level)
-    if args.action == "observe":
-        observe(args.path, args.save_parts, args.show_ranges)
-    elif args.action == "observe_and_move":
-        observe_and_move(args.path, args.move, (args.x, args.y))
-    elif args.action == "dev":
-        dev()
+    if args.action == "parse":
+        parse(args.path, args.save_parts, args.show_ranges)
+    elif args.action == "move":
+        move(args.path, args.move, (args.x, args.y))
     elif args.action == "play":
-        play(args.monkey_runner)
+        play(args.monkey_runner, args.save_screenshots)
 
 
 main()

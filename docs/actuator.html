@@ -27,7 +27,12 @@
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Interface between the internal game representation and MonkeyRunner.
 &#34;&#34;&#34;
+import logging
 import hoplite.game.moves
+import hoplite.game.state
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def hexagonal_to_pixels(pos):
@@ -70,12 +75,24 @@ class Actuator:
         Screen position of the leap button.
     BUTTON_THROW : tuple[int, int]
         Screen position of the throw button.
+    VICTORY_OK : tuple[int, int]
+        Location of the ok button on the victory interface.
+    FLEECE_PICK_UP : tuple[int, int]
+        Location of the pickup button on the fleece interface.
+    EMBARK_EMBARK : tuple[int, int]
+        Location of the embark button on the embark interface.
+    DEATH_OK : tuple[int, int]
+        Location of the ok button on the embark interface.
 
     &#34;&#34;&#34;
 
     BUTTON_BASH = 180, 1820
     BUTTON_LEAP = 540, 1820
     BUTTON_THROW = 900, 1820
+    VICTORY_OK = 540, 1673
+    FLEECE_PICK_UP = 540, 1222
+    EMBARK_EMBARK = 540, 710
+    DEATH_OK = 540, 1616
 
     def __init__(self, monkey_runner_interface):
         self.monkey = monkey_runner_interface
@@ -150,12 +167,49 @@ class Actuator:
         &#34;&#34;&#34;
         if isinstance(player_move, hoplite.game.moves.WalkMove):
             self.walk(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.LeapMove):
+        elif isinstance(player_move, hoplite.game.moves.LeapMove):
             self.leap(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.BashMove):
+        elif isinstance(player_move, hoplite.game.moves.BashMove):
             self.bash(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.ThrowMove):
-            self.throw(player_move.target)</code></pre>
+        elif isinstance(player_move, hoplite.game.moves.ThrowMove):
+            self.throw(player_move.target)
+        elif isinstance(player_move, hoplite.game.moves.AltarMove):
+            self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+
+    def close_interface(self, interface):
+        &#34;&#34;&#34;Take the required action to close an interface, meaning touching
+        a button on scree.
+
+        Parameters
+        ----------
+        interface : hoplite.game.state.Interface
+            Interface to close (should be currently displayed on screen).
+
+        &#34;&#34;&#34;
+        LOGGER.debug(&#34;Closing interface %s&#34;, interface)
+        if interface == hoplite.game.state.Interface.EMBARK:
+            LOGGER.info(&#34;Embarking!&#34;)
+            self.monkey.touch(*self.EMBARK_EMBARK)
+        elif interface == hoplite.game.state.Interface.FLEECE:
+            self.monkey.touch(*self.FLEECE_PICK_UP)
+        elif interface == hoplite.game.state.Interface.DEATH:
+            self.monkey.touch(*self.DEATH_OK)
+        elif interface == hoplite.game.state.Interface.VICTORY:
+            self.monkey.touch(*self.VICTORY_OK)
+
+    def choose_prayer(self, altar, prayer):
+        &#34;&#34;&#34;Click on a prayer at the altar.
+
+        Parameters
+        ----------
+        altar : hoplite.game.state.AltarState
+            State of the currently displayed altar.
+        prayer : hoplite.game.status.Prayer
+            Prayer that should be clicked on.
+
+        &#34;&#34;&#34;
+        observed_height = altar.prayers[prayer]
+        self.monkey.touch(540, observed_height + 50)</code></pre>
 </details>
 </section>
 <section>
@@ -230,6 +284,14 @@ MonkeyRunner client.</p>
 <dd>Screen position of the leap button.</dd>
 <dt><strong><code>BUTTON_THROW</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
 <dd>Screen position of the throw button.</dd>
+<dt><strong><code>VICTORY_OK</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Location of the ok button on the victory interface.</dd>
+<dt><strong><code>FLEECE_PICK_UP</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Location of the pickup button on the fleece interface.</dd>
+<dt><strong><code>EMBARK_EMBARK</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Location of the embark button on the embark interface.</dd>
+<dt><strong><code>DEATH_OK</code></strong> :&ensp;<code>tuple[int, int]</code></dt>
+<dd>Location of the ok button on the embark interface.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -254,12 +316,24 @@ MonkeyRunner client.</p>
         Screen position of the leap button.
     BUTTON_THROW : tuple[int, int]
         Screen position of the throw button.
+    VICTORY_OK : tuple[int, int]
+        Location of the ok button on the victory interface.
+    FLEECE_PICK_UP : tuple[int, int]
+        Location of the pickup button on the fleece interface.
+    EMBARK_EMBARK : tuple[int, int]
+        Location of the embark button on the embark interface.
+    DEATH_OK : tuple[int, int]
+        Location of the ok button on the embark interface.
 
     &#34;&#34;&#34;
 
     BUTTON_BASH = 180, 1820
     BUTTON_LEAP = 540, 1820
     BUTTON_THROW = 900, 1820
+    VICTORY_OK = 540, 1673
+    FLEECE_PICK_UP = 540, 1222
+    EMBARK_EMBARK = 540, 710
+    DEATH_OK = 540, 1616
 
     def __init__(self, monkey_runner_interface):
         self.monkey = monkey_runner_interface
@@ -334,12 +408,49 @@ MonkeyRunner client.</p>
         &#34;&#34;&#34;
         if isinstance(player_move, hoplite.game.moves.WalkMove):
             self.walk(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.LeapMove):
+        elif isinstance(player_move, hoplite.game.moves.LeapMove):
             self.leap(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.BashMove):
+        elif isinstance(player_move, hoplite.game.moves.BashMove):
             self.bash(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.ThrowMove):
-            self.throw(player_move.target)</code></pre>
+        elif isinstance(player_move, hoplite.game.moves.ThrowMove):
+            self.throw(player_move.target)
+        elif isinstance(player_move, hoplite.game.moves.AltarMove):
+            self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+
+    def close_interface(self, interface):
+        &#34;&#34;&#34;Take the required action to close an interface, meaning touching
+        a button on scree.
+
+        Parameters
+        ----------
+        interface : hoplite.game.state.Interface
+            Interface to close (should be currently displayed on screen).
+
+        &#34;&#34;&#34;
+        LOGGER.debug(&#34;Closing interface %s&#34;, interface)
+        if interface == hoplite.game.state.Interface.EMBARK:
+            LOGGER.info(&#34;Embarking!&#34;)
+            self.monkey.touch(*self.EMBARK_EMBARK)
+        elif interface == hoplite.game.state.Interface.FLEECE:
+            self.monkey.touch(*self.FLEECE_PICK_UP)
+        elif interface == hoplite.game.state.Interface.DEATH:
+            self.monkey.touch(*self.DEATH_OK)
+        elif interface == hoplite.game.state.Interface.VICTORY:
+            self.monkey.touch(*self.VICTORY_OK)
+
+    def choose_prayer(self, altar, prayer):
+        &#34;&#34;&#34;Click on a prayer at the altar.
+
+        Parameters
+        ----------
+        altar : hoplite.game.state.AltarState
+            State of the currently displayed altar.
+        prayer : hoplite.game.status.Prayer
+            Prayer that should be clicked on.
+
+        &#34;&#34;&#34;
+        observed_height = altar.prayers[prayer]
+        self.monkey.touch(540, observed_height + 50)</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -352,6 +463,22 @@ MonkeyRunner client.</p>
 <div class="desc"></div>
 </dd>
 <dt id="hoplite.actuator.Actuator.BUTTON_THROW"><code class="name">var <span class="ident">BUTTON_THROW</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.actuator.Actuator.DEATH_OK"><code class="name">var <span class="ident">DEATH_OK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.actuator.Actuator.EMBARK_EMBARK"><code class="name">var <span class="ident">EMBARK_EMBARK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.actuator.Actuator.FLEECE_PICK_UP"><code class="name">var <span class="ident">FLEECE_PICK_UP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.actuator.Actuator.VICTORY_OK"><code class="name">var <span class="ident">VICTORY_OK</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -415,6 +542,74 @@ MonkeyRunner client.</p>
     self.monkey.touch(*hexagonal_to_pixels(target))</code></pre>
 </details>
 </dd>
+<dt id="hoplite.actuator.Actuator.choose_prayer"><code class="name flex">
+<span>def <span class="ident">choose_prayer</span></span>(<span>self, altar, prayer)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Click on a prayer at the altar.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>altar</code></strong> :&ensp;<code><a title="hoplite.game.state.AltarState" href="game/state.html#hoplite.game.state.AltarState">AltarState</a></code></dt>
+<dd>State of the currently displayed altar.</dd>
+<dt><strong><code>prayer</code></strong> :&ensp;<code><a title="hoplite.game.status.Prayer" href="game/status.html#hoplite.game.status.Prayer">Prayer</a></code></dt>
+<dd>Prayer that should be clicked on.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def choose_prayer(self, altar, prayer):
+    &#34;&#34;&#34;Click on a prayer at the altar.
+
+    Parameters
+    ----------
+    altar : hoplite.game.state.AltarState
+        State of the currently displayed altar.
+    prayer : hoplite.game.status.Prayer
+        Prayer that should be clicked on.
+
+    &#34;&#34;&#34;
+    observed_height = altar.prayers[prayer]
+    self.monkey.touch(540, observed_height + 50)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.actuator.Actuator.close_interface"><code class="name flex">
+<span>def <span class="ident">close_interface</span></span>(<span>self, interface)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Take the required action to close an interface, meaning touching
+a button on scree.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>interface</code></strong> :&ensp;<code><a title="hoplite.game.state.Interface" href="game/state.html#hoplite.game.state.Interface">Interface</a></code></dt>
+<dd>Interface to close (should be currently displayed on screen).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close_interface(self, interface):
+    &#34;&#34;&#34;Take the required action to close an interface, meaning touching
+    a button on scree.
+
+    Parameters
+    ----------
+    interface : hoplite.game.state.Interface
+        Interface to close (should be currently displayed on screen).
+
+    &#34;&#34;&#34;
+    LOGGER.debug(&#34;Closing interface %s&#34;, interface)
+    if interface == hoplite.game.state.Interface.EMBARK:
+        LOGGER.info(&#34;Embarking!&#34;)
+        self.monkey.touch(*self.EMBARK_EMBARK)
+    elif interface == hoplite.game.state.Interface.FLEECE:
+        self.monkey.touch(*self.FLEECE_PICK_UP)
+    elif interface == hoplite.game.state.Interface.DEATH:
+        self.monkey.touch(*self.DEATH_OK)
+    elif interface == hoplite.game.state.Interface.VICTORY:
+        self.monkey.touch(*self.VICTORY_OK)</code></pre>
+</details>
+</dd>
 <dt id="hoplite.actuator.Actuator.leap"><code class="name flex">
 <span>def <span class="ident">leap</span></span>(<span>self, target)</span>
 </code></dt>
@@ -468,12 +663,14 @@ for the <code><a title="hoplite.monkey_runner.MonkeyRunnerInterface" href="monke
     &#34;&#34;&#34;
     if isinstance(player_move, hoplite.game.moves.WalkMove):
         self.walk(player_move.target)
-    if isinstance(player_move, hoplite.game.moves.LeapMove):
+    elif isinstance(player_move, hoplite.game.moves.LeapMove):
         self.leap(player_move.target)
-    if isinstance(player_move, hoplite.game.moves.BashMove):
+    elif isinstance(player_move, hoplite.game.moves.BashMove):
         self.bash(player_move.target)
-    if isinstance(player_move, hoplite.game.moves.ThrowMove):
-        self.throw(player_move.target)</code></pre>
+    elif isinstance(player_move, hoplite.game.moves.ThrowMove):
+        self.throw(player_move.target)
+    elif isinstance(player_move, hoplite.game.moves.AltarMove):
+        self.monkey.touch(*hexagonal_to_pixels(player_move.target))</code></pre>
 </details>
 </dd>
 <dt id="hoplite.actuator.Actuator.throw"><code class="name flex">
@@ -557,8 +754,14 @@ for the <code><a title="hoplite.monkey_runner.MonkeyRunnerInterface" href="monke
 <li><code><a title="hoplite.actuator.Actuator.BUTTON_BASH" href="#hoplite.actuator.Actuator.BUTTON_BASH">BUTTON_BASH</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.BUTTON_LEAP" href="#hoplite.actuator.Actuator.BUTTON_LEAP">BUTTON_LEAP</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.BUTTON_THROW" href="#hoplite.actuator.Actuator.BUTTON_THROW">BUTTON_THROW</a></code></li>
+<li><code><a title="hoplite.actuator.Actuator.DEATH_OK" href="#hoplite.actuator.Actuator.DEATH_OK">DEATH_OK</a></code></li>
+<li><code><a title="hoplite.actuator.Actuator.EMBARK_EMBARK" href="#hoplite.actuator.Actuator.EMBARK_EMBARK">EMBARK_EMBARK</a></code></li>
+<li><code><a title="hoplite.actuator.Actuator.FLEECE_PICK_UP" href="#hoplite.actuator.Actuator.FLEECE_PICK_UP">FLEECE_PICK_UP</a></code></li>
+<li><code><a title="hoplite.actuator.Actuator.VICTORY_OK" href="#hoplite.actuator.Actuator.VICTORY_OK">VICTORY_OK</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.bash" href="#hoplite.actuator.Actuator.bash">bash</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.button_move" href="#hoplite.actuator.Actuator.button_move">button_move</a></code></li>
+<li><code><a title="hoplite.actuator.Actuator.choose_prayer" href="#hoplite.actuator.Actuator.choose_prayer">choose_prayer</a></code></li>
+<li><code><a title="hoplite.actuator.Actuator.close_interface" href="#hoplite.actuator.Actuator.close_interface">close_interface</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.leap" href="#hoplite.actuator.Actuator.leap">leap</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.make_move" href="#hoplite.actuator.Actuator.make_move">make_move</a></code></li>
 <li><code><a title="hoplite.actuator.Actuator.throw" href="#hoplite.actuator.Actuator.throw">throw</a></code></li>

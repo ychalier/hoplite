@@ -1,12 +1,29 @@
 """Gathering of all of the game components.
 """
 
+import enum
 import copy
 import logging
 import hoplite.utils
 import hoplite.game.terrain
 import hoplite.game.status
 import hoplite.game.moves
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+@enum.unique
+class Interface(enum.Enum):
+    """Enumeration of possible game interface displayed on screen.
+    """
+
+    EMBARK = 0
+    PLAYING = 1
+    ALTAR = 2
+    FLEECE = 3
+    VICTORY = 4
+    DEATH = 5
 
 
 class GameState:
@@ -20,8 +37,6 @@ class GameState:
         Logical representation of the terrain.
     status : hoplite.game.status.Status
         Logical representation of the player status.
-    logger : logging.Logger
-        Logger to output debug information.
 
     """
 
@@ -29,7 +44,6 @@ class GameState:
         self.depth = 1
         self.terrain = hoplite.game.terrain.Terrain()
         self.status = hoplite.game.status.Status()
-        self.logger = logging.getLogger("game")
 
     def __repr__(self):
         return "GameState%s" % self.__dict__
@@ -69,13 +83,13 @@ class GameState:
         for bomb_pos in list(self.terrain.bombs):
             for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
                 if neighbor == self.terrain.player:
-                    self.logger.debug(
+                    LOGGER.debug(
                         "Taking a damage because of BOMB at %s",
                         bomb_pos
                     )
                     damages += 1
                 elif neighbor in self.terrain.demons:
-                    self.logger.debug(
+                    LOGGER.debug(
                         "Killing with BOMB: %s at %s",
                         self.terrain.demons[neighbor].skill.name,
                         neighbor
@@ -85,13 +99,13 @@ class GameState:
         for demon_pos, demon in self.terrain.demons.items():
             demon_damage = demon.attack(self, demon_pos)
             if demon_damage > 0:
-                self.logger.debug(
+                LOGGER.debug(
                     "Taking a damage because of %s at %s",
                     demon.skill.name,
                     demon_pos
                 )
             damages += demon_damage
-        self.logger.debug("Total damages received: %d", damages)
+        LOGGER.debug("Total damages received: %d", damages)
         self.status.deal_damage(damages)
 
     def possible_moves(self):
@@ -133,9 +147,30 @@ class GameState:
                         or (pos in self.terrain.bombs):
                     continue
                 yield hoplite.game.moves.ThrowMove(pos)
+        if self.terrain.altar_prayable\
+                and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
+            yield hoplite.game.moves.AltarMove(self.terrain.altar)
 
 
 class LostGameException(Exception):
     """
     Exception to be raised when the game is lost.
     """
+
+
+class AltarState:  # pylint: disable=R0903
+    """Represent the state of an Altar.
+
+    Attributes
+    ----------
+    prayers : dict[hoplite.game.status.Prayer, int]
+            Prayers available at the altar, and their observed height
+            (in pixels).
+
+    """
+
+    def __init__(self):
+        self.prayers = dict()
+
+    def __str__(self):
+        return str(list(self.prayers.keys()))

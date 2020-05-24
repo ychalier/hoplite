@@ -36,6 +36,9 @@ import logging
 import subprocess
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class MonkeyRunnerInterface:
     &#34;&#34;&#34;Socket client to communicate with the MonkeyRunner script.
 
@@ -50,10 +53,6 @@ class MonkeyRunnerInterface:
         Dedicated process for the MonkeyRunner script.
     client : socket.socket
         Socket client.
-    logger : logging.Logger
-        Logger to write debug information.
-    LOGGER_NAME : str
-        Name for the logger.
     SERVER_ADDRESS : tuple[str, int]
         Host and port of the socket server to connect to.
     MAX_CONNECTION_ATTEMPTS : int
@@ -65,7 +64,6 @@ class MonkeyRunnerInterface:
     &#34;&#34;&#34;
 
     SERVER_ADDRESS = (&#34;localhost&#34;, 9898)
-    LOGGER_NAME = &#34;monkey_client&#34;
     MAX_CONNECTION_ATTEMPTS = 10
     DELAY_BETWEEN_ATTEMPTS = .5  # seconds
 
@@ -73,7 +71,6 @@ class MonkeyRunnerInterface:
         self.mr_script = mr_script
         self.process = None
         self.client = None
-        self.logger = logging.getLogger(self.LOGGER_NAME)
 
     def open(self):
         &#34;&#34;&#34;Connect to the server.
@@ -85,7 +82,7 @@ class MonkeyRunnerInterface:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
             try:
-                self.logger.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
+                LOGGER.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
                 self.client.connect(self.SERVER_ADDRESS)
                 break
             except ConnectionRefusedError:
@@ -161,10 +158,6 @@ class MonkeyRunnerInterface:
 <dd>Dedicated process for the MonkeyRunner script.</dd>
 <dt><strong><code>client</code></strong> :&ensp;<code>socket.socket</code></dt>
 <dd>Socket client.</dd>
-<dt><strong><code>logger</code></strong> :&ensp;<code>logging.Logger</code></dt>
-<dd>Logger to write debug information.</dd>
-<dt><strong><code>LOGGER_NAME</code></strong> :&ensp;<code>str</code></dt>
-<dd>Name for the logger.</dd>
 <dt><strong><code>SERVER_ADDRESS</code></strong> :&ensp;<code>tuple[str, int]</code></dt>
 <dd>Host and port of the socket server to connect to.</dd>
 <dt><strong><code>MAX_CONNECTION_ATTEMPTS</code></strong> :&ensp;<code>int</code></dt>
@@ -192,10 +185,6 @@ class MonkeyRunnerInterface:
         Dedicated process for the MonkeyRunner script.
     client : socket.socket
         Socket client.
-    logger : logging.Logger
-        Logger to write debug information.
-    LOGGER_NAME : str
-        Name for the logger.
     SERVER_ADDRESS : tuple[str, int]
         Host and port of the socket server to connect to.
     MAX_CONNECTION_ATTEMPTS : int
@@ -207,7 +196,6 @@ class MonkeyRunnerInterface:
     &#34;&#34;&#34;
 
     SERVER_ADDRESS = (&#34;localhost&#34;, 9898)
-    LOGGER_NAME = &#34;monkey_client&#34;
     MAX_CONNECTION_ATTEMPTS = 10
     DELAY_BETWEEN_ATTEMPTS = .5  # seconds
 
@@ -215,7 +203,6 @@ class MonkeyRunnerInterface:
         self.mr_script = mr_script
         self.process = None
         self.client = None
-        self.logger = logging.getLogger(self.LOGGER_NAME)
 
     def open(self):
         &#34;&#34;&#34;Connect to the server.
@@ -227,7 +214,7 @@ class MonkeyRunnerInterface:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
             try:
-                self.logger.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
+                LOGGER.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
                 self.client.connect(self.SERVER_ADDRESS)
                 break
             except ConnectionRefusedError:
@@ -282,10 +269,6 @@ class MonkeyRunnerInterface:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="hoplite.monkey_runner.MonkeyRunnerInterface.LOGGER_NAME"><code class="name">var <span class="ident">LOGGER_NAME</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="hoplite.monkey_runner.MonkeyRunnerInterface.MAX_CONNECTION_ATTEMPTS"><code class="name">var <span class="ident">MAX_CONNECTION_ATTEMPTS</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -333,7 +316,7 @@ class MonkeyRunnerInterface:
     self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
         try:
-            self.logger.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
+            LOGGER.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
             self.client.connect(self.SERVER_ADDRESS)
             break
         except ConnectionRefusedError:
@@ -435,7 +418,6 @@ class MonkeyRunnerInterface:
 <h4><code><a title="hoplite.monkey_runner.MonkeyRunnerInterface" href="#hoplite.monkey_runner.MonkeyRunnerInterface">MonkeyRunnerInterface</a></code></h4>
 <ul class="">
 <li><code><a title="hoplite.monkey_runner.MonkeyRunnerInterface.DELAY_BETWEEN_ATTEMPTS" href="#hoplite.monkey_runner.MonkeyRunnerInterface.DELAY_BETWEEN_ATTEMPTS">DELAY_BETWEEN_ATTEMPTS</a></code></li>
-<li><code><a title="hoplite.monkey_runner.MonkeyRunnerInterface.LOGGER_NAME" href="#hoplite.monkey_runner.MonkeyRunnerInterface.LOGGER_NAME">LOGGER_NAME</a></code></li>
 <li><code><a title="hoplite.monkey_runner.MonkeyRunnerInterface.MAX_CONNECTION_ATTEMPTS" href="#hoplite.monkey_runner.MonkeyRunnerInterface.MAX_CONNECTION_ATTEMPTS">MAX_CONNECTION_ATTEMPTS</a></code></li>
 <li><code><a title="hoplite.monkey_runner.MonkeyRunnerInterface.SERVER_ADDRESS" href="#hoplite.monkey_runner.MonkeyRunnerInterface.SERVER_ADDRESS">SERVER_ADDRESS</a></code></li>
 <li><code><a title="hoplite.monkey_runner.MonkeyRunnerInterface.close" href="#hoplite.monkey_runner.MonkeyRunnerInterface.close">close</a></code></li>

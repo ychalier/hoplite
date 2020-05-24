@@ -32,21 +32,21 @@ import logging
 import hoplite.utils
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class PlayerAttack:
     &#34;&#34;&#34;Possible attacks that the player can perform.
     Attacks differ from `PlayerMove`.
 
     Attributes
     ----------
-    _logger : logging.Logger
-        Logger to print debug information.
     _killed : int
         Counter for the number of kills resulting from the attack.
 
     &#34;&#34;&#34;
 
     def __init__(self):
-        self._logger = logging.getLogger(&#34;game&#34;)
         self._killed = 0
 
     def __repr__(self):
@@ -54,7 +54,7 @@ class PlayerAttack:
 
     def _kill(self, next_state, target):
         self._killed += 1
-        self._logger.debug(
+        LOGGER.debug(
             &#34;Killing %s at %s using %s&#34;,
             next_state.terrain.demons[target].skill.name,
             target,
@@ -105,7 +105,7 @@ class Lunge(PlayerAttack):  # pylint: disable=R0903
 
     def _apply(self, prev_state, next_state):
         if not prev_state.status.spear:
-            self._logger.debug(&#34;Lunge impossible because of missing spear&#34;)
+            LOGGER.debug(&#34;Lunge impossible because of missing spear&#34;)
             return
         target = next_state.terrain.player\
             + prev_state.terrain.player.gradient(next_state.terrain.player)
@@ -138,7 +138,7 @@ class Lunge(PlayerAttack):  # pylint: disable=R0903
 
     def _apply(self, prev_state, next_state):
         if not prev_state.status.spear:
-            self._logger.debug(&#34;Lunge impossible because of missing spear&#34;)
+            LOGGER.debug(&#34;Lunge impossible because of missing spear&#34;)
             return
         target = next_state.terrain.player\
             + prev_state.terrain.player.gradient(next_state.terrain.player)
@@ -166,8 +166,6 @@ class Lunge(PlayerAttack):  # pylint: disable=R0903
 Attacks differ from <code>PlayerMove</code>.</p>
 <h2 id="attributes">Attributes</h2>
 <dl>
-<dt><strong><code>_logger</code></strong> :&ensp;<code>logging.Logger</code></dt>
-<dd>Logger to print debug information.</dd>
 <dt><strong><code>_killed</code></strong> :&ensp;<code>int</code></dt>
 <dd>Counter for the number of kills resulting from the attack.</dd>
 </dl></div>
@@ -181,15 +179,12 @@ Attacks differ from <code>PlayerMove</code>.</p>
 
     Attributes
     ----------
-    _logger : logging.Logger
-        Logger to print debug information.
     _killed : int
         Counter for the number of kills resulting from the attack.
 
     &#34;&#34;&#34;
 
     def __init__(self):
-        self._logger = logging.getLogger(&#34;game&#34;)
         self._killed = 0
 
     def __repr__(self):
@@ -197,7 +192,7 @@ Attacks differ from <code>PlayerMove</code>.</p>
 
     def _kill(self, next_state, target):
         self._killed += 1
-        self._logger.debug(
+        LOGGER.debug(
             &#34;Killing %s at %s using %s&#34;,
             next_state.terrain.demons[target].skill.name,
             target,

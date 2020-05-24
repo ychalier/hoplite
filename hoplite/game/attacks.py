@@ -5,21 +5,21 @@ import logging
 import hoplite.utils
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class PlayerAttack:
     """Possible attacks that the player can perform.
     Attacks differ from `PlayerMove`.
 
     Attributes
     ----------
-    _logger : logging.Logger
-        Logger to print debug information.
     _killed : int
         Counter for the number of kills resulting from the attack.
 
     """
 
     def __init__(self):
-        self._logger = logging.getLogger("game")
         self._killed = 0
 
     def __repr__(self):
@@ -27,7 +27,7 @@ class PlayerAttack:
 
     def _kill(self, next_state, target):
         self._killed += 1
-        self._logger.debug(
+        LOGGER.debug(
             "Killing %s at %s using %s",
             next_state.terrain.demons[target].skill.name,
             target,
@@ -78,7 +78,7 @@ class Lunge(PlayerAttack):  # pylint: disable=R0903
 
     def _apply(self, prev_state, next_state):
         if not prev_state.status.spear:
-            self._logger.debug("Lunge impossible because of missing spear")
+            LOGGER.debug("Lunge impossible because of missing spear")
             return
         target = next_state.terrain.player\
             + prev_state.terrain.player.gradient(next_state.terrain.player)

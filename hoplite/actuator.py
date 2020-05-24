@@ -1,6 +1,11 @@
 """Interface between the internal game representation and MonkeyRunner.
 """
+import logging
 import hoplite.game.moves
+import hoplite.game.state
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def hexagonal_to_pixels(pos):
@@ -43,12 +48,24 @@ class Actuator:
         Screen position of the leap button.
     BUTTON_THROW : tuple[int, int]
         Screen position of the throw button.
+    VICTORY_OK : tuple[int, int]
+        Location of the ok button on the victory interface.
+    FLEECE_PICK_UP : tuple[int, int]
+        Location of the pickup button on the fleece interface.
+    EMBARK_EMBARK : tuple[int, int]
+        Location of the embark button on the embark interface.
+    DEATH_OK : tuple[int, int]
+        Location of the ok button on the embark interface.
 
     """
 
     BUTTON_BASH = 180, 1820
     BUTTON_LEAP = 540, 1820
     BUTTON_THROW = 900, 1820
+    VICTORY_OK = 540, 1673
+    FLEECE_PICK_UP = 540, 1222
+    EMBARK_EMBARK = 540, 710
+    DEATH_OK = 540, 1616
 
     def __init__(self, monkey_runner_interface):
         self.monkey = monkey_runner_interface
@@ -123,9 +140,46 @@ class Actuator:
         """
         if isinstance(player_move, hoplite.game.moves.WalkMove):
             self.walk(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.LeapMove):
+        elif isinstance(player_move, hoplite.game.moves.LeapMove):
             self.leap(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.BashMove):
+        elif isinstance(player_move, hoplite.game.moves.BashMove):
             self.bash(player_move.target)
-        if isinstance(player_move, hoplite.game.moves.ThrowMove):
+        elif isinstance(player_move, hoplite.game.moves.ThrowMove):
             self.throw(player_move.target)
+        elif isinstance(player_move, hoplite.game.moves.AltarMove):
+            self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+
+    def close_interface(self, interface):
+        """Take the required action to close an interface, meaning touching
+        a button on scree.
+
+        Parameters
+        ----------
+        interface : hoplite.game.state.Interface
+            Interface to close (should be currently displayed on screen).
+
+        """
+        LOGGER.debug("Closing interface %s", interface)
+        if interface == hoplite.game.state.Interface.EMBARK:
+            LOGGER.info("Embarking!")
+            self.monkey.touch(*self.EMBARK_EMBARK)
+        elif interface == hoplite.game.state.Interface.FLEECE:
+            self.monkey.touch(*self.FLEECE_PICK_UP)
+        elif interface == hoplite.game.state.Interface.DEATH:
+            self.monkey.touch(*self.DEATH_OK)
+        elif interface == hoplite.game.state.Interface.VICTORY:
+            self.monkey.touch(*self.VICTORY_OK)
+
+    def choose_prayer(self, altar, prayer):
+        """Click on a prayer at the altar.
+
+        Parameters
+        ----------
+        altar : hoplite.game.state.AltarState
+            State of the currently displayed altar.
+        prayer : hoplite.game.status.Prayer
+            Prayer that should be clicked on.
+
+        """
+        observed_height = altar.prayers[prayer]
+        self.monkey.touch(540, observed_height + 50)

@@ -97,6 +97,8 @@ def terrain(part):
     if is_close(part[42, 51], [0.905882, 0.364706, 0.352941]):
         return hoplite.game.terrain.SurfaceElement.ALTAR_ON
     if is_close(part[0, 0], numpy.array([0.321569, 0.427451, 0.223529])):
+        if is_close(part[28, 0], [0.129412, 0.141176, 0.129412]):
+            return hoplite.game.terrain.SurfaceElement.ALTAR_ON
         return hoplite.game.terrain.SurfaceElement.ALTAR_OFF
     if is_close(part[26, 26], [0.709804, 0.572549, 0.000000]):
         return hoplite.game.terrain.SurfaceElement.FLEECE
@@ -762,6 +764,8 @@ spear is rotated depending on where the player thrown it from.</p>
     if is_close(part[42, 51], [0.905882, 0.364706, 0.352941]):
         return hoplite.game.terrain.SurfaceElement.ALTAR_ON
     if is_close(part[0, 0], numpy.array([0.321569, 0.427451, 0.223529])):
+        if is_close(part[28, 0], [0.129412, 0.141176, 0.129412]):
+            return hoplite.game.terrain.SurfaceElement.ALTAR_ON
         return hoplite.game.terrain.SurfaceElement.ALTAR_OFF
     if is_close(part[26, 26], [0.709804, 0.572549, 0.000000]):
         return hoplite.game.terrain.SurfaceElement.FLEECE

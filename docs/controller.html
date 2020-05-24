@@ -55,6 +55,8 @@ class Controller:
     ----------
     stop : bool
         Whether the controller main loop should be stopped.
+    memory : hoplite.game.state.GameState
+        Last known state of the game.
     observer
     actuator
     brain
@@ -65,6 +67,7 @@ class Controller:
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
+        self.memory = None
         self.stop = False
 
     def step(self):
@@ -74,7 +77,12 @@ class Controller:
         LOGGER.debug(&#34;Interface: %s&#34;, interface)
         if interface == hoplite.game.state.Interface.PLAYING:
             game = self.observer.parse_game()
-            move = self.brain.pick_move(game)
+            if self.memory is None:
+                self.memory = game
+            else:
+                self.memory.update(game)
+            LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
+            move = self.brain.pick_move(self.memory)
             self.actuator.make_move(move)
         elif interface == hoplite.game.state.Interface.EMBARK:
             self.actuator.close_interface(interface)
@@ -88,6 +96,7 @@ class Controller:
             altar = self.observer.parse_altar()
             LOGGER.info(&#34;Available prayers: %s&#34;, altar)
             prayer = self.brain.pick_prayer(altar)
+            self.memory.status.prayers.append(prayer)
             LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
             self.actuator.choose_prayer(altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
@@ -133,6 +142,8 @@ class Controller:
 <dl>
 <dt><strong><code>stop</code></strong> :&ensp;<code>bool</code></dt>
 <dd>Whether the controller main loop should be stopped.</dd>
+<dt><strong><code>memory</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
+<dd>Last known state of the game.</dd>
 <dt><strong><code>observer</code></strong></dt>
 <dd>&nbsp;</dd>
 <dt><strong><code>actuator</code></strong></dt>
@@ -160,6 +171,8 @@ class Controller:
     ----------
     stop : bool
         Whether the controller main loop should be stopped.
+    memory : hoplite.game.state.GameState
+        Last known state of the game.
     observer
     actuator
     brain
@@ -170,6 +183,7 @@ class Controller:
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
+        self.memory = None
         self.stop = False
 
     def step(self):
@@ -179,7 +193,12 @@ class Controller:
         LOGGER.debug(&#34;Interface: %s&#34;, interface)
         if interface == hoplite.game.state.Interface.PLAYING:
             game = self.observer.parse_game()
-            move = self.brain.pick_move(game)
+            if self.memory is None:
+                self.memory = game
+            else:
+                self.memory.update(game)
+            LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
+            move = self.brain.pick_move(self.memory)
             self.actuator.make_move(move)
         elif interface == hoplite.game.state.Interface.EMBARK:
             self.actuator.close_interface(interface)
@@ -193,6 +212,7 @@ class Controller:
             altar = self.observer.parse_altar()
             LOGGER.info(&#34;Available prayers: %s&#34;, altar)
             prayer = self.brain.pick_prayer(altar)
+            self.memory.status.prayers.append(prayer)
             LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
             self.actuator.choose_prayer(altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
@@ -247,7 +267,12 @@ class Controller:
     LOGGER.debug(&#34;Interface: %s&#34;, interface)
     if interface == hoplite.game.state.Interface.PLAYING:
         game = self.observer.parse_game()
-        move = self.brain.pick_move(game)
+        if self.memory is None:
+            self.memory = game
+        else:
+            self.memory.update(game)
+        LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
+        move = self.brain.pick_move(self.memory)
         self.actuator.make_move(move)
     elif interface == hoplite.game.state.Interface.EMBARK:
         self.actuator.close_interface(interface)
@@ -261,6 +286,7 @@ class Controller:
         altar = self.observer.parse_altar()
         LOGGER.info(&#34;Available prayers: %s&#34;, altar)
         prayer = self.brain.pick_prayer(altar)
+        self.memory.status.prayers.append(prayer)
         LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
         self.actuator.choose_prayer(altar, prayer)
     elif interface == hoplite.game.state.Interface.FLEECE:

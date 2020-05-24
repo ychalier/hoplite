@@ -59,12 +59,12 @@ There is a lot to do, so feel free to [contribute](#contributing)!
     - [ ] Develop a game explorer to build a database of state sequences for further analysis
     - [ ] Complete and implement the [game rules](RULES.md) (prayers, cooldowns, reactions, energy restoration, etc.)
     - [x] ~~Allow for menus recognition (title screen and altars) and answering~~
-    - [ ] Implement memory for `GameState` to allow prayers handling
+    - [x] ~~Implement memory for `GameState` to allow prayers handling~~
 - [x] ~~Fasten `Observer` by using fine-tuned template recognition model~~
 - [ ] Enhance the AI part:
     - [ ] Fine-tune player's incentives between killing all enemies, go to the next level, and pray at the altar
     - [ ] Implement a proper training of the game state evaluation
-    - [ ] Implement a proper exploration of varitations starting from a position, like chess engines
+    - [ ] Implement a proper exploration of variations starting from a position, like chess engines
 - [ ] Explore support for device with resolution different from 1080*1920
 - [ ] *Many more things that I am not thinking of right now...*
 

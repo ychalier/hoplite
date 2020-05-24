@@ -175,6 +175,8 @@ class Actuator:
             self.throw(player_move.target)
         elif isinstance(player_move, hoplite.game.moves.AltarMove):
             self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+        elif isinstance(player_move, hoplite.game.moves.IdleMove):
+            self.monkey.touch(*hexagonal_to_pixels(player_move.target))
 
     def close_interface(self, interface):
         &#34;&#34;&#34;Take the required action to close an interface, meaning touching
@@ -415,6 +417,8 @@ MonkeyRunner client.</p>
         elif isinstance(player_move, hoplite.game.moves.ThrowMove):
             self.throw(player_move.target)
         elif isinstance(player_move, hoplite.game.moves.AltarMove):
+            self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+        elif isinstance(player_move, hoplite.game.moves.IdleMove):
             self.monkey.touch(*hexagonal_to_pixels(player_move.target))
 
     def close_interface(self, interface):
@@ -670,6 +674,8 @@ for the <code><a title="hoplite.monkey_runner.MonkeyRunnerInterface" href="monke
     elif isinstance(player_move, hoplite.game.moves.ThrowMove):
         self.throw(player_move.target)
     elif isinstance(player_move, hoplite.game.moves.AltarMove):
+        self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+    elif isinstance(player_move, hoplite.game.moves.IdleMove):
         self.monkey.touch(*hexagonal_to_pixels(player_move.target))</code></pre>
 </details>
 </dd>

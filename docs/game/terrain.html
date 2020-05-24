@@ -282,8 +282,8 @@ class Terrain:  # pylint: disable=R0902
         for pos in positions:
             if self.surface.get(pos) != Tile.GROUND:
                 continue
-            if pos == self.altar:
-                continue
+            # if pos == self.altar:
+            #     continue
             result.append(pos)
         return result
 
@@ -1010,8 +1010,8 @@ class TerrainRenderer:  # pylint: disable=R0903
         for pos in positions:
             if self.surface.get(pos) != Tile.GROUND:
                 continue
-            if pos == self.altar:
-                continue
+            # if pos == self.altar:
+            #     continue
             result.append(pos)
         return result
 
@@ -1346,8 +1346,8 @@ walk on (ie. not over magma or an altar).</dd>
     for pos in positions:
         if self.surface.get(pos) != Tile.GROUND:
             continue
-        if pos == self.altar:
-            continue
+        # if pos == self.altar:
+        #     continue
         result.append(pos)
     return result</code></pre>
 </details>

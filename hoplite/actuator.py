@@ -148,6 +148,8 @@ class Actuator:
             self.throw(player_move.target)
         elif isinstance(player_move, hoplite.game.moves.AltarMove):
             self.monkey.touch(*hexagonal_to_pixels(player_move.target))
+        elif isinstance(player_move, hoplite.game.moves.IdleMove):
+            self.monkey.touch(*hexagonal_to_pixels(player_move.target))
 
     def close_interface(self, interface):
         """Take the required action to close an interface, meaning touching

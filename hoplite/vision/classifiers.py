@@ -70,6 +70,8 @@ def terrain(part):
     if is_close(part[42, 51], [0.905882, 0.364706, 0.352941]):
         return hoplite.game.terrain.SurfaceElement.ALTAR_ON
     if is_close(part[0, 0], numpy.array([0.321569, 0.427451, 0.223529])):
+        if is_close(part[28, 0], [0.129412, 0.141176, 0.129412]):
+            return hoplite.game.terrain.SurfaceElement.ALTAR_ON
         return hoplite.game.terrain.SurfaceElement.ALTAR_OFF
     if is_close(part[26, 26], [0.709804, 0.572549, 0.000000]):
         return hoplite.game.terrain.SurfaceElement.FLEECE
@@ -232,6 +234,10 @@ def interface(part):
         return hoplite.game.state.Interface.FLEECE
     if is_close(part[275, 640], [1.000000, 1.000000, 1.000000]):
         return hoplite.game.state.Interface.VICTORY
+    if is_close(part[1450, 540], [1.000000, 1.000000, 1.000000]):
+        return hoplite.game.state.Interface.STAIRS
+    if is_close(part[750, 1000], [0.352941, 0.270588, 0.160784]):
+        return hoplite.game.state.Interface.ALTAR
     return hoplite.game.state.Interface.PLAYING
 
 

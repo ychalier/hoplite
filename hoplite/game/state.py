@@ -24,6 +24,7 @@ class Interface(enum.Enum):
     FLEECE = 3
     VICTORY = 4
     DEATH = 5
+    STAIRS = 6
 
 
 class GameState:
@@ -163,6 +164,8 @@ class GameState:
         if self.terrain.altar_prayable\
                 and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
             yield hoplite.game.moves.AltarMove(self.terrain.altar)
+        if hoplite.game.status.Prayer.PATIENCE in self.status.prayers:
+            yield hoplite.game.moves.IdleMove(self.terrain.player)
 
 
 class LostGameException(Exception):

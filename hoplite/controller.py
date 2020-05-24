@@ -46,14 +46,13 @@ class Controller:
         """
         interface = self.observer.fetch_screenshot()
         LOGGER.debug("Interface: %s", interface)
-        if self.memory:
-            print(self.memory.status.prayers)
         if interface == hoplite.game.state.Interface.PLAYING:
             game = self.observer.parse_game()
             if self.memory is None:
                 self.memory = game
             else:
                 self.memory.update(game)
+            LOGGER.info("Current evaluation: %.2f", self.brain.evaluate(self.memory))
             move = self.brain.pick_move(self.memory)
             self.actuator.make_move(move)
         elif interface == hoplite.game.state.Interface.EMBARK:
@@ -73,6 +72,9 @@ class Controller:
             self.actuator.choose_prayer(altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
             self.actuator.close_interface(interface)
+        elif interface == hoplite.game.state.Interface.STAIRS:
+            self.stop = True
+            LOGGER.info("Reached the stairs!")
         time.sleep(1)
 
     def run(self):

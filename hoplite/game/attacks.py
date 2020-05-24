@@ -80,8 +80,11 @@ class Lunge(PlayerAttack):  # pylint: disable=R0903
         if not prev_state.status.spear:
             LOGGER.debug("Lunge impossible because of missing spear")
             return
-        target = next_state.terrain.player\
-            + prev_state.terrain.player.gradient(next_state.terrain.player)
+        direction = prev_state.terrain.player.gradient(next_state.terrain.player)
+        target = next_state.terrain.player + direction
         if target in next_state.terrain.demons:
             self._kill(next_state, target)
-        # TODO: handle deep lunge
+            if hoplite.game.status.Prayer.DEEP_LUNGE in next_state.status.prayers:
+                target = target + direction
+                if target in next_state.terrain.demons:
+                    self._kill(next_state, target)

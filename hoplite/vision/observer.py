@@ -359,10 +359,9 @@ class Observer:
         self.screenshot = self.parser.read_stream(
             self.monkey_runner.snapshot(as_stream=True))
         if self.save_screenshots:
-            matplotlib.image.imsave(
-                "%d.png" % (time.time() * 1000),
-                self.screenshot
-            )
+            filename = "%d.png" % (time.time() * 1000)
+            LOGGER.info("Saving screenshot to %s", filename)
+            matplotlib.image.imsave(filename, self.screenshot)
         return hoplite.vision.classifiers.interface(self.screenshot)
 
     def parse_game(self):

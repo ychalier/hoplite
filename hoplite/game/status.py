@@ -93,6 +93,55 @@ class Status:
     def __repr__(self):
         return "Status%s" % self.__dict__
 
+    def add_prayer(self, prayer):  # pylint: disable=R0912
+        """Add a prayer to the prayer list.
+
+        Parameters
+        ----------
+        prayer : hoplite.game.status.Prayer
+            Prayer to add to the list.
+
+        """
+        self.prayers.append(prayer)
+        if prayer == Prayer.DIVINE_RESTORATION:
+            self.health = self.attributes.maximum_health
+        elif prayer == Prayer.FORTITUDE:
+            self.health += 1
+            self.attributes.maximum_health += 1
+        elif prayer == Prayer.BLOODLUST:
+            self.health -= 1
+            self.attributes.maximum_health -= 1
+        elif prayer == Prayer.MIGHTY_BASH:
+            self.attributes.knockback_distance += 1
+        elif prayer == Prayer.QUICK_BASH:
+            self.attributes.cooldown -= 1
+        elif prayer == Prayer.GREATER_THROW:
+            self.attributes.throw_distance += 1
+        elif prayer == Prayer.GREATER_THROW_II:
+            self.attributes.throw_distance += 1
+            self.health -= 1
+            self.attributes.maximum_health -= 1
+        elif prayer == Prayer.GREATER_ENERGY:
+            self.attributes.maximum_energy += 20
+        elif prayer == Prayer.GREATER_ENERGY_II:
+            self.attributes.maximum_energy += 20
+            self.health -= 1
+            self.attributes.maximum_health -= 1
+        elif prayer == Prayer.WINGED_SANDALS:
+            self.attributes.leap_distance += 1
+            self.health -= 1
+            self.attributes.maximum_health -= 1
+        elif prayer == Prayer.SURGE:
+            self.health -= 1
+            self.attributes.maximum_health -= 1
+        elif prayer == Prayer.REGENERATION:
+            self.health -= 1
+            self.attributes.maximum_health -= 1
+        elif prayer == Prayer.STAGGERING_LEAP:
+            self.health -= 2
+            self.attributes.maximum_health -= 2
+
+
     def update(self, new_status):
         """Update the current status with a newly parsed one.
 
@@ -106,7 +155,8 @@ class Status:
         self.energy = new_status.energy
         self.spear = new_status.spear
         self.health = new_status.health
-        self.prayers += new_status.prayers
+        for prayer in new_status.prayers:
+            self.add_prayer(prayer)
         self.attributes = new_status.attributes
 
     def can_leap(self):

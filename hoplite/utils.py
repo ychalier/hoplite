@@ -119,6 +119,32 @@ class HexagonalCoordinates:
         """
         return HexagonalCoordinates(self.x, self.y)
 
+    def rotate(self, steps):
+        """Rotate an hexagonal vector.
+
+        Parameters
+        ----------
+        steps : int
+            Number of rotation steps. One step corresponds to a angle of pi/3,
+            i.e. one sixth of a circle, in trigonometric direction
+            (counterclockwise). A negative number of steps will rotate
+            clockwise.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Rotated vector.
+
+        """
+        clockwise = steps < 0
+        result = self.copy()
+        for _ in range(abs(steps)):
+            if clockwise:
+                result = HexagonalCoordinates(-result.z, -result.x)
+            else:
+                result = HexagonalCoordinates(-result.y, -result.z)
+        return result
+
 
 def iter_coords():
     """Iterates over the coordinates of the map.

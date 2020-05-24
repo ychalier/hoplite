@@ -20,8 +20,7 @@ import hoplite.brain
 
 
 def play(monkey_runner, save_screenshots):
-    """
-    Play with the monkey runner interface.
+    """Play with the monkey runner interface.
     """
     mr_if = hoplite.monkey_runner.MonkeyRunnerInterface(monkey_runner)
     observer = hoplite.vision.observer.Observer(mr_if, save_screenshots=save_screenshots)
@@ -33,25 +32,31 @@ def play(monkey_runner, save_screenshots):
     mr_if.close()
 
 
-def parse(path, save_parts, show_ranges):
-    """
-    Parse a screenshot.
+def parse(path, save_parts, show_ranges, prayers):
+    """Parse a screenshot.
     """
     parser = hoplite.vision.observer.ScreenParser(save_parts=save_parts)
     brain = hoplite.brain.Brain()
     game = parser.observe_game(parser.read_stream(path))
+    for prayer in prayers.strip().split(","):
+        if prayer == "":
+            continue
+        game.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
     print(game)
     print("Evaluation:", brain.evaluate(game))
     print("Best move:", brain.pick_move(game))
     game.terrain.render(show_ranges=show_ranges)
 
 
-def move(path, move_name, target):
-    """
-    Observe a screenshot and make a move.
+def move(path, move_name, target, prayers):
+    """Observe a screenshot and make a move.
     """
     parser = hoplite.vision.observer.ScreenParser()
     prev_state = parser.observe_game(parser.read_stream(path))
+    for prayer in prayers.strip().split(","):
+        if prayer == "":
+            continue
+        prev_state.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
     print(prev_state)
     prev_state.terrain.render()
     move_class = {
@@ -67,8 +72,7 @@ def move(path, move_name, target):
 
 
 def main():
-    """
-    Argument parsing and action taking.
+    """Argument parsing and action taking.
     """
     description = "\n".join((
         "Hoplite AI version %s." % hoplite.__version__,
@@ -113,6 +117,12 @@ def main():
         action="store_true",
         help="show ranges",
     )
+    parse_parser.add_argument(
+        "--prayers",
+        type=str,
+        help="comma separated prayer index",
+        default="",
+    )
     move_parser = subparsers.add_parser("move")
     move_parser.add_argument(
         "path",
@@ -134,6 +144,12 @@ def main():
         type=int,
         help="move target y"
     )
+    move_parser.add_argument(
+        "--prayers",
+        type=str,
+        help="comma separated prayer index",
+        default="",
+    )
     play_parser = subparsers.add_parser("play")
     play_parser.add_argument(
         "--save-screenshots",
@@ -150,9 +166,9 @@ def main():
         log_level = logging.CRITICAL
     logging.basicConfig(level=log_level)
     if args.action == "parse":
-        parse(args.path, args.save_parts, args.show_ranges)
+        parse(args.path, args.save_parts, args.show_ranges, args.prayers)
     elif args.action == "move":
-        move(args.path, args.move, (args.x, args.y))
+        move(args.path, args.move, (args.x, args.y), args.prayers)
     elif args.action == "play":
         play(args.monkey_runner, args.save_screenshots)
 

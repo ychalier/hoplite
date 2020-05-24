@@ -76,17 +76,21 @@ class MonkeyRunnerInterface:
         &#34;&#34;&#34;Connect to the server.
         &#34;&#34;&#34;
         self.process = subprocess.Popen(
-            [self.mr_script, os.path.realpath(&#34;monkey.py&#34;)],
+            [self.mr_script, os.path.realpath(&#34;monkey.py&#34;), str(logging.root.level)],
             cwd=os.path.dirname(self.mr_script)
         )
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connected = False
         for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
             try:
                 LOGGER.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
                 self.client.connect(self.SERVER_ADDRESS)
+                connected = True
                 break
             except ConnectionRefusedError:
                 time.sleep(self.DELAY_BETWEEN_ATTEMPTS)
+        if not connected:
+            raise ConnectionRefusedError()
 
     def snapshot(self, as_stream=False):
         &#34;&#34;&#34;Take a snapshot of the screen.
@@ -208,17 +212,21 @@ class MonkeyRunnerInterface:
         &#34;&#34;&#34;Connect to the server.
         &#34;&#34;&#34;
         self.process = subprocess.Popen(
-            [self.mr_script, os.path.realpath(&#34;monkey.py&#34;)],
+            [self.mr_script, os.path.realpath(&#34;monkey.py&#34;), str(logging.root.level)],
             cwd=os.path.dirname(self.mr_script)
         )
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connected = False
         for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
             try:
                 LOGGER.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
                 self.client.connect(self.SERVER_ADDRESS)
+                connected = True
                 break
             except ConnectionRefusedError:
                 time.sleep(self.DELAY_BETWEEN_ATTEMPTS)
+        if not connected:
+            raise ConnectionRefusedError()
 
     def snapshot(self, as_stream=False):
         &#34;&#34;&#34;Take a snapshot of the screen.
@@ -310,17 +318,21 @@ class MonkeyRunnerInterface:
     &#34;&#34;&#34;Connect to the server.
     &#34;&#34;&#34;
     self.process = subprocess.Popen(
-        [self.mr_script, os.path.realpath(&#34;monkey.py&#34;)],
+        [self.mr_script, os.path.realpath(&#34;monkey.py&#34;), str(logging.root.level)],
         cwd=os.path.dirname(self.mr_script)
     )
     self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connected = False
     for attempt in range(self.MAX_CONNECTION_ATTEMPTS):
         try:
             LOGGER.debug(&#34;Connection attempt no. %d&#34;, attempt + 1)
             self.client.connect(self.SERVER_ADDRESS)
+            connected = True
             break
         except ConnectionRefusedError:
-            time.sleep(self.DELAY_BETWEEN_ATTEMPTS)</code></pre>
+            time.sleep(self.DELAY_BETWEEN_ATTEMPTS)
+    if not connected:
+        raise ConnectionRefusedError()</code></pre>
 </details>
 </dd>
 <dt id="hoplite.monkey_runner.MonkeyRunnerInterface.snapshot"><code class="name flex">

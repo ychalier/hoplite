@@ -6,7 +6,35 @@ import numpy
 import hoplite.game.demons
 import hoplite.game.status
 
+
 LOGGER = logging.getLogger(__name__)
+
+
+def extract_distance_feature(game_state, target):
+    """Wrapper for a distance to tile feature.
+
+    Parameters
+    ----------
+    game_state : hoplite.game.state.GameState
+        State of the game to compute the path.
+    target : hoplite.utils.HexagonalCoordinates
+        Target tile for the player.
+
+    Returns
+    -------
+    int
+        Length of the sorthest path to the target. If the target is `None`,
+        the returned length is 0 (no target means no penalty). If the target
+        is unreachable (which can occur if the player is blocked for instance),
+        a default length of 20 is returned.
+
+    """
+    if target is None:
+        return 0
+    path = game_state.terrain.pathfind(game_state.terrain.player, target)
+    if path is None:
+        return 20
+    return len(path)
 
 
 class Brain:
@@ -31,14 +59,14 @@ class Brain:
             hoplite.game.demons.DemonSkill.WIZARD: 4
         }
         self.weights = numpy.array([
-            -100,  # being dead is very bad
-            10,
-            .5,
-            1,
-            -.5,
-            -5,
-            -1,
-            -1.24,  # praying is good (losing 1 heart costs 1.25)
+            -100,  # DEAD
+            10,    # HEALTH
+            1,     # ENERGY
+            -.5,   # COOLDOWN
+            -5,    # ENEMIES DANGEROSITY
+            -.5,    # DISTANCE TO STAIRS
+            -1,    # DISTANCE TO ALTAR
+            -2,    # DISTANCE TO SPEAR
         ])
         self.prayer_weights = {
             hoplite.game.status.Prayer.DIVINE_RESTORATION: 0,
@@ -59,7 +87,6 @@ class Brain:
             hoplite.game.status.Prayer.WINGED_SANDALS: 2,
             hoplite.game.status.Prayer.STAGGERING_LEAP: -1,
         }
-        # self.logger = logging.getLogger("brain")
 
     def extract(self, game_state):
         """Extract features of a game state. Values are manually scaled to
@@ -76,18 +103,9 @@ class Brain:
             Vector with extracted features.
 
         """
-        path = game_state.terrain.pathfind(
-            game_state.terrain.player,
-            game_state.terrain.stairs
-        )
-        if path is None:
-            path_length = 20
-        else:
-            path_length = len(path)
         features = [
             int(game_state.status.health == 0),  # from 0 to 1
             .125 * game_state.status.health,  # from 0 to 8
-            int(game_state.status.spear),  # from 0 to 1
             .01 * game_state.status.energy,  # usually around 100, but possibly above
             .25 * game_state.status.cooldown,  # from 0 to 4
             .04 * sum(map(  # depth 1 starts with 4, depth 16 starts with 28
@@ -95,8 +113,11 @@ class Brain:
                 game_state.terrain.demons.values()
             )),
             # if no obstacle, path at the beginning is 9 tiles long
-            .11 * path_length,
-            int(game_state.terrain.altar_prayable),
+            .11 * extract_distance_feature(game_state, game_state.terrain.stairs),
+            .11 * extract_distance_feature(game_state, game_state.terrain.altar)
+            * int(game_state.terrain.altar_prayable),
+            .11 * extract_distance_feature(game_state, game_state.terrain.spear)
+            * (1 - int(game_state.status.spear)),
         ]
         return numpy.array(features)
 

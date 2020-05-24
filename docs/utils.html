@@ -146,6 +146,32 @@ class HexagonalCoordinates:
         &#34;&#34;&#34;
         return HexagonalCoordinates(self.x, self.y)
 
+    def rotate(self, steps):
+        &#34;&#34;&#34;Rotate an hexagonal vector.
+
+        Parameters
+        ----------
+        steps : int
+            Number of rotation steps. One step corresponds to a angle of pi/3,
+            i.e. one sixth of a circle, in trigonometric direction
+            (counterclockwise). A negative number of steps will rotate
+            clockwise.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Rotated vector.
+
+        &#34;&#34;&#34;
+        clockwise = steps &lt; 0
+        result = self.copy()
+        for _ in range(abs(steps)):
+            if clockwise:
+                result = HexagonalCoordinates(-result.z, -result.x)
+            else:
+                result = HexagonalCoordinates(-result.y, -result.z)
+        return result
+
 
 def iter_coords():
     &#34;&#34;&#34;Iterates over the coordinates of the map.
@@ -550,7 +576,33 @@ of <code><a title="hoplite.utils.HexagonalCoordinates.norm" href="#hoplite.utils
             Same position but different address.
 
         &#34;&#34;&#34;
-        return HexagonalCoordinates(self.x, self.y)</code></pre>
+        return HexagonalCoordinates(self.x, self.y)
+
+    def rotate(self, steps):
+        &#34;&#34;&#34;Rotate an hexagonal vector.
+
+        Parameters
+        ----------
+        steps : int
+            Number of rotation steps. One step corresponds to a angle of pi/3,
+            i.e. one sixth of a circle, in trigonometric direction
+            (counterclockwise). A negative number of steps will rotate
+            clockwise.
+
+        Returns
+        -------
+        HexagonalCoordinates
+            Rotated vector.
+
+        &#34;&#34;&#34;
+        clockwise = steps &lt; 0
+        result = self.copy()
+        for _ in range(abs(steps)):
+            if clockwise:
+                result = HexagonalCoordinates(-result.z, -result.x)
+            else:
+                result = HexagonalCoordinates(-result.y, -result.z)
+        return result</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -669,6 +721,55 @@ of <code><a title="hoplite.utils.HexagonalCoordinates.norm" href="#hoplite.utils
     return max(abs(self.x), abs(self.y), abs(self.z))</code></pre>
 </details>
 </dd>
+<dt id="hoplite.utils.HexagonalCoordinates.rotate"><code class="name flex">
+<span>def <span class="ident">rotate</span></span>(<span>self, steps)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Rotate an hexagonal vector.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>steps</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of rotation steps. One step corresponds to a angle of pi/3,
+i.e. one sixth of a circle, in trigonometric direction
+(counterclockwise). A negative number of steps will rotate
+clockwise.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.utils.HexagonalCoordinates" href="#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Rotated vector.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rotate(self, steps):
+    &#34;&#34;&#34;Rotate an hexagonal vector.
+
+    Parameters
+    ----------
+    steps : int
+        Number of rotation steps. One step corresponds to a angle of pi/3,
+        i.e. one sixth of a circle, in trigonometric direction
+        (counterclockwise). A negative number of steps will rotate
+        clockwise.
+
+    Returns
+    -------
+    HexagonalCoordinates
+        Rotated vector.
+
+    &#34;&#34;&#34;
+    clockwise = steps &lt; 0
+    result = self.copy()
+    for _ in range(abs(steps)):
+        if clockwise:
+            result = HexagonalCoordinates(-result.z, -result.x)
+        else:
+            result = HexagonalCoordinates(-result.y, -result.z)
+    return result</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -702,6 +803,7 @@ of <code><a title="hoplite.utils.HexagonalCoordinates.norm" href="#hoplite.utils
 <li><code><a title="hoplite.utils.HexagonalCoordinates.doubled" href="#hoplite.utils.HexagonalCoordinates.doubled">doubled</a></code></li>
 <li><code><a title="hoplite.utils.HexagonalCoordinates.gradient" href="#hoplite.utils.HexagonalCoordinates.gradient">gradient</a></code></li>
 <li><code><a title="hoplite.utils.HexagonalCoordinates.norm" href="#hoplite.utils.HexagonalCoordinates.norm">norm</a></code></li>
+<li><code><a title="hoplite.utils.HexagonalCoordinates.rotate" href="#hoplite.utils.HexagonalCoordinates.rotate">rotate</a></code></li>
 </ul>
 </li>
 </ul>

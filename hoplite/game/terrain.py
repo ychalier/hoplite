@@ -255,8 +255,8 @@ class Terrain:  # pylint: disable=R0902
         for pos in positions:
             if self.surface.get(pos) != Tile.GROUND:
                 continue
-            if pos == self.altar:
-                continue
+            # if pos == self.altar:
+            #     continue
             result.append(pos)
         return result
 

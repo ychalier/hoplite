@@ -86,6 +86,19 @@ class GameState:
         &#34;&#34;&#34;
         return copy.deepcopy(self)
 
+    def update(self, new_state):
+        &#34;&#34;&#34;Update the current state with a newly parsed one.
+
+        Parameters
+        ----------
+        new_state : GameState
+            New game state, recently parsed.
+
+        &#34;&#34;&#34;
+        self.depth = new_state.depth
+        self.terrain = new_state.terrain
+        self.status.update(new_state.status)
+
     def apply_attacks(self, prev_state, attacks):
         &#34;&#34;&#34;Resolve player attacks.
 
@@ -177,6 +190,8 @@ class GameState:
         if self.terrain.altar_prayable\
                 and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
             yield hoplite.game.moves.AltarMove(self.terrain.altar)
+        if hoplite.game.status.Prayer.PATIENCE in self.status.prayers:
+            yield hoplite.game.moves.IdleMove(self.terrain.player)
 
 
 class LostGameException(Exception):
@@ -296,6 +311,19 @@ class AltarState:  # pylint: disable=R0903
         &#34;&#34;&#34;
         return copy.deepcopy(self)
 
+    def update(self, new_state):
+        &#34;&#34;&#34;Update the current state with a newly parsed one.
+
+        Parameters
+        ----------
+        new_state : GameState
+            New game state, recently parsed.
+
+        &#34;&#34;&#34;
+        self.depth = new_state.depth
+        self.terrain = new_state.terrain
+        self.status.update(new_state.status)
+
     def apply_attacks(self, prev_state, attacks):
         &#34;&#34;&#34;Resolve player attacks.
 
@@ -386,7 +414,9 @@ class AltarState:  # pylint: disable=R0903
                 yield hoplite.game.moves.ThrowMove(pos)
         if self.terrain.altar_prayable\
                 and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
-            yield hoplite.game.moves.AltarMove(self.terrain.altar)</code></pre>
+            yield hoplite.game.moves.AltarMove(self.terrain.altar)
+        if hoplite.game.status.Prayer.PATIENCE in self.status.prayers:
+            yield hoplite.game.moves.IdleMove(self.terrain.player)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -545,7 +575,37 @@ class AltarState:  # pylint: disable=R0903
             yield hoplite.game.moves.ThrowMove(pos)
     if self.terrain.altar_prayable\
             and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
-        yield hoplite.game.moves.AltarMove(self.terrain.altar)</code></pre>
+        yield hoplite.game.moves.AltarMove(self.terrain.altar)
+    if hoplite.game.status.Prayer.PATIENCE in self.status.prayers:
+        yield hoplite.game.moves.IdleMove(self.terrain.player)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.state.GameState.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, new_state)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the current state with a newly parsed one.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>new_state</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="#hoplite.game.state.GameState">GameState</a></code></dt>
+<dd>New game state, recently parsed.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, new_state):
+    &#34;&#34;&#34;Update the current state with a newly parsed one.
+
+    Parameters
+    ----------
+    new_state : GameState
+        New game state, recently parsed.
+
+    &#34;&#34;&#34;
+    self.depth = new_state.depth
+    self.terrain = new_state.terrain
+    self.status.update(new_state.status)</code></pre>
 </details>
 </dd>
 </dl>
@@ -650,6 +710,7 @@ class AltarState:  # pylint: disable=R0903
 <li><code><a title="hoplite.game.state.GameState.apply_damages" href="#hoplite.game.state.GameState.apply_damages">apply_damages</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.copy" href="#hoplite.game.state.GameState.copy">copy</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.possible_moves" href="#hoplite.game.state.GameState.possible_moves">possible_moves</a></code></li>
+<li><code><a title="hoplite.game.state.GameState.update" href="#hoplite.game.state.GameState.update">update</a></code></li>
 </ul>
 </li>
 <li>

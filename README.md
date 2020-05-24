@@ -58,9 +58,9 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [ ] Enhance the game re-implementation:
     - [ ] Develop a game explorer to build a database of state sequences for further analysis
     - [ ] Complete and implement the [game rules](RULES.md) (prayers, cooldowns, reactions, energy restoration, etc.)
-    - [ ] Allow for menus recognition (title screen and altars) and answering
+    - [x] ~~Allow for menus recognition (title screen and altars) and answering~~
     - [ ] Implement memory for `GameState` to allow prayers handling
-- [ ] Fasten `Observer` by using fine-tuned template recognition model
+- [x] ~~Fasten `Observer` by using fine-tuned template recognition model~~
 - [ ] Enhance the AI part:
     - [ ] Fine-tune player's incentives between killing all enemies, go to the next level, and pray at the altar
     - [ ] Implement a proper training of the game state evaluation

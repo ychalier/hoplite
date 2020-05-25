@@ -8,7 +8,7 @@ An attempt at making a basic AI for the Hoplite Android game.
 
 This modules provides an interface for automatically playing the game on an Android simulator or even live on a device. Screen is captured and analyzed for the program to get a logical representation of the game. Then, like most chess engines, possible moves are explored and evaluated by pondering some relevant features. The best one is picked, and played.
 
-[Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=akCKwzrkzT4).
+[Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=GJIp3fEq9Xc).
 
 This is a first draft, meaning many components are missing or poorly implemented. See the [roadmap](#roadmap) for details.
 
@@ -70,4 +70,6 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 
 ## Contributing
 
-Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many). If you implement some features, please make sure your code is clean enough (for this matter I use the [Pylint](https://www.pylint.org/) linter) and documented enough (add docstrings with short descriptions, types of arguments and returned values). I use [pdoc](https://pdoc3.github.io/pdoc/) to generate the documentation.
+Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many), and the [documentation](https://ychalier.github.io/hoplite/) for how to implement them. I put some screenshots [here](https://drive.google.com/file/d/1qxlnwcgf0HpPYMsUqjAjjSAjxX1xGKji/view?usp=sharing) (2MB) helping development.
+
+If you implement some features, please make sure your code is clean enough (for this matter I use the [Pylint](https://www.pylint.org/) linter) and documented enough (add docstrings with short descriptions, types of arguments and returned values). I use [pdoc](https://pdoc3.github.io/pdoc/) to generate the documentation.

@@ -108,6 +108,12 @@ class Terrain:  # pylint: disable=R0902
         self.portal = None
         self.stairs = hoplite.utils.HexagonalCoordinates(0, 4)
 
+    def __hash__(self):
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        return repr(self) == repr(other)
+
     def to_list(self):  # pylint: disable=R0912
         """Represent the terrain as a list of `SurfaceElement`.
 

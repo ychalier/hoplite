@@ -46,8 +46,8 @@ class Brain:
         Estimated dangerosity of demons.
     weights : numpy.ndarray
         Vector with the weights for the game state features.
-    logger : logging.Logger
-        Logger to write debug information.
+    loops : dict[hoplite.game.state.GameState, list[hoplite.game.moves.PlayerMove]]
+        Memory of already played moves, enabling loops avoidance.
 
     """
 
@@ -60,10 +60,10 @@ class Brain:
         }
         self.weights = numpy.array([
             -100,  # DEAD
-            10,    # HEALTH
+            16,    # HEALTH
             1,     # ENERGY
             -.5,   # COOLDOWN
-            -5,    # ENEMIES DANGEROSITY
+            -6,    # ENEMIES DANGEROSITY
             -.5,    # DISTANCE TO STAIRS
             -1,    # DISTANCE TO ALTAR
             -2,    # DISTANCE TO SPEAR
@@ -71,22 +71,23 @@ class Brain:
         self.prayer_weights = {
             hoplite.game.status.Prayer.DIVINE_RESTORATION: 0,
             hoplite.game.status.Prayer.FORTITUDE: 1,
-            hoplite.game.status.Prayer.BLOODLUST: 1,
+            hoplite.game.status.Prayer.BLOODLUST: 0,
             hoplite.game.status.Prayer.MIGHTY_BASH: 3,
             hoplite.game.status.Prayer.SWEEPING_BASH: 3,
             hoplite.game.status.Prayer.SPINNING_BASH: 3,
             hoplite.game.status.Prayer.QUICK_BASH: 3,
             hoplite.game.status.Prayer.GREATER_THROW: 3,
-            hoplite.game.status.Prayer.GREATER_THROW_II: 2,
+            hoplite.game.status.Prayer.GREATER_THROW_II: 1,
             hoplite.game.status.Prayer.GREATER_ENERGY: 3,
-            hoplite.game.status.Prayer.GREATER_ENERGY_II: 2,
+            hoplite.game.status.Prayer.GREATER_ENERGY_II: 1,
             hoplite.game.status.Prayer.DEEP_LUNGE: 5,
-            hoplite.game.status.Prayer.PATIENCE: 1,
-            hoplite.game.status.Prayer.SURGE: -1,
+            hoplite.game.status.Prayer.PATIENCE: 0,
+            hoplite.game.status.Prayer.SURGE: 2,
             hoplite.game.status.Prayer.REGENERATION: -1,
             hoplite.game.status.Prayer.WINGED_SANDALS: 2,
             hoplite.game.status.Prayer.STAGGERING_LEAP: -1,
         }
+        self.loops = dict()
 
     def extract(self, game_state):
         """Extract features of a game state. Values are manually scaled to
@@ -157,11 +158,16 @@ class Brain:
         outcomes = dict()
         for move in game_state.possible_moves():
             LOGGER.debug("Checking move: %s", move)
+            if move in self.loops.get(game_state, []):
+                LOGGER.debug("Ignoring move %s to avoid loops", move)
+                continue
             next_state = move.apply(game_state)
             evaluation = self.evaluate(next_state)
             outcomes[move] = evaluation
             LOGGER.debug("Evaluation of %s: %f", move, evaluation)
         best_move = max(outcomes.items(), key=lambda x: x[1])[0]
+        self.loops.setdefault(game_state, set())
+        self.loops[game_state].add(best_move)
         LOGGER.info("Best move found: %s", best_move)
         return best_move
 

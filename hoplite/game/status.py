@@ -90,7 +90,25 @@ class Status:
         self.prayers = list()
         self.attributes = PlayerAttributes()
 
+    def __hash__(self):
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        return repr(self) == repr(other)
+
     def __repr__(self):
+        text = "/".join([
+            str(self.cooldown),
+            str(self.energy),
+            str(int(self.spear)),
+            str(self.health),
+            ",".join([str(prayer.value) for prayer in self.prayers])
+        ])
+        if text[-1] == "/":
+            return text + "-"
+        return text
+
+    def __str__(self):
         return "Status%s" % self.__dict__
 
     def add_prayer(self, prayer):  # pylint: disable=R0912

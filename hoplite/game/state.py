@@ -47,7 +47,18 @@ class GameState:
         self.status = hoplite.game.status.Status()
 
     def __repr__(self):
+        return "%d %s %s" % (self.depth, repr(self.terrain), repr(self.status))
+
+    def __str__(self):
         return "GameState%s" % self.__dict__
+
+    def __eq__(self, other):
+        return (self.depth == other.depth
+                and self.terrain == other.terrain
+                and self.status == other.status)
+
+    def __hash__(self):
+        return hash(self.depth + hash(self.terrain) + hash(self.status))
 
     def copy(self):
         """Copy the current state.

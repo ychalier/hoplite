@@ -50,6 +50,8 @@ class Controller:
         Fingers of the controller.
     brain : hoplite.brain.Brain
         Mind of the controller.
+    starting_prayers : list[hoplite.game.status.Prayer]
+        Prayers to artificially add to the first encountered game status.
 
     Attributes
     ----------
@@ -60,15 +62,17 @@ class Controller:
     observer
     actuator
     brain
+    starting_prayers
 
     &#34;&#34;&#34;
 
-    def __init__(self, observer, actuator, brain):
+    def __init__(self, observer, actuator, brain, starting_prayers=None):
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
         self.memory = None
         self.stop = False
+        self.starting_prayers = starting_prayers
 
     def step(self):
         &#34;&#34;&#34;One step of the game: recognition, decision and action.
@@ -79,6 +83,9 @@ class Controller:
             game = self.observer.parse_game()
             if self.memory is None:
                 self.memory = game
+                if self.starting_prayers:
+                    for prayer in self.starting_prayers:
+                        self.memory.status.add_prayer(prayer)
             else:
                 self.memory.update(game)
             LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
@@ -96,11 +103,14 @@ class Controller:
             altar = self.observer.parse_altar()
             LOGGER.info(&#34;Available prayers: %s&#34;, altar)
             prayer = self.brain.pick_prayer(altar)
-            self.memory.status.prayers.append(prayer)
+            self.memory.status.add_prayer(prayer)
             LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
             self.actuator.choose_prayer(altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
             self.actuator.close_interface(interface)
+        elif interface == hoplite.game.state.Interface.STAIRS:
+            self.stop = True
+            LOGGER.info(&#34;Reached the stairs!&#34;)
         time.sleep(1)
 
     def run(self):
@@ -125,7 +135,7 @@ class Controller:
 <dl>
 <dt id="hoplite.controller.Controller"><code class="flex name class">
 <span>class <span class="ident">Controller</span></span>
-<span>(</span><span>observer, actuator, brain)</span>
+<span>(</span><span>observer, actuator, brain, starting_prayers=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Game controller.</p>
@@ -137,6 +147,8 @@ class Controller:
 <dd>Fingers of the controller.</dd>
 <dt><strong><code>brain</code></strong> :&ensp;<code><a title="hoplite.brain.Brain" href="brain.html#hoplite.brain.Brain">Brain</a></code></dt>
 <dd>Mind of the controller.</dd>
+<dt><strong><code>starting_prayers</code></strong> :&ensp;<code>list[<a title="hoplite.game.status.Prayer" href="game/status.html#hoplite.game.status.Prayer">Prayer</a>]</code></dt>
+<dd>Prayers to artificially add to the first encountered game status.</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
@@ -149,6 +161,8 @@ class Controller:
 <dt><strong><code>actuator</code></strong></dt>
 <dd>&nbsp;</dd>
 <dt><strong><code>brain</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>starting_prayers</code></strong></dt>
 <dd>&nbsp;</dd>
 </dl></div>
 <details class="source">
@@ -166,6 +180,8 @@ class Controller:
         Fingers of the controller.
     brain : hoplite.brain.Brain
         Mind of the controller.
+    starting_prayers : list[hoplite.game.status.Prayer]
+        Prayers to artificially add to the first encountered game status.
 
     Attributes
     ----------
@@ -176,15 +192,17 @@ class Controller:
     observer
     actuator
     brain
+    starting_prayers
 
     &#34;&#34;&#34;
 
-    def __init__(self, observer, actuator, brain):
+    def __init__(self, observer, actuator, brain, starting_prayers=None):
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
         self.memory = None
         self.stop = False
+        self.starting_prayers = starting_prayers
 
     def step(self):
         &#34;&#34;&#34;One step of the game: recognition, decision and action.
@@ -195,6 +213,9 @@ class Controller:
             game = self.observer.parse_game()
             if self.memory is None:
                 self.memory = game
+                if self.starting_prayers:
+                    for prayer in self.starting_prayers:
+                        self.memory.status.add_prayer(prayer)
             else:
                 self.memory.update(game)
             LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
@@ -212,11 +233,14 @@ class Controller:
             altar = self.observer.parse_altar()
             LOGGER.info(&#34;Available prayers: %s&#34;, altar)
             prayer = self.brain.pick_prayer(altar)
-            self.memory.status.prayers.append(prayer)
+            self.memory.status.add_prayer(prayer)
             LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
             self.actuator.choose_prayer(altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
             self.actuator.close_interface(interface)
+        elif interface == hoplite.game.state.Interface.STAIRS:
+            self.stop = True
+            LOGGER.info(&#34;Reached the stairs!&#34;)
         time.sleep(1)
 
     def run(self):
@@ -269,6 +293,9 @@ class Controller:
         game = self.observer.parse_game()
         if self.memory is None:
             self.memory = game
+            if self.starting_prayers:
+                for prayer in self.starting_prayers:
+                    self.memory.status.add_prayer(prayer)
         else:
             self.memory.update(game)
         LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
@@ -286,11 +313,14 @@ class Controller:
         altar = self.observer.parse_altar()
         LOGGER.info(&#34;Available prayers: %s&#34;, altar)
         prayer = self.brain.pick_prayer(altar)
-        self.memory.status.prayers.append(prayer)
+        self.memory.status.add_prayer(prayer)
         LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
         self.actuator.choose_prayer(altar, prayer)
     elif interface == hoplite.game.state.Interface.FLEECE:
         self.actuator.close_interface(interface)
+    elif interface == hoplite.game.state.Interface.STAIRS:
+        self.stop = True
+        LOGGER.info(&#34;Reached the stairs!&#34;)
     time.sleep(1)</code></pre>
 </details>
 </dd>

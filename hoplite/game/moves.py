@@ -26,6 +26,12 @@ class PlayerMove:
     def __init__(self, target=None):
         self.target = target
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.target == other.target
+
+    def __hash__(self):
+        return hash((self.__class__, self.target))
+
     def __repr__(self):
         if self.target is None:
             return self.__class__.__name__

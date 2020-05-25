@@ -19,20 +19,25 @@ import hoplite.actuator
 import hoplite.brain
 
 
-def play(monkey_runner, save_screenshots):
+def play(monkey_runner, save_screenshots, prayers):
     """Play with the monkey runner interface.
     """
     mr_if = hoplite.monkey_runner.MonkeyRunnerInterface(monkey_runner)
     observer = hoplite.vision.observer.Observer(mr_if, save_screenshots=save_screenshots)
     actuator = hoplite.actuator.Actuator(mr_if)
     brain = hoplite.brain.Brain()
-    controller = hoplite.controller.Controller(observer, actuator, brain)
+    starting_prayers = list()
+    for prayer in prayers.strip().split(","):
+        if prayer == "":
+            continue
+        starting_prayers.append(hoplite.game.status.Prayer(int(prayer)))
+    controller = hoplite.controller.Controller(observer, actuator, brain, starting_prayers)
     mr_if.open()
     controller.run()
     mr_if.close()
 
 
-def parse(path, save_parts, show_ranges, prayers):
+def parse(path, save_parts, show_ranges, prayers, render):
     """Parse a screenshot.
     """
     parser = hoplite.vision.observer.ScreenParser(save_parts=save_parts)
@@ -42,13 +47,14 @@ def parse(path, save_parts, show_ranges, prayers):
         if prayer == "":
             continue
         game.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
-    print(game)
-    print("Evaluation:", brain.evaluate(game))
-    print("Best move:", brain.pick_move(game))
-    game.terrain.render(show_ranges=show_ranges)
+    print(repr(game))
+    logging.info("Evaluation: %s", brain.evaluate(game))
+    brain.pick_move(game)
+    if render:
+        game.terrain.render(show_ranges=show_ranges)
 
 
-def move(path, move_name, target, prayers):
+def move(path, move_name, target, prayers, render):
     """Observe a screenshot and make a move.
     """
     parser = hoplite.vision.observer.ScreenParser()
@@ -57,7 +63,6 @@ def move(path, move_name, target, prayers):
         if prayer == "":
             continue
         prev_state.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
-    print(prev_state)
     prev_state.terrain.render()
     move_class = {
         "walk": hoplite.game.moves.WalkMove,
@@ -67,8 +72,9 @@ def move(path, move_name, target, prayers):
     }[move_name]
     player_move = move_class(hoplite.utils.HexagonalCoordinates(*target))
     next_state = player_move.apply(prev_state)
-    print(next_state)
-    next_state.terrain.render()
+    print(repr(next_state))
+    if render:
+        next_state.terrain.render()
 
 
 def main():
@@ -123,6 +129,11 @@ def main():
         help="comma separated prayer index",
         default="",
     )
+    parse_parser.add_argument(
+        "-r", "--render",
+        action="store_true",
+        help="render the terrain in a Pygame window",
+    )
     move_parser = subparsers.add_parser("move")
     move_parser.add_argument(
         "path",
@@ -150,11 +161,22 @@ def main():
         help="comma separated prayer index",
         default="",
     )
+    move_parser.add_argument(
+        "-r", "--render",
+        action="store_true",
+        help="render the terrain in a Pygame window",
+    )
     play_parser = subparsers.add_parser("play")
     play_parser.add_argument(
         "--save-screenshots",
         action="store_true",
         help="store screenshots as they are taken"
+    )
+    play_parser.add_argument(
+        "--prayers",
+        type=str,
+        help="comma separated prayer index",
+        default="",
     )
     args = parser.parse_args()
     log_level = logging.INFO
@@ -166,11 +188,11 @@ def main():
         log_level = logging.CRITICAL
     logging.basicConfig(level=log_level)
     if args.action == "parse":
-        parse(args.path, args.save_parts, args.show_ranges, args.prayers)
+        parse(args.path, args.save_parts, args.show_ranges, args.prayers, args.render)
     elif args.action == "move":
-        move(args.path, args.move, (args.x, args.y), args.prayers)
+        move(args.path, args.move, (args.x, args.y), args.prayers, args.render)
     elif args.action == "play":
-        play(args.monkey_runner, args.save_screenshots)
+        play(args.monkey_runner, args.save_screenshots, args.prayers)
 
 
 main()

@@ -21,6 +21,8 @@ class Controller:
         Fingers of the controller.
     brain : hoplite.brain.Brain
         Mind of the controller.
+    starting_prayers : list[hoplite.game.status.Prayer]
+        Prayers to artificially add to the first encountered game status.
 
     Attributes
     ----------
@@ -31,15 +33,17 @@ class Controller:
     observer
     actuator
     brain
+    starting_prayers
 
     """
 
-    def __init__(self, observer, actuator, brain):
+    def __init__(self, observer, actuator, brain, starting_prayers=None):
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
         self.memory = None
         self.stop = False
+        self.starting_prayers = starting_prayers
 
     def step(self):
         """One step of the game: recognition, decision and action.
@@ -50,6 +54,9 @@ class Controller:
             game = self.observer.parse_game()
             if self.memory is None:
                 self.memory = game
+                if self.starting_prayers:
+                    for prayer in self.starting_prayers:
+                        self.memory.status.add_prayer(prayer)
             else:
                 self.memory.update(game)
             LOGGER.info("Current evaluation: %.2f", self.brain.evaluate(self.memory))
@@ -67,7 +74,7 @@ class Controller:
             altar = self.observer.parse_altar()
             LOGGER.info("Available prayers: %s", altar)
             prayer = self.brain.pick_prayer(altar)
-            self.memory.status.prayers.append(prayer)
+            self.memory.status.add_prayer(prayer)
             LOGGER.info("Picked prayer %s", prayer)
             self.actuator.choose_prayer(altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:

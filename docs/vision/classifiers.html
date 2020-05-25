@@ -261,6 +261,10 @@ def interface(part):
         return hoplite.game.state.Interface.FLEECE
     if is_close(part[275, 640], [1.000000, 1.000000, 1.000000]):
         return hoplite.game.state.Interface.VICTORY
+    if is_close(part[1450, 540], [1.000000, 1.000000, 1.000000]):
+        return hoplite.game.state.Interface.STAIRS
+    if is_close(part[750, 1000], [0.352941, 0.270588, 0.160784]):
+        return hoplite.game.state.Interface.ALTAR
     return hoplite.game.state.Interface.PLAYING
 
 
@@ -507,6 +511,10 @@ space.</p>
         return hoplite.game.state.Interface.FLEECE
     if is_close(part[275, 640], [1.000000, 1.000000, 1.000000]):
         return hoplite.game.state.Interface.VICTORY
+    if is_close(part[1450, 540], [1.000000, 1.000000, 1.000000]):
+        return hoplite.game.state.Interface.STAIRS
+    if is_close(part[750, 1000], [0.352941, 0.270588, 0.160784]):
+        return hoplite.game.state.Interface.ALTAR
     return hoplite.game.state.Interface.PLAYING</code></pre>
 </details>
 </dd>

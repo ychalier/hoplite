@@ -51,6 +51,7 @@ class Interface(enum.Enum):
     FLEECE = 3
     VICTORY = 4
     DEATH = 5
+    STAIRS = 6
 
 
 class GameState:
@@ -73,7 +74,18 @@ class GameState:
         self.status = hoplite.game.status.Status()
 
     def __repr__(self):
+        return &#34;%d %s %s&#34; % (self.depth, repr(self.terrain), repr(self.status))
+
+    def __str__(self):
         return &#34;GameState%s&#34; % self.__dict__
+
+    def __eq__(self, other):
+        return (self.depth == other.depth
+                and self.terrain == other.terrain
+                and self.status == other.status)
+
+    def __hash__(self):
+        return hash(self.depth + hash(self.terrain) + hash(self.status))
 
     def copy(self):
         &#34;&#34;&#34;Copy the current state.
@@ -298,7 +310,18 @@ class AltarState:  # pylint: disable=R0903
         self.status = hoplite.game.status.Status()
 
     def __repr__(self):
+        return &#34;%d %s %s&#34; % (self.depth, repr(self.terrain), repr(self.status))
+
+    def __str__(self):
         return &#34;GameState%s&#34; % self.__dict__
+
+    def __eq__(self, other):
+        return (self.depth == other.depth
+                and self.terrain == other.terrain
+                and self.status == other.status)
+
+    def __hash__(self):
+        return hash(self.depth + hash(self.terrain) + hash(self.status))
 
     def copy(self):
         &#34;&#34;&#34;Copy the current state.
@@ -629,7 +652,8 @@ class AltarState:  # pylint: disable=R0903
     ALTAR = 2
     FLEECE = 3
     VICTORY = 4
-    DEATH = 5</code></pre>
+    DEATH = 5
+    STAIRS = 6</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -654,6 +678,10 @@ class AltarState:  # pylint: disable=R0903
 <div class="desc"></div>
 </dd>
 <dt id="hoplite.game.state.Interface.PLAYING"><code class="name">var <span class="ident">PLAYING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.state.Interface.STAIRS"><code class="name">var <span class="ident">STAIRS</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -721,6 +749,7 @@ class AltarState:  # pylint: disable=R0903
 <li><code><a title="hoplite.game.state.Interface.EMBARK" href="#hoplite.game.state.Interface.EMBARK">EMBARK</a></code></li>
 <li><code><a title="hoplite.game.state.Interface.FLEECE" href="#hoplite.game.state.Interface.FLEECE">FLEECE</a></code></li>
 <li><code><a title="hoplite.game.state.Interface.PLAYING" href="#hoplite.game.state.Interface.PLAYING">PLAYING</a></code></li>
+<li><code><a title="hoplite.game.state.Interface.STAIRS" href="#hoplite.game.state.Interface.STAIRS">STAIRS</a></code></li>
 <li><code><a title="hoplite.game.state.Interface.VICTORY" href="#hoplite.game.state.Interface.VICTORY">VICTORY</a></code></li>
 </ul>
 </li>

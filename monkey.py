@@ -61,16 +61,16 @@ class MonkeyServer:
         self.logger.info("Starting socket server at %s:%d", *self.SERVER_ADDRESS)
         connection, address = self.server.accept()
         self.logger.debug("Accepting connection from %s:%d", *address)
-        running = True
-        while running:
+        while True:
             command = connection.recv(4).decode("ascii")
             self.logger.debug("Received command '%s'", command)
             if command in ["", "QUIT"]:
-                running = False
-            elif command == "SNAP":
+                break
+            if command == "SNAP":
                 self.snap(connection)
             elif command == "TOCH":
                 self.touch(connection)
+        self.logger.info("Closing")
 
 
 MonkeyServer().run()

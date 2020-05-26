@@ -50,7 +50,7 @@ class MonkeyRunnerInterface:
         """
         self.process = subprocess.Popen(
             [self.mr_script, os.path.realpath("monkey.py"), str(logging.root.level)],
-            cwd=os.path.dirname(self.mr_script)
+            cwd=os.path.dirname(self.mr_script),
         )
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connected = False
@@ -104,6 +104,10 @@ class MonkeyRunnerInterface:
     def close(self):
         """Send a stop command to the server and close the socket client.
         """
-        self.client.sendall(b"QUIT")
-        self.client.close()
-        self.process.wait()
+        try:
+            self.client.sendall(b"QUIT")
+        except ConnectionResetError:
+            LOGGER.error("Could not send quitting command")
+        finally:
+            self.client.close()
+            self.process.wait()

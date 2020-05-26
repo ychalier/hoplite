@@ -52,9 +52,7 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [x] ~~Implement basic interaction with the game~~
 - [x] ~~Implement a basic game engine~~
 - [x] ~~Implement a basic decision making system~~
-- [ ] Make the MonkeyRunner interface more reliable:
-    - [ ] Allow for keyboard interrupts, and in general more control by the operator
-    - [ ] Make it conciliant with MonkeyRunner errors
+- [x] ~~Make the MonkeyRunner interface more reliable~~
 - [ ] Enhance the game re-implementation:
     - [ ] Develop a game explorer to build a database of state sequences for further analysis
     - [ ] Complete and implement the [game rules](RULES.md) (prayers, cooldowns, reactions, energy restoration, etc.)

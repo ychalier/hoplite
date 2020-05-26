@@ -33,8 +33,15 @@ def play(monkey_runner, save_screenshots, prayers):
         starting_prayers.append(hoplite.game.status.Prayer(int(prayer)))
     controller = hoplite.controller.Controller(observer, actuator, brain, starting_prayers)
     mr_if.open()
-    controller.run()
-    mr_if.close()
+    try:
+        controller.run()
+    except KeyboardInterrupt:
+        logging.warning("Interrupting with keyboard")
+    finally:
+        try:
+            mr_if.close()
+        except KeyboardInterrupt:
+            pass
 
 
 def parse(path, save_parts, show_ranges, prayers, render):

@@ -65,6 +65,8 @@ class Brain:
             -.5,   # COOLDOWN
             -6,    # ENEMIES DANGEROSITY
             -.5,    # DISTANCE TO STAIRS
+            -1,   # DISTANCE TO PORTAL
+            -2,   # DISTANCE TO FLEECE
             -1,    # DISTANCE TO ALTAR
             -2,    # DISTANCE TO SPEAR
         ])
@@ -79,10 +81,10 @@ class Brain:
             hoplite.game.status.Prayer.GREATER_THROW: 3,
             hoplite.game.status.Prayer.GREATER_THROW_II: 1,
             hoplite.game.status.Prayer.GREATER_ENERGY: 3,
-            hoplite.game.status.Prayer.GREATER_ENERGY_II: 1,
+            hoplite.game.status.Prayer.GREATER_ENERGY_II: 2,
             hoplite.game.status.Prayer.DEEP_LUNGE: 5,
             hoplite.game.status.Prayer.PATIENCE: 0,
-            hoplite.game.status.Prayer.SURGE: 2,
+            hoplite.game.status.Prayer.SURGE: 0,
             hoplite.game.status.Prayer.REGENERATION: -1,
             hoplite.game.status.Prayer.WINGED_SANDALS: 2,
             hoplite.game.status.Prayer.STAGGERING_LEAP: -1,
@@ -115,6 +117,8 @@ class Brain:
             )),
             # if no obstacle, path at the beginning is 9 tiles long
             .11 * extract_distance_feature(game_state, game_state.terrain.stairs),
+            .11 * extract_distance_feature(game_state, game_state.terrain.portal),
+            .11 * extract_distance_feature(game_state, game_state.terrain.fleece),
             .11 * extract_distance_feature(game_state, game_state.terrain.altar)
             * int(game_state.terrain.altar_prayable),
             .11 * extract_distance_feature(game_state, game_state.terrain.spear)

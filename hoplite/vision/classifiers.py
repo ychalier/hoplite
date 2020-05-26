@@ -7,7 +7,7 @@ import hoplite.game.terrain
 import hoplite.game.status
 
 
-def is_close(tgt, ref):
+def is_close(tgt, ref, tol=.001):
     """Check if two pixels are of same color.
 
     Parameters
@@ -23,7 +23,7 @@ def is_close(tgt, ref):
         `True` if pixels are the same.
 
     """
-    return numpy.isclose(tgt - ref, 0, atol=.001).all()
+    return numpy.isclose(tgt - ref, 0, atol=tol).all()
 
 
 def terrain(part):
@@ -50,7 +50,9 @@ def terrain(part):
             return hoplite.game.terrain.SurfaceElement.PLAYER
         if is_close(part[20, 23], [1.000000, 0.764706, 0.258824]):
             return hoplite.game.terrain.SurfaceElement.BOMB
-        if is_spear(part):
+        if is_close(part[26, 26], [0.4509804, 0.27058825, 0.09411765]):
+            return hoplite.game.terrain.SurfaceElement.SPEAR
+        if is_close(part[26, 26], [0.9372549, 0.5411765, 0.19215687]):
             return hoplite.game.terrain.SurfaceElement.SPEAR
         return hoplite.game.terrain.SurfaceElement.GROUND
     if is_close(part[15, 15], numpy.array([0.41960785, 0.07843138, 0.0627451])):
@@ -73,14 +75,19 @@ def terrain(part):
         if is_close(part[28, 0], [0.129412, 0.141176, 0.129412]):
             return hoplite.game.terrain.SurfaceElement.ALTAR_ON
         return hoplite.game.terrain.SurfaceElement.ALTAR_OFF
-    if is_close(part[26, 26], [0.709804, 0.572549, 0.000000]):
-        return hoplite.game.terrain.SurfaceElement.FLEECE
-    if is_close(part[26, 26], [0.937255, 0.780392, 0.000000]):
+    if part[26, 26, 2] == 0 and\
+        abs(part[26, 26, 0] * 0.80465513 + 0.018641233 - part[26, 26, 1]) < .03:
         return hoplite.game.terrain.SurfaceElement.FLEECE
     if is_close(part[37, 26], [0.062745, 0.556863, 0.580392]):
         return hoplite.game.terrain.SurfaceElement.PORTAL
+    if is_close(part[37, 26], [0.6117647, 0.68235296, 0.8392157]):
+        return hoplite.game.terrain.SurfaceElement.PORTAL
     if is_close(part[20, 23], [1.000000, 0.764706, 0.258824]):
         return hoplite.game.terrain.SurfaceElement.BOMB
+    if is_close(part[26, 26], [0.4509804, 0.27058825, 0.09411765]):
+        return hoplite.game.terrain.SurfaceElement.SPEAR
+    if is_close(part[26, 26], [0.9372549, 0.5411765, 0.19215687]):
+        return hoplite.game.terrain.SurfaceElement.SPEAR
     return None
 
 

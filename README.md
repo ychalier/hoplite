@@ -55,7 +55,23 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [x] ~~Make the MonkeyRunner interface more reliable~~
 - [ ] Enhance the game re-implementation:
     - [ ] Develop a game explorer to build a database of state sequences for further analysis
-    - [ ] Complete and implement the [game rules](RULES.md) (prayers, cooldowns, reactions, energy restoration, etc.)
+    - [ ] Complete and implement the [game rules](RULES.md)
+        - [x] ~~Prayers~~
+        - [x] ~~Energy restoration~~
+        - [ ] Knockback, collisions
+        - [ ] Killing spree (Surge and Regeneration prayers)
+        - [ ] Demons movements
+            - [ ] Footman movement
+            - [ ] Archer and Wizard movement
+            - [ ] Demolitionist movement and throw
+        - [ ] Cooldowns
+            - [ ] Bash cooldown
+            - [ ] Wizard cooldown
+            - [ ] Demolitionist cooldown
+        - [ ] Demons status
+            - [ ] Stunned
+            - [ ] Sleeping
+            - [ ] Shield
     - [x] ~~Allow for menus recognition (title screen and altars) and answering~~
     - [x] ~~Implement memory for `GameState` to allow prayers handling~~
 - [x] ~~Fasten `Observer` by using fine-tuned template recognition model~~

@@ -141,8 +141,10 @@ class Status:
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.GREATER_ENERGY:
             self.attributes.maximum_energy += 20
+            self.energy += 20
         elif prayer == Prayer.GREATER_ENERGY_II:
-            self.attributes.maximum_energy += 20
+            self.attributes.maximum_energy += 15
+            self.energy += 15
             self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.WINGED_SANDALS:
@@ -210,7 +212,7 @@ class Status:
         """
         return self.spear
 
-    def restore_energy(self, amount):
+    def restore_energy(self, amount=10):
         """Restore an amount of energy.
 
         Parameters

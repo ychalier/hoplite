@@ -168,8 +168,10 @@ class Status:
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.GREATER_ENERGY:
             self.attributes.maximum_energy += 20
+            self.energy += 20
         elif prayer == Prayer.GREATER_ENERGY_II:
-            self.attributes.maximum_energy += 20
+            self.attributes.maximum_energy += 15
+            self.energy += 15
             self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.WINGED_SANDALS:
@@ -237,7 +239,7 @@ class Status:
         &#34;&#34;&#34;
         return self.spear
 
-    def restore_energy(self, amount):
+    def restore_energy(self, amount=10):
         &#34;&#34;&#34;Restore an amount of energy.
 
         Parameters
@@ -571,8 +573,10 @@ the result of its actions.</p>
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.GREATER_ENERGY:
             self.attributes.maximum_energy += 20
+            self.energy += 20
         elif prayer == Prayer.GREATER_ENERGY_II:
-            self.attributes.maximum_energy += 20
+            self.attributes.maximum_energy += 15
+            self.energy += 15
             self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.WINGED_SANDALS:
@@ -640,7 +644,7 @@ the result of its actions.</p>
         &#34;&#34;&#34;
         return self.spear
 
-    def restore_energy(self, amount):
+    def restore_energy(self, amount=10):
         &#34;&#34;&#34;Restore an amount of energy.
 
         Parameters
@@ -740,8 +744,10 @@ the result of its actions.</p>
         self.attributes.maximum_health -= 1
     elif prayer == Prayer.GREATER_ENERGY:
         self.attributes.maximum_energy += 20
+        self.energy += 20
     elif prayer == Prayer.GREATER_ENERGY_II:
-        self.attributes.maximum_energy += 20
+        self.attributes.maximum_energy += 15
+        self.energy += 15
         self.health -= 1
         self.attributes.maximum_health -= 1
     elif prayer == Prayer.WINGED_SANDALS:
@@ -878,7 +884,7 @@ the result of its actions.</p>
 </details>
 </dd>
 <dt id="hoplite.game.status.Status.restore_energy"><code class="name flex">
-<span>def <span class="ident">restore_energy</span></span>(<span>self, amount)</span>
+<span>def <span class="ident">restore_energy</span></span>(<span>self, amount=10)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Restore an amount of energy.</p>
@@ -891,7 +897,7 @@ the result of its actions.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def restore_energy(self, amount):
+<pre><code class="python">def restore_energy(self, amount=10):
     &#34;&#34;&#34;Restore an amount of energy.
 
     Parameters

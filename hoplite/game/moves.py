@@ -20,11 +20,19 @@ class PlayerMove:
     Attributes
     ----------
     target
+    _killed : int
+        Number of demons killed during the move resolution
+    _pushed_bombs : set[hoplite.utils.HexagonalCoordinates]
+        Pushed to positions of bombs that have been knocked by a player Bash.
+        When they explode, only knocked bombs will count as player kills, which
+        impacts Bloodlust, Surge and Regeneration prayers.
 
     """
 
     def __init__(self, target=None):
         self.target = target
+        self._killed = 0
+        self._pushed_bombs = set()
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.target == other.target
@@ -36,6 +44,43 @@ class PlayerMove:
         if self.target is None:
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)
+
+    def _apply_damages(self, next_state):
+        """Resolve the damage step within the current state.
+        """
+        damages = 0
+        for bomb_pos in list(next_state.terrain.bombs):
+            for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
+                if neighbor == next_state.terrain.player:
+                    LOGGER.debug(
+                        "Taking a damage because of BOMB at %s",
+                        bomb_pos
+                    )
+                    damages += 1
+                elif neighbor in next_state.terrain.demons:
+                    LOGGER.debug(
+                        "Killing with BOMB: %s at %s",
+                        next_state.terrain.demons[neighbor].skill.name,
+                        neighbor
+                    )
+                    if neighbor in self._pushed_bombs:
+                        # Only kills by knocked bombs count as player kills,
+                        # that can be used for the Bloodlust, Surge or
+                        # Regeneration prayers.
+                        self._killed += 1
+                    del next_state.terrain.demons[neighbor]
+            next_state.terrain.bombs.remove(bomb_pos)
+        for demon_pos, demon in next_state.terrain.demons.items():
+            demon_damage = demon.attack(self, demon_pos)
+            if demon_damage > 0:
+                LOGGER.debug(
+                    "Taking a damage because of %s at %s",
+                    demon.skill.name,
+                    demon_pos
+                )
+            damages += demon_damage
+        LOGGER.debug("Total damages received: %d", damages)
+        next_state.status.deal_damage(damages)
 
     def apply(self, prev_state):
         """Perform the move: move entities, check for enemies killed or knocked
@@ -54,7 +99,9 @@ class PlayerMove:
         """
         next_state = prev_state.copy()
         self._apply(prev_state, next_state)
-        next_state.apply_damages()
+        self._apply_damages(next_state)
+        if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
+            next_state.status.restore_energy(self._killed * 6)
         return next_state
 
     def _apply(self, prev_state, next_state):
@@ -70,7 +117,10 @@ class WalkMove(PlayerMove):  # pylint: disable=R0903
         if self.target == next_state.terrain.spear:
             next_state.status.spear = True
             next_state.terrain.spear = None
-        next_state.apply_attacks(prev_state, [
+        if not hoplite.utils.hexagonal_neighbors(next_state.terrain.player)\
+            .isdisjoint(prev_state.terrain.demons):
+            next_state.status.restore_energy(10)
+        self._killed += next_state.apply_attacks(prev_state, [
             hoplite.game.attacks.Stab(),
             hoplite.game.attacks.Lunge()
         ])
@@ -85,9 +135,11 @@ class LeapMove(PlayerMove):  # pylint: disable=R0903
         if self.target == next_state.terrain.spear:
             next_state.status.spear = True
             next_state.terrain.spear = None
-        next_state.status.energy -= 50
-        # TODO: check for stunned if there is the ability for it
-        next_state.apply_attacks(prev_state, [
+        next_state.status.use_energy(50)
+        if not hoplite.utils.hexagonal_neighbors(next_state.terrain.player)\
+            .isdisjoint(prev_state.terrain.demons):
+            next_state.status.restore_energy(10)
+        self._killed += next_state.apply_attacks(prev_state, [
             hoplite.game.attacks.Stab(),
             hoplite.game.attacks.Lunge()
         ])
@@ -104,6 +156,7 @@ class ThrowMove(PlayerMove):  # pylint: disable=R0903
                 "Killing %s with spear",
                 next_state.terrain.demons[self.target].skill.name
             )
+            self._killed += 1
             del next_state.terrain.demons[self.target]
         next_state.status.spear = False
         next_state.terrain.spear = self.target
@@ -125,7 +178,6 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
             }
         LOGGER.debug("Bashed area: %s", bashed_area)
         for bashed_from in bashed_area:
-            # TODO: handle collisions if pushed_to is not an empty tile
             bashed_to = bashed_from + (
                 next_state.terrain.player.gradient(bashed_from)
                 * next_state.status.attributes.knockback_distance
@@ -139,11 +191,13 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
                         bashed_from,
                         bashed_to
                     )
+                    self._killed += 1
                     del next_state.terrain.demons[bashed_from]
                 else:
                     next_state.terrain.demons[bashed_to] = next_state.terrain.demons[bashed_from]
                     del next_state.terrain.demons[bashed_from]
             elif bashed_from in prev_state.terrain.bombs:
+                self._pushed_bombs.add(bashed_to)
                 next_state.terrain.bombs.remove(bashed_from)
                 next_state.terrain.bombs.add(bashed_to)
         next_state.status.cooldown = next_state.status.attributes.cooldown

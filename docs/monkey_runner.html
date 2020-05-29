@@ -77,7 +77,7 @@ class MonkeyRunnerInterface:
         &#34;&#34;&#34;
         self.process = subprocess.Popen(
             [self.mr_script, os.path.realpath(&#34;monkey.py&#34;), str(logging.root.level)],
-            cwd=os.path.dirname(self.mr_script)
+            cwd=os.path.dirname(self.mr_script),
         )
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connected = False
@@ -131,9 +131,13 @@ class MonkeyRunnerInterface:
     def close(self):
         &#34;&#34;&#34;Send a stop command to the server and close the socket client.
         &#34;&#34;&#34;
-        self.client.sendall(b&#34;QUIT&#34;)
-        self.client.close()
-        self.process.wait()</code></pre>
+        try:
+            self.client.sendall(b&#34;QUIT&#34;)
+        except ConnectionResetError:
+            LOGGER.error(&#34;Could not send quitting command&#34;)
+        finally:
+            self.client.close()
+            self.process.wait()</code></pre>
 </details>
 </section>
 <section>
@@ -213,7 +217,7 @@ class MonkeyRunnerInterface:
         &#34;&#34;&#34;
         self.process = subprocess.Popen(
             [self.mr_script, os.path.realpath(&#34;monkey.py&#34;), str(logging.root.level)],
-            cwd=os.path.dirname(self.mr_script)
+            cwd=os.path.dirname(self.mr_script),
         )
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connected = False
@@ -267,9 +271,13 @@ class MonkeyRunnerInterface:
     def close(self):
         &#34;&#34;&#34;Send a stop command to the server and close the socket client.
         &#34;&#34;&#34;
-        self.client.sendall(b&#34;QUIT&#34;)
-        self.client.close()
-        self.process.wait()</code></pre>
+        try:
+            self.client.sendall(b&#34;QUIT&#34;)
+        except ConnectionResetError:
+            LOGGER.error(&#34;Could not send quitting command&#34;)
+        finally:
+            self.client.close()
+            self.process.wait()</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -300,9 +308,13 @@ class MonkeyRunnerInterface:
 <pre><code class="python">def close(self):
     &#34;&#34;&#34;Send a stop command to the server and close the socket client.
     &#34;&#34;&#34;
-    self.client.sendall(b&#34;QUIT&#34;)
-    self.client.close()
-    self.process.wait()</code></pre>
+    try:
+        self.client.sendall(b&#34;QUIT&#34;)
+    except ConnectionResetError:
+        LOGGER.error(&#34;Could not send quitting command&#34;)
+    finally:
+        self.client.close()
+        self.process.wait()</code></pre>
 </details>
 </dd>
 <dt id="hoplite.monkey_runner.MonkeyRunnerInterface.open"><code class="name flex">
@@ -319,7 +331,7 @@ class MonkeyRunnerInterface:
     &#34;&#34;&#34;
     self.process = subprocess.Popen(
         [self.mr_script, os.path.realpath(&#34;monkey.py&#34;), str(logging.root.level)],
-        cwd=os.path.dirname(self.mr_script)
+        cwd=os.path.dirname(self.mr_script),
     )
     self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     connected = False

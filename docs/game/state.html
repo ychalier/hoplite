@@ -121,44 +121,16 @@ class GameState:
         attacks : list[hoplite.game.attacks.PlayerAttack]
             Player attacks to consider.
 
+        Rerturns
+        --------
+        int
+            Total number of demons killed by the attacks.
+
         &#34;&#34;&#34;
         killed = 0
         for atck in attacks:
             killed += atck.apply(prev_state, self)
-        # TODO: check for energy restoration procedure
-        # TODO: sort attacks in correct resolution order
-
-    def apply_damages(self):
-        &#34;&#34;&#34;Resolve the damage step within the current state.
-        &#34;&#34;&#34;
-        damages = 0
-        for bomb_pos in list(self.terrain.bombs):
-            for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
-                if neighbor == self.terrain.player:
-                    LOGGER.debug(
-                        &#34;Taking a damage because of BOMB at %s&#34;,
-                        bomb_pos
-                    )
-                    damages += 1
-                elif neighbor in self.terrain.demons:
-                    LOGGER.debug(
-                        &#34;Killing with BOMB: %s at %s&#34;,
-                        self.terrain.demons[neighbor].skill.name,
-                        neighbor
-                    )
-                    del self.terrain.demons[neighbor]
-            self.terrain.bombs.remove(bomb_pos)
-        for demon_pos, demon in self.terrain.demons.items():
-            demon_damage = demon.attack(self, demon_pos)
-            if demon_damage &gt; 0:
-                LOGGER.debug(
-                    &#34;Taking a damage because of %s at %s&#34;,
-                    demon.skill.name,
-                    demon_pos
-                )
-            damages += demon_damage
-        LOGGER.debug(&#34;Total damages received: %d&#34;, damages)
-        self.status.deal_damage(damages)
+        return killed
 
     def possible_moves(self):
         &#34;&#34;&#34;Enumerates all possible moves for the player in the current state.
@@ -357,44 +329,16 @@ class AltarState:  # pylint: disable=R0903
         attacks : list[hoplite.game.attacks.PlayerAttack]
             Player attacks to consider.
 
+        Rerturns
+        --------
+        int
+            Total number of demons killed by the attacks.
+
         &#34;&#34;&#34;
         killed = 0
         for atck in attacks:
             killed += atck.apply(prev_state, self)
-        # TODO: check for energy restoration procedure
-        # TODO: sort attacks in correct resolution order
-
-    def apply_damages(self):
-        &#34;&#34;&#34;Resolve the damage step within the current state.
-        &#34;&#34;&#34;
-        damages = 0
-        for bomb_pos in list(self.terrain.bombs):
-            for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
-                if neighbor == self.terrain.player:
-                    LOGGER.debug(
-                        &#34;Taking a damage because of BOMB at %s&#34;,
-                        bomb_pos
-                    )
-                    damages += 1
-                elif neighbor in self.terrain.demons:
-                    LOGGER.debug(
-                        &#34;Killing with BOMB: %s at %s&#34;,
-                        self.terrain.demons[neighbor].skill.name,
-                        neighbor
-                    )
-                    del self.terrain.demons[neighbor]
-            self.terrain.bombs.remove(bomb_pos)
-        for demon_pos, demon in self.terrain.demons.items():
-            demon_damage = demon.attack(self, demon_pos)
-            if demon_damage &gt; 0:
-                LOGGER.debug(
-                    &#34;Taking a damage because of %s at %s&#34;,
-                    demon.skill.name,
-                    demon_pos
-                )
-            damages += demon_damage
-        LOGGER.debug(&#34;Total damages received: %d&#34;, damages)
-        self.status.deal_damage(damages)
+        return killed
 
     def possible_moves(self):
         &#34;&#34;&#34;Enumerates all possible moves for the player in the current state.
@@ -454,7 +398,10 @@ class AltarState:  # pylint: disable=R0903
 <dd>State of the game before the last move.</dd>
 <dt><strong><code>attacks</code></strong> :&ensp;<code>list[<a title="hoplite.game.attacks.PlayerAttack" href="attacks.html#hoplite.game.attacks.PlayerAttack">PlayerAttack</a>]</code></dt>
 <dd>Player attacks to consider.</dd>
-</dl></div>
+</dl>
+<h2 id="rerturns">Rerturns</h2>
+<p>int
+Total number of demons killed by the attacks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -469,52 +416,16 @@ class AltarState:  # pylint: disable=R0903
     attacks : list[hoplite.game.attacks.PlayerAttack]
         Player attacks to consider.
 
+    Rerturns
+    --------
+    int
+        Total number of demons killed by the attacks.
+
     &#34;&#34;&#34;
     killed = 0
     for atck in attacks:
-        killed += atck.apply(prev_state, self)</code></pre>
-</details>
-</dd>
-<dt id="hoplite.game.state.GameState.apply_damages"><code class="name flex">
-<span>def <span class="ident">apply_damages</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Resolve the damage step within the current state.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def apply_damages(self):
-    &#34;&#34;&#34;Resolve the damage step within the current state.
-    &#34;&#34;&#34;
-    damages = 0
-    for bomb_pos in list(self.terrain.bombs):
-        for neighbor in hoplite.utils.hexagonal_neighbors(bomb_pos):
-            if neighbor == self.terrain.player:
-                LOGGER.debug(
-                    &#34;Taking a damage because of BOMB at %s&#34;,
-                    bomb_pos
-                )
-                damages += 1
-            elif neighbor in self.terrain.demons:
-                LOGGER.debug(
-                    &#34;Killing with BOMB: %s at %s&#34;,
-                    self.terrain.demons[neighbor].skill.name,
-                    neighbor
-                )
-                del self.terrain.demons[neighbor]
-        self.terrain.bombs.remove(bomb_pos)
-    for demon_pos, demon in self.terrain.demons.items():
-        demon_damage = demon.attack(self, demon_pos)
-        if demon_damage &gt; 0:
-            LOGGER.debug(
-                &#34;Taking a damage because of %s at %s&#34;,
-                demon.skill.name,
-                demon_pos
-            )
-        damages += demon_damage
-    LOGGER.debug(&#34;Total damages received: %d&#34;, damages)
-    self.status.deal_damage(damages)</code></pre>
+        killed += atck.apply(prev_state, self)
+    return killed</code></pre>
 </details>
 </dd>
 <dt id="hoplite.game.state.GameState.copy"><code class="name flex">
@@ -735,7 +646,6 @@ class AltarState:  # pylint: disable=R0903
 <h4><code><a title="hoplite.game.state.GameState" href="#hoplite.game.state.GameState">GameState</a></code></h4>
 <ul class="">
 <li><code><a title="hoplite.game.state.GameState.apply_attacks" href="#hoplite.game.state.GameState.apply_attacks">apply_attacks</a></code></li>
-<li><code><a title="hoplite.game.state.GameState.apply_damages" href="#hoplite.game.state.GameState.apply_damages">apply_damages</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.copy" href="#hoplite.game.state.GameState.copy">copy</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.possible_moves" href="#hoplite.game.state.GameState.possible_moves">possible_moves</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.update" href="#hoplite.game.state.GameState.update">update</a></code></li>

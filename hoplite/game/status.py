@@ -232,7 +232,7 @@ class Status:
             Amount of energy to remove.
 
         """
-        assert amount >= self.energy
+        assert amount <= self.energy, (amount, self.energy)
         self.energy -= amount
 
     def restore_health(self, amount=1):

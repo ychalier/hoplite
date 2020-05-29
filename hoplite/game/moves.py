@@ -71,7 +71,7 @@ class PlayerMove:
                     del next_state.terrain.demons[neighbor]
             next_state.terrain.bombs.remove(bomb_pos)
         for demon_pos, demon in next_state.terrain.demons.items():
-            demon_damage = demon.attack(self, demon_pos)
+            demon_damage = demon.attack(next_state, demon_pos)
             if demon_damage > 0:
                 LOGGER.debug(
                     "Taking a damage because of %s at %s",
@@ -166,40 +166,111 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
     """Player bashes a tile.
     """
 
-    def _apply(self, prev_state, next_state):
+    ENTITY_BOMB = 0
+    ENTITY_DEMON = 1
+
+    def _get_bashed_area(self, state):
         bashed_area = {self.target}
-        if hoplite.game.status.Prayer.SPINNING_BASH in prev_state.status.prayers:
-            bashed_area = hoplite.utils.hexagonal_neighbors(prev_state.terrain.player)
-        elif hoplite.game.status.Prayer.SWEEPING_BASH in prev_state.status.prayers:
+        if hoplite.game.status.Prayer.SPINNING_BASH in state.status.prayers:
+            bashed_area = hoplite.utils.hexagonal_neighbors(state.terrain.player)
+        elif hoplite.game.status.Prayer.SWEEPING_BASH in state.status.prayers:
             bashed_area = {
                 self.target,
-                self.target + self.target.gradient(prev_state.terrain.player).rotate(1),
-                self.target + self.target.gradient(prev_state.terrain.player).rotate(-1),
+                self.target + self.target.gradient(state.terrain.player).rotate(-1),
+                self.target + self.target.gradient(state.terrain.player).rotate(1),
             }
         LOGGER.debug("Bashed area: %s", bashed_area)
-        for bashed_from in bashed_area:
-            bashed_to = bashed_from + (
-                next_state.terrain.player.gradient(bashed_from)
-                * next_state.status.attributes.knockback_distance
-            )
-            if bashed_from in prev_state.terrain.demons:
-                if next_state.terrain.surface.get(bashed_to)\
-                    in [hoplite.game.terrain.Tile.MAGMA, None]:
-                    LOGGER.debug(
-                        "Pushed and killed %s from %s to %s",
-                        next_state.terrain.demons[bashed_from].skill.name,
-                        bashed_from,
-                        bashed_to
-                    )
-                    self._killed += 1
-                    del next_state.terrain.demons[bashed_from]
-                else:
-                    next_state.terrain.demons[bashed_to] = next_state.terrain.demons[bashed_from]
-                    del next_state.terrain.demons[bashed_from]
-            elif bashed_from in prev_state.terrain.bombs:
-                self._pushed_bombs.add(bashed_to)
-                next_state.terrain.bombs.remove(bashed_from)
-                next_state.terrain.bombs.add(bashed_to)
+        return bashed_area
+
+    def _push_demon(self, terrain, origin, direction):
+        """Make room to push a demon. Exact mechanics are described by the
+        original developper [here](https://www.reddit.com/r/Hoplite/comments/fxx69q/).
+        Normally, `origin + direction.rotate(-1)` and
+        `origin + direction.rotate(1)` are checked in random orders.
+        """
+        LOGGER.debug("Pushing demon from %s in direction %s", origin, direction)
+        candidates = [
+            origin + direction,
+            origin + direction.rotate(-1),
+            origin + direction.rotate(1)
+        ]
+        LOGGER.debug("Empty tiles candidates: %s", candidates)
+        selected = None
+        for candidate in candidates:
+            if candidate in set(hoplite.utils.SURFACE_COORDINATES)\
+                .difference(terrain.demons)\
+                .difference([terrain.altar]):
+                LOGGER.debug("Found an empty tile at %s", candidate)
+                selected = candidate
+                break
+        if selected is None:
+            LOGGER.debug("No empty tile found.")
+            if candidates[0] not in hoplite.utils.SURFACE_COORDINATES:
+                LOGGER.debug("Forcing escape by crushing the demon out of bound.")
+                self._killed += 1
+                del terrain.demons[origin]
+            else:
+                LOGGER.debug("Propagating escape from %s", candidates[0])
+                self._push_demon(terrain, candidates[0], direction)
+                terrain.demons[candidates[0]] = terrain.demons[origin]
+                del terrain.demons[origin]
+        else:
+            if terrain.surface.get(selected) == hoplite.game.terrain.Tile.MAGMA:
+                LOGGER.debug("Escaping into lava, killing.")
+                self._killed += 1
+            else:
+                terrain.demons[selected] = terrain.demons[origin]
+            del terrain.demons[origin]
+
+    def _bash_step(self, state, entity, origin, direction):
+        target = origin + direction
+        LOGGER.debug("Bashing target: %s", target)
+        if target == state.terrain.altar:
+            LOGGER.debug("Blocked by altar, ending knockback")
+            return None
+        if target not in hoplite.utils.SURFACE_COORDINATES:
+            if entity == BashMove.ENTITY_DEMON:
+                LOGGER.debug("Pushing demon out of bound, counts as a kill")
+                del state.terrain.demons[origin]
+                self._killed += 1
+            LOGGER.debug("Knocked out of bound, ending knockback")
+            return None
+        if entity == BashMove.ENTITY_DEMON\
+            and state.terrain.surface.get(target) == hoplite.game.terrain.Tile.MAGMA:
+            LOGGER.debug("Pushed demon onto magma kill, ending knockback")
+            del state.terrain.demons[origin]
+            self._killed += 1
+            return None
+        if target in state.terrain.demons:
+            LOGGER.debug("Bash target is occupied by a demon")
+            self._push_demon(state.terrain, target, direction)
+        if entity == BashMove.ENTITY_BOMB:
+            state.terrain.bombs.remove(origin)
+            state.terrain.bombs.add(target)
+        elif entity == BashMove.ENTITY_DEMON:
+            state.terrain.demons[target] = state.terrain.demons[origin]
+            del state.terrain.demons[origin]
+        return target
+
+    def _apply(self, prev_state, next_state):
+        for origin in self._get_bashed_area(prev_state):
+            if origin in next_state.terrain.bombs:
+                entity = BashMove.ENTITY_BOMB
+            elif origin in next_state.terrain.demons:
+                entity = BashMove.ENTITY_DEMON
+            else:
+                LOGGER.debug("Nothing to bash at %s", origin)
+                continue
+            direction = next_state.terrain.player.gradient(origin)
+            LOGGER.debug("Bashing %s from %s into %s",
+                         ["bomb", "demon"][entity], origin, direction)
+            for step in range(next_state.status.attributes.knockback_distance):
+                LOGGER.debug("Bashing step %d/%d", step + 1,
+                             next_state.status.attributes.knockback_distance)
+                target = self._bash_step(next_state, entity, origin, direction)
+                if target is None:
+                    break
+                origin = target
         next_state.status.cooldown = next_state.status.attributes.cooldown
 
 

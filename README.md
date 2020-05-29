@@ -58,7 +58,7 @@ There is a lot to do, so feel free to [contribute](#contributing)!
     - [ ] Complete and implement the [game rules](utils/RULES.md)
         - [x] ~~Prayers~~
         - [x] ~~Energy restoration~~
-        - [ ] Knockback, collisions
+        - [x] ~~Knockback, collisions~~
         - [ ] Killing spree (Surge and Regeneration prayers)
         - [ ] Demons movements
             - [ ] Footman movement

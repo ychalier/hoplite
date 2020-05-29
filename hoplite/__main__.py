@@ -70,7 +70,6 @@ def move(path, move_name, target, prayers, render):
         if prayer == "":
             continue
         prev_state.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
-    prev_state.terrain.render()
     move_class = {
         "walk": hoplite.game.moves.WalkMove,
         "leap": hoplite.game.moves.LeapMove,

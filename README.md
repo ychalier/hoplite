@@ -55,7 +55,7 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [x] ~~Make the MonkeyRunner interface more reliable~~
 - [ ] Enhance the game re-implementation:
     - [ ] Develop a game explorer to build a database of state sequences for further analysis
-    - [ ] Complete and implement the [game rules](RULES.md)
+    - [ ] Complete and implement the [game rules](utils/RULES.md)
         - [x] ~~Prayers~~
         - [x] ~~Energy restoration~~
         - [ ] Knockback, collisions

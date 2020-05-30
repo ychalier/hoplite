@@ -75,6 +75,8 @@ class Status:
         `True` iff. the player has its spear in the inventory.
     health : int
         Number of full hearts.
+    spree : int
+        Current killing spree counter.
     prayers : List[Prayer]
         List of prayers made by the player so far.
     attributes : PlayerAttributes
@@ -87,6 +89,7 @@ class Status:
         self.energy = 100
         self.spear = True
         self.health = 3
+        self.spree = 0
         self.prayers = list()
         self.attributes = PlayerAttributes()
 
@@ -102,6 +105,7 @@ class Status:
             str(self.energy),
             str(int(self.spear)),
             str(self.health),
+            str(self.spree),
             ",".join([str(prayer.value) for prayer in self.prayers])
         ])
         if text[-1] == "/":
@@ -118,8 +122,8 @@ class Status:
         Parameters
         ----------
         string : str
-            String representation of the status. A string of 5 values separated
-            by a slash. First four values are integers, the last one is a list
+            String representation of the status. A string of 6 values separated
+            by a slash. First five values are integers, the last one is a list
             of comma-separated integers, corresponding to the prayers indices.
 
         Returns
@@ -129,11 +133,12 @@ class Status:
 
         """
         status = cls()
-        cooldown, energy, spear, health, prayers = string.split("/")
+        cooldown, energy, spear, health, spree, prayers = string.split("/")
         status.cooldown = int(cooldown)
         status.energy = int(energy)
         status.spear = spear == "1"
         status.health = int(health)
+        status.spree = int(spree)
         for prayer in prayers.split(","):
             if prayer != "-":
                 status.add_prayer(Prayer(int(prayer)))
@@ -203,9 +208,10 @@ class Status:
         self.energy = new_status.energy
         self.spear = new_status.spear
         self.health = new_status.health
+        self.spree = new_status.spree
         for prayer in new_status.prayers:
             self.add_prayer(prayer)
-        self.attributes = new_status.attributes
+        # Attributes are automatically computed when adding the prayer
 
     def can_leap(self):
         """Check if the player can leap.

@@ -297,3 +297,25 @@ def prayer(part):
     if is_close(part[70, 82], [0.968627, 0.890196, 0.419608]):
         return hoplite.game.status.Prayer.PATIENCE
     return None
+
+
+def spree(part):
+    """Classify a killing spree skull.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Skull image array of shape `(72, 30, 3)`.
+
+    Returns
+    -------
+    str
+        Either `"empty"`, `"off"` or `"on"`.
+
+    """
+    if is_close(part[36, 30], [0.094118, 0.094118, 0.094118]):
+        return "empty"
+    if is_close(part[36, 30], [0.321569, 0.333333, 0.321569]):
+        return "off"
+    # if is_close(part[36, 30], [0.482353, 0.443137, 0.192157]):
+    return "on"

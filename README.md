@@ -59,7 +59,7 @@ There is a lot to do, so feel free to [contribute](#contributing)!
         - [x] ~~Prayers~~
         - [x] ~~Energy restoration~~
         - [x] ~~Knockback, collisions~~
-        - [ ] Killing spree (Surge and Regeneration prayers)
+        - [x] ~~Killing spree (Surge and Regeneration prayers)~~
         - [ ] Demons movements
             - [ ] Footman movement
             - [ ] Archer and Wizard movement

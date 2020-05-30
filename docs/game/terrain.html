@@ -95,6 +95,17 @@ class SurfaceElement(enum.Enum):
     PORTAL = 15
 
 
+SURFACE_ELEMENT_ENCODER = {
+    element: &#34;0123456789abcdef&#34;[element.value]
+    for element in SurfaceElement
+}
+
+SURFACE_ELEMENT_DECODER = {
+    &#34;0123456789abcdef&#34;[element.value]: element
+    for element in SurfaceElement
+}
+
+
 class Terrain:  # pylint: disable=R0902
     &#34;&#34;&#34;Logical representation of the game terrain.
 
@@ -198,8 +209,26 @@ class Terrain:  # pylint: disable=R0902
         return result
 
     @classmethod
+    def from_string(cls, string):
+        &#34;&#34;&#34;Create and return a `Terrain` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the terrain. A string of 79 characters,
+            as expressed in the `SURFACE_ELEMENT_ENCODER`.
+
+        Returns
+        -------
+        Terrain
+            Terrain corresponding to this string.
+
+        &#34;&#34;&#34;
+        return Terrain.from_list([SURFACE_ELEMENT_DECODER[char] for char in string])
+
+    @classmethod
     def from_list(cls, source):  # pylint: disable=R0912
-        &#34;&#34;&#34;Create and return a Terrain object from a `SurfaceElement` list.
+        &#34;&#34;&#34;Create and return a `Terrain` object from a `SurfaceElement` list.
 
         Parameters
         ----------
@@ -252,7 +281,7 @@ class Terrain:  # pylint: disable=R0902
     def __repr__(self):
         text = &#34;&#34;
         for elt in self.to_list():
-            text += &#34;0123456789abcdef&#34;[elt.value]
+            text += SURFACE_ELEMENT_ENCODER[elt]
         return text
 
     def __str__(self):
@@ -932,8 +961,26 @@ class TerrainRenderer:  # pylint: disable=R0903
         return result
 
     @classmethod
+    def from_string(cls, string):
+        &#34;&#34;&#34;Create and return a `Terrain` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the terrain. A string of 79 characters,
+            as expressed in the `SURFACE_ELEMENT_ENCODER`.
+
+        Returns
+        -------
+        Terrain
+            Terrain corresponding to this string.
+
+        &#34;&#34;&#34;
+        return Terrain.from_list([SURFACE_ELEMENT_DECODER[char] for char in string])
+
+    @classmethod
     def from_list(cls, source):  # pylint: disable=R0912
-        &#34;&#34;&#34;Create and return a Terrain object from a `SurfaceElement` list.
+        &#34;&#34;&#34;Create and return a `Terrain` object from a `SurfaceElement` list.
 
         Parameters
         ----------
@@ -986,7 +1033,7 @@ class TerrainRenderer:  # pylint: disable=R0903
     def __repr__(self):
         text = &#34;&#34;
         for elt in self.to_list():
-            text += &#34;0123456789abcdef&#34;[elt.value]
+            text += SURFACE_ELEMENT_ENCODER[elt]
         return text
 
     def __str__(self):
@@ -1080,7 +1127,7 @@ class TerrainRenderer:  # pylint: disable=R0903
 <span>def <span class="ident">from_list</span></span>(<span>source)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create and return a Terrain object from a <code><a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a></code> list.</p>
+<div class="desc"><p>Create and return a <code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code> object from a <code><a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a></code> list.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>source</code></strong> :&ensp;<code>List[<a title="hoplite.game.terrain.SurfaceElement" href="#hoplite.game.terrain.SurfaceElement">SurfaceElement</a>]</code></dt>
@@ -1097,7 +1144,7 @@ class TerrainRenderer:  # pylint: disable=R0903
 </summary>
 <pre><code class="python">@classmethod
 def from_list(cls, source):  # pylint: disable=R0912
-    &#34;&#34;&#34;Create and return a Terrain object from a `SurfaceElement` list.
+    &#34;&#34;&#34;Create and return a `Terrain` object from a `SurfaceElement` list.
 
     Parameters
     ----------
@@ -1146,6 +1193,45 @@ def from_list(cls, source):  # pylint: disable=R0912
         elif elt == SurfaceElement.PORTAL:
             terrain.portal = pos
     return terrain</code></pre>
+</details>
+</dd>
+<dt id="hoplite.game.terrain.Terrain.from_string"><code class="name flex">
+<span>def <span class="ident">from_string</span></span>(<span>string)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return a <code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code> object from its string representation.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>String representation of the terrain. A string of 79 characters,
+as expressed in the <code>SURFACE_ELEMENT_ENCODER</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code></dt>
+<dd>Terrain corresponding to this string.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_string(cls, string):
+    &#34;&#34;&#34;Create and return a `Terrain` object from its string representation.
+
+    Parameters
+    ----------
+    string : str
+        String representation of the terrain. A string of 79 characters,
+        as expressed in the `SURFACE_ELEMENT_ENCODER`.
+
+    Returns
+    -------
+    Terrain
+        Terrain corresponding to this string.
+
+    &#34;&#34;&#34;
+    return Terrain.from_list([SURFACE_ELEMENT_DECODER[char] for char in string])</code></pre>
 </details>
 </dd>
 </dl>
@@ -1684,8 +1770,9 @@ terrain.</p>
 </li>
 <li>
 <h4><code><a title="hoplite.game.terrain.Terrain" href="#hoplite.game.terrain.Terrain">Terrain</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="hoplite.game.terrain.Terrain.from_list" href="#hoplite.game.terrain.Terrain.from_list">from_list</a></code></li>
+<li><code><a title="hoplite.game.terrain.Terrain.from_string" href="#hoplite.game.terrain.Terrain.from_string">from_string</a></code></li>
 <li><code><a title="hoplite.game.terrain.Terrain.pathfind" href="#hoplite.game.terrain.Terrain.pathfind">pathfind</a></code></li>
 <li><code><a title="hoplite.game.terrain.Terrain.render" href="#hoplite.game.terrain.Terrain.render">render</a></code></li>
 <li><code><a title="hoplite.game.terrain.Terrain.to_list" href="#hoplite.game.terrain.Terrain.to_list">to_list</a></code></li>

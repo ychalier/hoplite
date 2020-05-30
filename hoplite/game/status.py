@@ -111,6 +111,34 @@ class Status:
     def __str__(self):
         return "Status%s" % self.__dict__
 
+    @classmethod
+    def from_string(cls, string):
+        """Create and return a `Status` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the status. A string of 5 values separated
+            by a slash. First four values are integers, the last one is a list
+            of comma-separated integers, corresponding to the prayers indices.
+
+        Returns
+        -------
+        Status
+            Status corresponding to this string.
+
+        """
+        status = cls()
+        cooldown, energy, spear, health, prayers = string.split("/")
+        status.cooldown = int(cooldown)
+        status.energy = int(energy)
+        status.spear = spear == "1"
+        status.health = int(health)
+        for prayer in prayers.split(","):
+            if prayer != "-":
+                status.add_prayer(Prayer(int(prayer)))
+        return status
+
     def add_prayer(self, prayer):  # pylint: disable=R0912
         """Add a prayer to the prayer list.
 

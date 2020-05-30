@@ -98,7 +98,7 @@ class PlayerMove:
                     del next_state.terrain.demons[neighbor]
             next_state.terrain.bombs.remove(bomb_pos)
         for demon_pos, demon in next_state.terrain.demons.items():
-            demon_damage = demon.attack(self, demon_pos)
+            demon_damage = demon.attack(next_state, demon_pos)
             if demon_damage &gt; 0:
                 LOGGER.debug(
                     &#34;Taking a damage because of %s at %s&#34;,
@@ -193,40 +193,111 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
     &#34;&#34;&#34;Player bashes a tile.
     &#34;&#34;&#34;
 
-    def _apply(self, prev_state, next_state):
+    ENTITY_BOMB = 0
+    ENTITY_DEMON = 1
+
+    def _get_bashed_area(self, state):
         bashed_area = {self.target}
-        if hoplite.game.status.Prayer.SPINNING_BASH in prev_state.status.prayers:
-            bashed_area = hoplite.utils.hexagonal_neighbors(prev_state.terrain.player)
-        elif hoplite.game.status.Prayer.SWEEPING_BASH in prev_state.status.prayers:
+        if hoplite.game.status.Prayer.SPINNING_BASH in state.status.prayers:
+            bashed_area = hoplite.utils.hexagonal_neighbors(state.terrain.player)
+        elif hoplite.game.status.Prayer.SWEEPING_BASH in state.status.prayers:
             bashed_area = {
                 self.target,
-                self.target + self.target.gradient(prev_state.terrain.player).rotate(1),
-                self.target + self.target.gradient(prev_state.terrain.player).rotate(-1),
+                self.target + self.target.gradient(state.terrain.player).rotate(-1),
+                self.target + self.target.gradient(state.terrain.player).rotate(1),
             }
         LOGGER.debug(&#34;Bashed area: %s&#34;, bashed_area)
-        for bashed_from in bashed_area:
-            bashed_to = bashed_from + (
-                next_state.terrain.player.gradient(bashed_from)
-                * next_state.status.attributes.knockback_distance
-            )
-            if bashed_from in prev_state.terrain.demons:
-                if next_state.terrain.surface.get(bashed_to)\
-                    in [hoplite.game.terrain.Tile.MAGMA, None]:
-                    LOGGER.debug(
-                        &#34;Pushed and killed %s from %s to %s&#34;,
-                        next_state.terrain.demons[bashed_from].skill.name,
-                        bashed_from,
-                        bashed_to
-                    )
-                    self._killed += 1
-                    del next_state.terrain.demons[bashed_from]
-                else:
-                    next_state.terrain.demons[bashed_to] = next_state.terrain.demons[bashed_from]
-                    del next_state.terrain.demons[bashed_from]
-            elif bashed_from in prev_state.terrain.bombs:
-                self._pushed_bombs.add(bashed_to)
-                next_state.terrain.bombs.remove(bashed_from)
-                next_state.terrain.bombs.add(bashed_to)
+        return bashed_area
+
+    def _push_demon(self, terrain, origin, direction):
+        &#34;&#34;&#34;Make room to push a demon. Exact mechanics are described by the
+        original developper [here](https://www.reddit.com/r/Hoplite/comments/fxx69q/).
+        Normally, `origin + direction.rotate(-1)` and
+        `origin + direction.rotate(1)` are checked in random orders.
+        &#34;&#34;&#34;
+        LOGGER.debug(&#34;Pushing demon from %s in direction %s&#34;, origin, direction)
+        candidates = [
+            origin + direction,
+            origin + direction.rotate(-1),
+            origin + direction.rotate(1)
+        ]
+        LOGGER.debug(&#34;Empty tiles candidates: %s&#34;, candidates)
+        selected = None
+        for candidate in candidates:
+            if candidate in set(hoplite.utils.SURFACE_COORDINATES)\
+                .difference(terrain.demons)\
+                .difference([terrain.altar]):
+                LOGGER.debug(&#34;Found an empty tile at %s&#34;, candidate)
+                selected = candidate
+                break
+        if selected is None:
+            LOGGER.debug(&#34;No empty tile found.&#34;)
+            if candidates[0] not in hoplite.utils.SURFACE_COORDINATES:
+                LOGGER.debug(&#34;Forcing escape by crushing the demon out of bound.&#34;)
+                self._killed += 1
+                del terrain.demons[origin]
+            else:
+                LOGGER.debug(&#34;Propagating escape from %s&#34;, candidates[0])
+                self._push_demon(terrain, candidates[0], direction)
+                terrain.demons[candidates[0]] = terrain.demons[origin]
+                del terrain.demons[origin]
+        else:
+            if terrain.surface.get(selected) == hoplite.game.terrain.Tile.MAGMA:
+                LOGGER.debug(&#34;Escaping into lava, killing.&#34;)
+                self._killed += 1
+            else:
+                terrain.demons[selected] = terrain.demons[origin]
+            del terrain.demons[origin]
+
+    def _bash_step(self, state, entity, origin, direction):
+        target = origin + direction
+        LOGGER.debug(&#34;Bashing target: %s&#34;, target)
+        if target == state.terrain.altar:
+            LOGGER.debug(&#34;Blocked by altar, ending knockback&#34;)
+            return None
+        if target not in hoplite.utils.SURFACE_COORDINATES:
+            if entity == BashMove.ENTITY_DEMON:
+                LOGGER.debug(&#34;Pushing demon out of bound, counts as a kill&#34;)
+                del state.terrain.demons[origin]
+                self._killed += 1
+            LOGGER.debug(&#34;Knocked out of bound, ending knockback&#34;)
+            return None
+        if entity == BashMove.ENTITY_DEMON\
+            and state.terrain.surface.get(target) == hoplite.game.terrain.Tile.MAGMA:
+            LOGGER.debug(&#34;Pushed demon onto magma kill, ending knockback&#34;)
+            del state.terrain.demons[origin]
+            self._killed += 1
+            return None
+        if target in state.terrain.demons:
+            LOGGER.debug(&#34;Bash target is occupied by a demon&#34;)
+            self._push_demon(state.terrain, target, direction)
+        if entity == BashMove.ENTITY_BOMB:
+            state.terrain.bombs.remove(origin)
+            state.terrain.bombs.add(target)
+        elif entity == BashMove.ENTITY_DEMON:
+            state.terrain.demons[target] = state.terrain.demons[origin]
+            del state.terrain.demons[origin]
+        return target
+
+    def _apply(self, prev_state, next_state):
+        for origin in self._get_bashed_area(prev_state):
+            if origin in next_state.terrain.bombs:
+                entity = BashMove.ENTITY_BOMB
+            elif origin in next_state.terrain.demons:
+                entity = BashMove.ENTITY_DEMON
+            else:
+                LOGGER.debug(&#34;Nothing to bash at %s&#34;, origin)
+                continue
+            direction = next_state.terrain.player.gradient(origin)
+            LOGGER.debug(&#34;Bashing %s from %s into %s&#34;,
+                         [&#34;bomb&#34;, &#34;demon&#34;][entity], origin, direction)
+            for step in range(next_state.status.attributes.knockback_distance):
+                LOGGER.debug(&#34;Bashing step %d/%d&#34;, step + 1,
+                             next_state.status.attributes.knockback_distance)
+                target = self._bash_step(next_state, entity, origin, direction)
+                if target is None:
+                    break
+                origin = target
         next_state.status.cooldown = next_state.status.attributes.cooldown
 
 
@@ -299,46 +370,128 @@ class AltarMove(PlayerMove):  # pylint: disable=R0903
     &#34;&#34;&#34;Player bashes a tile.
     &#34;&#34;&#34;
 
-    def _apply(self, prev_state, next_state):
+    ENTITY_BOMB = 0
+    ENTITY_DEMON = 1
+
+    def _get_bashed_area(self, state):
         bashed_area = {self.target}
-        if hoplite.game.status.Prayer.SPINNING_BASH in prev_state.status.prayers:
-            bashed_area = hoplite.utils.hexagonal_neighbors(prev_state.terrain.player)
-        elif hoplite.game.status.Prayer.SWEEPING_BASH in prev_state.status.prayers:
+        if hoplite.game.status.Prayer.SPINNING_BASH in state.status.prayers:
+            bashed_area = hoplite.utils.hexagonal_neighbors(state.terrain.player)
+        elif hoplite.game.status.Prayer.SWEEPING_BASH in state.status.prayers:
             bashed_area = {
                 self.target,
-                self.target + self.target.gradient(prev_state.terrain.player).rotate(1),
-                self.target + self.target.gradient(prev_state.terrain.player).rotate(-1),
+                self.target + self.target.gradient(state.terrain.player).rotate(-1),
+                self.target + self.target.gradient(state.terrain.player).rotate(1),
             }
         LOGGER.debug(&#34;Bashed area: %s&#34;, bashed_area)
-        for bashed_from in bashed_area:
-            bashed_to = bashed_from + (
-                next_state.terrain.player.gradient(bashed_from)
-                * next_state.status.attributes.knockback_distance
-            )
-            if bashed_from in prev_state.terrain.demons:
-                if next_state.terrain.surface.get(bashed_to)\
-                    in [hoplite.game.terrain.Tile.MAGMA, None]:
-                    LOGGER.debug(
-                        &#34;Pushed and killed %s from %s to %s&#34;,
-                        next_state.terrain.demons[bashed_from].skill.name,
-                        bashed_from,
-                        bashed_to
-                    )
-                    self._killed += 1
-                    del next_state.terrain.demons[bashed_from]
-                else:
-                    next_state.terrain.demons[bashed_to] = next_state.terrain.demons[bashed_from]
-                    del next_state.terrain.demons[bashed_from]
-            elif bashed_from in prev_state.terrain.bombs:
-                self._pushed_bombs.add(bashed_to)
-                next_state.terrain.bombs.remove(bashed_from)
-                next_state.terrain.bombs.add(bashed_to)
+        return bashed_area
+
+    def _push_demon(self, terrain, origin, direction):
+        &#34;&#34;&#34;Make room to push a demon. Exact mechanics are described by the
+        original developper [here](https://www.reddit.com/r/Hoplite/comments/fxx69q/).
+        Normally, `origin + direction.rotate(-1)` and
+        `origin + direction.rotate(1)` are checked in random orders.
+        &#34;&#34;&#34;
+        LOGGER.debug(&#34;Pushing demon from %s in direction %s&#34;, origin, direction)
+        candidates = [
+            origin + direction,
+            origin + direction.rotate(-1),
+            origin + direction.rotate(1)
+        ]
+        LOGGER.debug(&#34;Empty tiles candidates: %s&#34;, candidates)
+        selected = None
+        for candidate in candidates:
+            if candidate in set(hoplite.utils.SURFACE_COORDINATES)\
+                .difference(terrain.demons)\
+                .difference([terrain.altar]):
+                LOGGER.debug(&#34;Found an empty tile at %s&#34;, candidate)
+                selected = candidate
+                break
+        if selected is None:
+            LOGGER.debug(&#34;No empty tile found.&#34;)
+            if candidates[0] not in hoplite.utils.SURFACE_COORDINATES:
+                LOGGER.debug(&#34;Forcing escape by crushing the demon out of bound.&#34;)
+                self._killed += 1
+                del terrain.demons[origin]
+            else:
+                LOGGER.debug(&#34;Propagating escape from %s&#34;, candidates[0])
+                self._push_demon(terrain, candidates[0], direction)
+                terrain.demons[candidates[0]] = terrain.demons[origin]
+                del terrain.demons[origin]
+        else:
+            if terrain.surface.get(selected) == hoplite.game.terrain.Tile.MAGMA:
+                LOGGER.debug(&#34;Escaping into lava, killing.&#34;)
+                self._killed += 1
+            else:
+                terrain.demons[selected] = terrain.demons[origin]
+            del terrain.demons[origin]
+
+    def _bash_step(self, state, entity, origin, direction):
+        target = origin + direction
+        LOGGER.debug(&#34;Bashing target: %s&#34;, target)
+        if target == state.terrain.altar:
+            LOGGER.debug(&#34;Blocked by altar, ending knockback&#34;)
+            return None
+        if target not in hoplite.utils.SURFACE_COORDINATES:
+            if entity == BashMove.ENTITY_DEMON:
+                LOGGER.debug(&#34;Pushing demon out of bound, counts as a kill&#34;)
+                del state.terrain.demons[origin]
+                self._killed += 1
+            LOGGER.debug(&#34;Knocked out of bound, ending knockback&#34;)
+            return None
+        if entity == BashMove.ENTITY_DEMON\
+            and state.terrain.surface.get(target) == hoplite.game.terrain.Tile.MAGMA:
+            LOGGER.debug(&#34;Pushed demon onto magma kill, ending knockback&#34;)
+            del state.terrain.demons[origin]
+            self._killed += 1
+            return None
+        if target in state.terrain.demons:
+            LOGGER.debug(&#34;Bash target is occupied by a demon&#34;)
+            self._push_demon(state.terrain, target, direction)
+        if entity == BashMove.ENTITY_BOMB:
+            state.terrain.bombs.remove(origin)
+            state.terrain.bombs.add(target)
+        elif entity == BashMove.ENTITY_DEMON:
+            state.terrain.demons[target] = state.terrain.demons[origin]
+            del state.terrain.demons[origin]
+        return target
+
+    def _apply(self, prev_state, next_state):
+        for origin in self._get_bashed_area(prev_state):
+            if origin in next_state.terrain.bombs:
+                entity = BashMove.ENTITY_BOMB
+            elif origin in next_state.terrain.demons:
+                entity = BashMove.ENTITY_DEMON
+            else:
+                LOGGER.debug(&#34;Nothing to bash at %s&#34;, origin)
+                continue
+            direction = next_state.terrain.player.gradient(origin)
+            LOGGER.debug(&#34;Bashing %s from %s into %s&#34;,
+                         [&#34;bomb&#34;, &#34;demon&#34;][entity], origin, direction)
+            for step in range(next_state.status.attributes.knockback_distance):
+                LOGGER.debug(&#34;Bashing step %d/%d&#34;, step + 1,
+                             next_state.status.attributes.knockback_distance)
+                target = self._bash_step(next_state, entity, origin, direction)
+                if target is None:
+                    break
+                origin = target
         next_state.status.cooldown = next_state.status.attributes.cooldown</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.game.moves.BashMove.ENTITY_BOMB"><code class="name">var <span class="ident">ENTITY_BOMB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.game.moves.BashMove.ENTITY_DEMON"><code class="name">var <span class="ident">ENTITY_DEMON</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
@@ -507,7 +660,7 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
                     del next_state.terrain.demons[neighbor]
             next_state.terrain.bombs.remove(bomb_pos)
         for demon_pos, demon in next_state.terrain.demons.items():
-            demon_damage = demon.attack(self, demon_pos)
+            demon_damage = demon.attack(next_state, demon_pos)
             if demon_damage &gt; 0:
                 LOGGER.debug(
                     &#34;Taking a damage because of %s at %s&#34;,
@@ -699,6 +852,10 @@ and damage taken. Enemy movements are not taken into account.</p>
 </li>
 <li>
 <h4><code><a title="hoplite.game.moves.BashMove" href="#hoplite.game.moves.BashMove">BashMove</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.game.moves.BashMove.ENTITY_BOMB" href="#hoplite.game.moves.BashMove.ENTITY_BOMB">ENTITY_BOMB</a></code></li>
+<li><code><a title="hoplite.game.moves.BashMove.ENTITY_DEMON" href="#hoplite.game.moves.BashMove.ENTITY_DEMON">ENTITY_DEMON</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="hoplite.game.moves.IdleMove" href="#hoplite.game.moves.IdleMove">IdleMove</a></code></h4>

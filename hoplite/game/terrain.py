@@ -68,6 +68,17 @@ class SurfaceElement(enum.Enum):
     PORTAL = 15
 
 
+SURFACE_ELEMENT_ENCODER = {
+    element: "0123456789abcdef"[element.value]
+    for element in SurfaceElement
+}
+
+SURFACE_ELEMENT_DECODER = {
+    "0123456789abcdef"[element.value]: element
+    for element in SurfaceElement
+}
+
+
 class Terrain:  # pylint: disable=R0902
     """Logical representation of the game terrain.
 
@@ -171,8 +182,26 @@ class Terrain:  # pylint: disable=R0902
         return result
 
     @classmethod
+    def from_string(cls, string):
+        """Create and return a `Terrain` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the terrain. A string of 79 characters,
+            as expressed in the `SURFACE_ELEMENT_ENCODER`.
+
+        Returns
+        -------
+        Terrain
+            Terrain corresponding to this string.
+
+        """
+        return Terrain.from_list([SURFACE_ELEMENT_DECODER[char] for char in string])
+
+    @classmethod
     def from_list(cls, source):  # pylint: disable=R0912
-        """Create and return a Terrain object from a `SurfaceElement` list.
+        """Create and return a `Terrain` object from a `SurfaceElement` list.
 
         Parameters
         ----------
@@ -225,7 +254,7 @@ class Terrain:  # pylint: disable=R0902
     def __repr__(self):
         text = ""
         for elt in self.to_list():
-            text += "0123456789abcdef"[elt.value]
+            text += SURFACE_ELEMENT_ENCODER[elt]
         return text
 
     def __str__(self):

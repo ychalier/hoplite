@@ -87,6 +87,32 @@ class GameState:
     def __hash__(self):
         return hash(self.depth + hash(self.terrain) + hash(self.status))
 
+    @classmethod
+    def from_string(cls, string):
+        &#34;&#34;&#34;Create and return a `GameState` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the game state, composed of three parts
+            separated by spaces. First part is an integer corresponding to the
+            current depth. Second part is the string representation of the
+            `hoplite.game.terrain.Terrain`. Last part is the string
+            representation of the `hoplite.game.status.Status`.
+
+        Returns
+        -------
+        GameState
+            Game state corresponding to that state.
+
+        &#34;&#34;&#34;
+        state = cls()
+        depth, terrain_string, status_string = string.split(&#34; &#34;)
+        state.depth = int(depth)
+        state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
+        state.status = hoplite.game.status.Status.from_string(status_string)
+        return state
+
     def copy(self):
         &#34;&#34;&#34;Copy the current state.
 
@@ -295,6 +321,32 @@ class AltarState:  # pylint: disable=R0903
     def __hash__(self):
         return hash(self.depth + hash(self.terrain) + hash(self.status))
 
+    @classmethod
+    def from_string(cls, string):
+        &#34;&#34;&#34;Create and return a `GameState` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the game state, composed of three parts
+            separated by spaces. First part is an integer corresponding to the
+            current depth. Second part is the string representation of the
+            `hoplite.game.terrain.Terrain`. Last part is the string
+            representation of the `hoplite.game.status.Status`.
+
+        Returns
+        -------
+        GameState
+            Game state corresponding to that state.
+
+        &#34;&#34;&#34;
+        state = cls()
+        depth, terrain_string, status_string = string.split(&#34; &#34;)
+        state.depth = int(depth)
+        state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
+        state.status = hoplite.game.status.Status.from_string(status_string)
+        return state
+
     def copy(self):
         &#34;&#34;&#34;Copy the current state.
 
@@ -385,6 +437,59 @@ class AltarState:  # pylint: disable=R0903
         if hoplite.game.status.Prayer.PATIENCE in self.status.prayers:
             yield hoplite.game.moves.IdleMove(self.terrain.player)</code></pre>
 </details>
+<h3>Static methods</h3>
+<dl>
+<dt id="hoplite.game.state.GameState.from_string"><code class="name flex">
+<span>def <span class="ident">from_string</span></span>(<span>string)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return a <code><a title="hoplite.game.state.GameState" href="#hoplite.game.state.GameState">GameState</a></code> object from its string representation.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>String representation of the game state, composed of three parts
+separated by spaces. First part is an integer corresponding to the
+current depth. Second part is the string representation of the
+<code><a title="hoplite.game.terrain.Terrain" href="terrain.html#hoplite.game.terrain.Terrain">Terrain</a></code>. Last part is the string
+representation of the <code><a title="hoplite.game.status.Status" href="status.html#hoplite.game.status.Status">Status</a></code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.state.GameState" href="#hoplite.game.state.GameState">GameState</a></code></dt>
+<dd>Game state corresponding to that state.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_string(cls, string):
+    &#34;&#34;&#34;Create and return a `GameState` object from its string representation.
+
+    Parameters
+    ----------
+    string : str
+        String representation of the game state, composed of three parts
+        separated by spaces. First part is an integer corresponding to the
+        current depth. Second part is the string representation of the
+        `hoplite.game.terrain.Terrain`. Last part is the string
+        representation of the `hoplite.game.status.Status`.
+
+    Returns
+    -------
+    GameState
+        Game state corresponding to that state.
+
+    &#34;&#34;&#34;
+    state = cls()
+    depth, terrain_string, status_string = string.split(&#34; &#34;)
+    state.depth = int(depth)
+    state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
+    state.status = hoplite.game.status.Status.from_string(status_string)
+    return state</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="hoplite.game.state.GameState.apply_attacks"><code class="name flex">
@@ -647,6 +752,7 @@ Total number of demons killed by the attacks.</p></div>
 <ul class="">
 <li><code><a title="hoplite.game.state.GameState.apply_attacks" href="#hoplite.game.state.GameState.apply_attacks">apply_attacks</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.copy" href="#hoplite.game.state.GameState.copy">copy</a></code></li>
+<li><code><a title="hoplite.game.state.GameState.from_string" href="#hoplite.game.state.GameState.from_string">from_string</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.possible_moves" href="#hoplite.game.state.GameState.possible_moves">possible_moves</a></code></li>
 <li><code><a title="hoplite.game.state.GameState.update" href="#hoplite.game.state.GameState.update">update</a></code></li>
 </ul>

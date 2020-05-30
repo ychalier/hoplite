@@ -138,6 +138,34 @@ class Status:
     def __str__(self):
         return &#34;Status%s&#34; % self.__dict__
 
+    @classmethod
+    def from_string(cls, string):
+        &#34;&#34;&#34;Create and return a `Status` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the status. A string of 5 values separated
+            by a slash. First four values are integers, the last one is a list
+            of comma-separated integers, corresponding to the prayers indices.
+
+        Returns
+        -------
+        Status
+            Status corresponding to this string.
+
+        &#34;&#34;&#34;
+        status = cls()
+        cooldown, energy, spear, health, prayers = string.split(&#34;/&#34;)
+        status.cooldown = int(cooldown)
+        status.energy = int(energy)
+        status.spear = spear == &#34;1&#34;
+        status.health = int(health)
+        for prayer in prayers.split(&#34;,&#34;):
+            if prayer != &#34;-&#34;:
+                status.add_prayer(Prayer(int(prayer)))
+        return status
+
     def add_prayer(self, prayer):  # pylint: disable=R0912
         &#34;&#34;&#34;Add a prayer to the prayer list.
 
@@ -259,7 +287,7 @@ class Status:
             Amount of energy to remove.
 
         &#34;&#34;&#34;
-        assert amount &gt;= self.energy
+        assert amount &lt;= self.energy, (amount, self.energy)
         self.energy -= amount
 
     def restore_health(self, amount=1):
@@ -543,6 +571,34 @@ the result of its actions.</p>
     def __str__(self):
         return &#34;Status%s&#34; % self.__dict__
 
+    @classmethod
+    def from_string(cls, string):
+        &#34;&#34;&#34;Create and return a `Status` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the status. A string of 5 values separated
+            by a slash. First four values are integers, the last one is a list
+            of comma-separated integers, corresponding to the prayers indices.
+
+        Returns
+        -------
+        Status
+            Status corresponding to this string.
+
+        &#34;&#34;&#34;
+        status = cls()
+        cooldown, energy, spear, health, prayers = string.split(&#34;/&#34;)
+        status.cooldown = int(cooldown)
+        status.energy = int(energy)
+        status.spear = spear == &#34;1&#34;
+        status.health = int(health)
+        for prayer in prayers.split(&#34;,&#34;):
+            if prayer != &#34;-&#34;:
+                status.add_prayer(Prayer(int(prayer)))
+        return status
+
     def add_prayer(self, prayer):  # pylint: disable=R0912
         &#34;&#34;&#34;Add a prayer to the prayer list.
 
@@ -664,7 +720,7 @@ the result of its actions.</p>
             Amount of energy to remove.
 
         &#34;&#34;&#34;
-        assert amount &gt;= self.energy
+        assert amount &lt;= self.energy, (amount, self.energy)
         self.energy -= amount
 
     def restore_health(self, amount=1):
@@ -698,6 +754,59 @@ the result of its actions.</p>
             return False
         return True</code></pre>
 </details>
+<h3>Static methods</h3>
+<dl>
+<dt id="hoplite.game.status.Status.from_string"><code class="name flex">
+<span>def <span class="ident">from_string</span></span>(<span>string)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return a <code><a title="hoplite.game.status.Status" href="#hoplite.game.status.Status">Status</a></code> object from its string representation.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>String representation of the status. A string of 5 values separated
+by a slash. First four values are integers, the last one is a list
+of comma-separated integers, corresponding to the prayers indices.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.status.Status" href="#hoplite.game.status.Status">Status</a></code></dt>
+<dd>Status corresponding to this string.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_string(cls, string):
+    &#34;&#34;&#34;Create and return a `Status` object from its string representation.
+
+    Parameters
+    ----------
+    string : str
+        String representation of the status. A string of 5 values separated
+        by a slash. First four values are integers, the last one is a list
+        of comma-separated integers, corresponding to the prayers indices.
+
+    Returns
+    -------
+    Status
+        Status corresponding to this string.
+
+    &#34;&#34;&#34;
+    status = cls()
+    cooldown, energy, spear, health, prayers = string.split(&#34;/&#34;)
+    status.cooldown = int(cooldown)
+    status.energy = int(energy)
+    status.spear = spear == &#34;1&#34;
+    status.health = int(health)
+    for prayer in prayers.split(&#34;,&#34;):
+        if prayer != &#34;-&#34;:
+            status.add_prayer(Prayer(int(prayer)))
+    return status</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="hoplite.game.status.Status.add_prayer"><code class="name flex">
@@ -990,7 +1099,7 @@ the result of its actions.</p>
         Amount of energy to remove.
 
     &#34;&#34;&#34;
-    assert amount &gt;= self.energy
+    assert amount &lt;= self.energy, (amount, self.energy)
     self.energy -= amount</code></pre>
 </details>
 </dd>
@@ -1045,6 +1154,7 @@ the result of its actions.</p>
 <li><code><a title="hoplite.game.status.Status.can_leap" href="#hoplite.game.status.Status.can_leap">can_leap</a></code></li>
 <li><code><a title="hoplite.game.status.Status.can_throw" href="#hoplite.game.status.Status.can_throw">can_throw</a></code></li>
 <li><code><a title="hoplite.game.status.Status.deal_damage" href="#hoplite.game.status.Status.deal_damage">deal_damage</a></code></li>
+<li><code><a title="hoplite.game.status.Status.from_string" href="#hoplite.game.status.Status.from_string">from_string</a></code></li>
 <li><code><a title="hoplite.game.status.Status.restore_energy" href="#hoplite.game.status.Status.restore_energy">restore_energy</a></code></li>
 <li><code><a title="hoplite.game.status.Status.restore_health" href="#hoplite.game.status.Status.restore_health">restore_health</a></code></li>
 <li><code><a title="hoplite.game.status.Status.update" href="#hoplite.game.status.Status.update">update</a></code></li>

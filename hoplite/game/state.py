@@ -60,6 +60,32 @@ class GameState:
     def __hash__(self):
         return hash(self.depth + hash(self.terrain) + hash(self.status))
 
+    @classmethod
+    def from_string(cls, string):
+        """Create and return a `GameState` object from its string representation.
+
+        Parameters
+        ----------
+        string : str
+            String representation of the game state, composed of three parts
+            separated by spaces. First part is an integer corresponding to the
+            current depth. Second part is the string representation of the
+            `hoplite.game.terrain.Terrain`. Last part is the string
+            representation of the `hoplite.game.status.Status`.
+
+        Returns
+        -------
+        GameState
+            Game state corresponding to that state.
+
+        """
+        state = cls()
+        depth, terrain_string, status_string = string.split(" ")
+        state.depth = int(depth)
+        state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
+        state.status = hoplite.game.status.Status.from_string(status_string)
+        return state
+
     def copy(self):
         """Copy the current state.
 

@@ -44,43 +44,33 @@ def play(monkey_runner, save_screenshots, prayers):
             pass
 
 
-def parse(path, save_parts, show_ranges, prayers, render):
-    """Parse a screenshot.
+def parse(args):
+    """Parse a game state to perform some analysis.
     """
-    parser = hoplite.vision.observer.ScreenParser(save_parts=save_parts)
-    brain = hoplite.brain.Brain()
-    game = parser.observe_game(parser.read_stream(path))
-    for prayer in prayers.strip().split(","):
-        if prayer == "":
-            continue
-        game.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
+    if os.path.isfile(args.input):
+        parser = hoplite.vision.observer.ScreenParser(save_parts=args.save_parts)
+        game = parser.observe_game(parser.read_stream(args.input))
+    else:
+        game = hoplite.game.state.GameState.from_string(args.input)
+    for prayer in args.prayers.strip().split(","):
+        if prayer != "":
+            game.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
+    if "move_type" in args:
+        move_class = {
+            "walk": hoplite.game.moves.WalkMove,
+            "leap": hoplite.game.moves.LeapMove,
+            "bash": hoplite.game.moves.BashMove,
+            "throw": hoplite.game.moves.ThrowMove
+        }[args.move_type]
+        player_move = move_class(hoplite.utils.HexagonalCoordinates(args.x, args.y))
+        game = player_move.apply(game)
     print(repr(game))
-    logging.info("Evaluation: %s", brain.evaluate(game))
-    brain.pick_move(game)
-    if render:
-        game.terrain.render(show_ranges=show_ranges)
-
-
-def move(path, move_name, target, prayers, render):
-    """Observe a screenshot and make a move.
-    """
-    parser = hoplite.vision.observer.ScreenParser()
-    prev_state = parser.observe_game(parser.read_stream(path))
-    for prayer in prayers.strip().split(","):
-        if prayer == "":
-            continue
-        prev_state.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
-    move_class = {
-        "walk": hoplite.game.moves.WalkMove,
-        "leap": hoplite.game.moves.LeapMove,
-        "bash": hoplite.game.moves.BashMove,
-        "throw": hoplite.game.moves.ThrowMove
-    }[move_name]
-    player_move = move_class(hoplite.utils.HexagonalCoordinates(*target))
-    next_state = player_move.apply(prev_state)
-    print(repr(next_state))
-    if render:
-        next_state.terrain.render()
+    if args.evaluate:
+        brain = hoplite.brain.Brain()
+        print("evaluation:\t%f" % brain.evaluate(game))
+        print("best move:\t%s" % brain.pick_move(game))
+    if args.render:
+        game.terrain.render(show_ranges=args.show_ranges)
 
 
 def main():
@@ -113,65 +103,6 @@ def main():
         help="no logging output"
     )
     subparsers = parser.add_subparsers(dest="action", required=True)
-    parse_parser = subparsers.add_parser("parse")
-    parse_parser.add_argument(
-        "path",
-        type=str,
-        help="path to PNG screenshot file"
-    )
-    parse_parser.add_argument(
-        "--save-parts",
-        action="store_true",
-        help="save extracted parts to disk"
-    )
-    parse_parser.add_argument(
-        "--show-ranges",
-        action="store_true",
-        help="show ranges",
-    )
-    parse_parser.add_argument(
-        "--prayers",
-        type=str,
-        help="comma separated prayer index",
-        default="",
-    )
-    parse_parser.add_argument(
-        "-r", "--render",
-        action="store_true",
-        help="render the terrain in a Pygame window",
-    )
-    move_parser = subparsers.add_parser("move")
-    move_parser.add_argument(
-        "path",
-        type=str,
-        help="path to PNG screenshot file"
-    )
-    move_parser.add_argument(
-        "move",
-        choices=["walk", "leap", "bash", "throw"],
-        help="player move to perform"
-    )
-    move_parser.add_argument(
-        "x",
-        type=int,
-        help="move target x"
-    )
-    move_parser.add_argument(
-        "y",
-        type=int,
-        help="move target y"
-    )
-    move_parser.add_argument(
-        "--prayers",
-        type=str,
-        help="comma separated prayer index",
-        default="",
-    )
-    move_parser.add_argument(
-        "-r", "--render",
-        action="store_true",
-        help="render the terrain in a Pygame window",
-    )
     play_parser = subparsers.add_parser("play")
     play_parser.add_argument(
         "--save-screenshots",
@@ -184,6 +115,56 @@ def main():
         help="comma separated prayer index",
         default="",
     )
+    parse_parser = subparsers.add_parser("parse")
+    parse_parser.add_argument(
+        "-i", "--input",
+        type=str,
+        help="game state notation or path to a screenshot"
+    )
+    parse_subparsers = parse_parser.add_subparsers()
+    parse_parser.add_argument(
+        "-p", "--prayers",
+        type=str,
+        help="comma separated prayer indices",
+        default=""
+    )
+    parse_parser.add_argument(
+        "-r", "--render",
+        action="store_true",
+        help="render the terrain using a PyGame window"
+    )
+    parse_parser.add_argument(
+        "-sp", "--save-parts",
+        action="store_true",
+        help="save parts extracted during the screenshot observation to the disk"
+    )
+    parse_parser.add_argument(
+        "-sr", "--show-ranges",
+        action="store_true",
+        help="when rendering, render demon ranges"
+    )
+    parse_parser.add_argument(
+        "-ev", "--evaluate",
+        action="store_true",
+        help="evaluate the input game state"
+    )
+    move_parser = parse_subparsers.add_parser("move")
+    move_parser.add_argument(
+        "move_type",
+        type=str,
+        choices=["walk", "leap", "bash", "throw"],
+        help="move to perform within the input state"
+    )
+    move_parser.add_argument(
+        "x",
+        type=int,
+        help="move target x"
+    )
+    move_parser.add_argument(
+        "y",
+        type=int,
+        help="move target y"
+    )
     args = parser.parse_args()
     log_level = logging.INFO
     if args.verbose:
@@ -193,12 +174,10 @@ def main():
     elif args.silent:
         log_level = logging.CRITICAL
     logging.basicConfig(level=log_level)
-    if args.action == "parse":
-        parse(args.path, args.save_parts, args.show_ranges, args.prayers, args.render)
-    elif args.action == "move":
-        move(args.path, args.move, (args.x, args.y), args.prayers, args.render)
-    elif args.action == "play":
+    if args.action == "play":
         play(args.monkey_runner, args.save_screenshots, args.prayers)
+    elif args.action == "parse":
+        parse(args)
 
 
 main()

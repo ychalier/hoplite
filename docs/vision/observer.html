@@ -220,6 +220,7 @@ class ScreenParser:
             &#34;energy_two&#34;: TopLeftLocator((20, 28), (508, 1885), 4, save_parts=save_parts),
             &#34;energy_three&#34;: TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts),
             &#34;energy&#34;: TopLeftLocator((40, 28), (544, 1885), save_parts=save_parts),
+            &#34;spree&#34;: TopLeftLocator((60, 72), (874, 1668), save_parts=save_parts)
         }
 
     def _observe_integer(self, array, locator):
@@ -286,6 +287,20 @@ class ScreenParser:
                      1000 * (time.time() - time_start))
         return spear
 
+    def _observe_spree(self, array):
+        time_start = time.time()
+        spree = 0
+        for column in range(3):
+            part = self.locators[&#34;spree&#34;].get(array, 0, column)
+            label = hoplite.vision.classifiers.spree(part)
+            if label == &#34;empty&#34;:
+                break
+            if label == &#34;on&#34;:
+                spree += 1
+        LOGGER.debug(&#34;Observed spree in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return spree
+
     def _observe_terrain(self, array):
         time_start = time.time()
         surface = list()
@@ -322,6 +337,7 @@ class ScreenParser:
         state.status.health = current_health
         state.status.attributes.maximum_health = max_health
         state.status.spear = self._observe_spear(array)
+        state.status.spree = self._observe_spree(array)
         LOGGER.info(
             &#34;Observed screenshot in %.3f seconds&#34;,
             time.time() - time_start
@@ -934,6 +950,7 @@ class Observer:
             &#34;energy_two&#34;: TopLeftLocator((20, 28), (508, 1885), 4, save_parts=save_parts),
             &#34;energy_three&#34;: TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts),
             &#34;energy&#34;: TopLeftLocator((40, 28), (544, 1885), save_parts=save_parts),
+            &#34;spree&#34;: TopLeftLocator((60, 72), (874, 1668), save_parts=save_parts)
         }
 
     def _observe_integer(self, array, locator):
@@ -1000,6 +1017,20 @@ class Observer:
                      1000 * (time.time() - time_start))
         return spear
 
+    def _observe_spree(self, array):
+        time_start = time.time()
+        spree = 0
+        for column in range(3):
+            part = self.locators[&#34;spree&#34;].get(array, 0, column)
+            label = hoplite.vision.classifiers.spree(part)
+            if label == &#34;empty&#34;:
+                break
+            if label == &#34;on&#34;:
+                spree += 1
+        LOGGER.debug(&#34;Observed spree in %.1f ms&#34;,
+                     1000 * (time.time() - time_start))
+        return spree
+
     def _observe_terrain(self, array):
         time_start = time.time()
         surface = list()
@@ -1036,6 +1067,7 @@ class Observer:
         state.status.health = current_health
         state.status.attributes.maximum_health = max_health
         state.status.spear = self._observe_spear(array)
+        state.status.spree = self._observe_spree(array)
         LOGGER.info(
             &#34;Observed screenshot in %.3f seconds&#34;,
             time.time() - time_start
@@ -1147,6 +1179,7 @@ def read_stream(path):
     state.status.health = current_health
     state.status.attributes.maximum_health = max_health
     state.status.spear = self._observe_spear(array)
+    state.status.spree = self._observe_spree(array)
     LOGGER.info(
         &#34;Observed screenshot in %.3f seconds&#34;,
         time.time() - time_start

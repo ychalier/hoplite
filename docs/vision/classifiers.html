@@ -323,7 +323,29 @@ def prayer(part):
         return hoplite.game.status.Prayer.SURGE
     if is_close(part[70, 82], [0.968627, 0.890196, 0.419608]):
         return hoplite.game.status.Prayer.PATIENCE
-    return None</code></pre>
+    return None
+
+
+def spree(part):
+    &#34;&#34;&#34;Classify a killing spree skull.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Skull image array of shape `(72, 30, 3)`.
+
+    Returns
+    -------
+    str
+        Either `&#34;empty&#34;`, `&#34;off&#34;` or `&#34;on&#34;`.
+
+    &#34;&#34;&#34;
+    if is_close(part[36, 30], [0.094118, 0.094118, 0.094118]):
+        return &#34;empty&#34;
+    if is_close(part[36, 30], [0.321569, 0.333333, 0.321569]):
+        return &#34;off&#34;
+    # if is_close(part[36, 30], [0.482353, 0.443137, 0.192157]):
+    return &#34;on&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -716,6 +738,47 @@ spear is rotated depending on where the player thrown it from.</p>
     return is_close(part[40, 10], [0.937255, 0.541176, 0.192157])</code></pre>
 </details>
 </dd>
+<dt id="hoplite.vision.classifiers.spree"><code class="name flex">
+<span>def <span class="ident">spree</span></span>(<span>part)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Classify a killing spree skull.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>part</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
+<dd>Skull image array of shape <code>(72, 30, 3)</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>Either <code>"empty"</code>, <code>"off"</code> or <code>"on"</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def spree(part):
+    &#34;&#34;&#34;Classify a killing spree skull.
+
+    Parameters
+    ----------
+    part : numpy.ndarray
+        Skull image array of shape `(72, 30, 3)`.
+
+    Returns
+    -------
+    str
+        Either `&#34;empty&#34;`, `&#34;off&#34;` or `&#34;on&#34;`.
+
+    &#34;&#34;&#34;
+    if is_close(part[36, 30], [0.094118, 0.094118, 0.094118]):
+        return &#34;empty&#34;
+    if is_close(part[36, 30], [0.321569, 0.333333, 0.321569]):
+        return &#34;off&#34;
+    # if is_close(part[36, 30], [0.482353, 0.443137, 0.192157]):
+    return &#34;on&#34;</code></pre>
+</details>
+</dd>
 <dt id="hoplite.vision.classifiers.terrain"><code class="name flex">
 <span>def <span class="ident">terrain</span></span>(<span>part)</span>
 </code></dt>
@@ -826,6 +889,7 @@ spear is rotated depending on where the player thrown it from.</p>
 <li><code><a title="hoplite.vision.classifiers.is_spear" href="#hoplite.vision.classifiers.is_spear">is_spear</a></code></li>
 <li><code><a title="hoplite.vision.classifiers.prayer" href="#hoplite.vision.classifiers.prayer">prayer</a></code></li>
 <li><code><a title="hoplite.vision.classifiers.spear" href="#hoplite.vision.classifiers.spear">spear</a></code></li>
+<li><code><a title="hoplite.vision.classifiers.spree" href="#hoplite.vision.classifiers.spree">spree</a></code></li>
 <li><code><a title="hoplite.vision.classifiers.terrain" href="#hoplite.vision.classifiers.terrain">terrain</a></code></li>
 </ul>
 </li>

@@ -102,6 +102,8 @@ class Status:
         `True` iff. the player has its spear in the inventory.
     health : int
         Number of full hearts.
+    spree : int
+        Current killing spree counter.
     prayers : List[Prayer]
         List of prayers made by the player so far.
     attributes : PlayerAttributes
@@ -114,6 +116,7 @@ class Status:
         self.energy = 100
         self.spear = True
         self.health = 3
+        self.spree = 0
         self.prayers = list()
         self.attributes = PlayerAttributes()
 
@@ -129,6 +132,7 @@ class Status:
             str(self.energy),
             str(int(self.spear)),
             str(self.health),
+            str(self.spree),
             &#34;,&#34;.join([str(prayer.value) for prayer in self.prayers])
         ])
         if text[-1] == &#34;/&#34;:
@@ -145,8 +149,8 @@ class Status:
         Parameters
         ----------
         string : str
-            String representation of the status. A string of 5 values separated
-            by a slash. First four values are integers, the last one is a list
+            String representation of the status. A string of 6 values separated
+            by a slash. First five values are integers, the last one is a list
             of comma-separated integers, corresponding to the prayers indices.
 
         Returns
@@ -156,11 +160,12 @@ class Status:
 
         &#34;&#34;&#34;
         status = cls()
-        cooldown, energy, spear, health, prayers = string.split(&#34;/&#34;)
+        cooldown, energy, spear, health, spree, prayers = string.split(&#34;/&#34;)
         status.cooldown = int(cooldown)
         status.energy = int(energy)
         status.spear = spear == &#34;1&#34;
         status.health = int(health)
+        status.spree = int(spree)
         for prayer in prayers.split(&#34;,&#34;):
             if prayer != &#34;-&#34;:
                 status.add_prayer(Prayer(int(prayer)))
@@ -230,9 +235,10 @@ class Status:
         self.energy = new_status.energy
         self.spear = new_status.spear
         self.health = new_status.health
+        self.spree = new_status.spree
         for prayer in new_status.prayers:
             self.add_prayer(prayer)
-        self.attributes = new_status.attributes
+        # Attributes are automatically computed when adding the prayer
 
     def can_leap(self):
         &#34;&#34;&#34;Check if the player can leap.
@@ -513,6 +519,8 @@ the result of its actions.</p>
 <dd><code>True</code> iff. the player has its spear in the inventory.</dd>
 <dt><strong><code>health</code></strong> :&ensp;<code>int</code></dt>
 <dd>Number of full hearts.</dd>
+<dt><strong><code>spree</code></strong> :&ensp;<code>int</code></dt>
+<dd>Current killing spree counter.</dd>
 <dt><strong><code>prayers</code></strong> :&ensp;<code>List[<a title="hoplite.game.status.Prayer" href="#hoplite.game.status.Prayer">Prayer</a>]</code></dt>
 <dd>List of prayers made by the player so far.</dd>
 <dt><strong><code>attributes</code></strong> :&ensp;<code><a title="hoplite.game.status.PlayerAttributes" href="#hoplite.game.status.PlayerAttributes">PlayerAttributes</a></code></dt>
@@ -535,6 +543,8 @@ the result of its actions.</p>
         `True` iff. the player has its spear in the inventory.
     health : int
         Number of full hearts.
+    spree : int
+        Current killing spree counter.
     prayers : List[Prayer]
         List of prayers made by the player so far.
     attributes : PlayerAttributes
@@ -547,6 +557,7 @@ the result of its actions.</p>
         self.energy = 100
         self.spear = True
         self.health = 3
+        self.spree = 0
         self.prayers = list()
         self.attributes = PlayerAttributes()
 
@@ -562,6 +573,7 @@ the result of its actions.</p>
             str(self.energy),
             str(int(self.spear)),
             str(self.health),
+            str(self.spree),
             &#34;,&#34;.join([str(prayer.value) for prayer in self.prayers])
         ])
         if text[-1] == &#34;/&#34;:
@@ -578,8 +590,8 @@ the result of its actions.</p>
         Parameters
         ----------
         string : str
-            String representation of the status. A string of 5 values separated
-            by a slash. First four values are integers, the last one is a list
+            String representation of the status. A string of 6 values separated
+            by a slash. First five values are integers, the last one is a list
             of comma-separated integers, corresponding to the prayers indices.
 
         Returns
@@ -589,11 +601,12 @@ the result of its actions.</p>
 
         &#34;&#34;&#34;
         status = cls()
-        cooldown, energy, spear, health, prayers = string.split(&#34;/&#34;)
+        cooldown, energy, spear, health, spree, prayers = string.split(&#34;/&#34;)
         status.cooldown = int(cooldown)
         status.energy = int(energy)
         status.spear = spear == &#34;1&#34;
         status.health = int(health)
+        status.spree = int(spree)
         for prayer in prayers.split(&#34;,&#34;):
             if prayer != &#34;-&#34;:
                 status.add_prayer(Prayer(int(prayer)))
@@ -663,9 +676,10 @@ the result of its actions.</p>
         self.energy = new_status.energy
         self.spear = new_status.spear
         self.health = new_status.health
+        self.spree = new_status.spree
         for prayer in new_status.prayers:
             self.add_prayer(prayer)
-        self.attributes = new_status.attributes
+        # Attributes are automatically computed when adding the prayer
 
     def can_leap(self):
         &#34;&#34;&#34;Check if the player can leap.
@@ -764,8 +778,8 @@ the result of its actions.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
-<dd>String representation of the status. A string of 5 values separated
-by a slash. First four values are integers, the last one is a list
+<dd>String representation of the status. A string of 6 values separated
+by a slash. First five values are integers, the last one is a list
 of comma-separated integers, corresponding to the prayers indices.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -784,8 +798,8 @@ def from_string(cls, string):
     Parameters
     ----------
     string : str
-        String representation of the status. A string of 5 values separated
-        by a slash. First four values are integers, the last one is a list
+        String representation of the status. A string of 6 values separated
+        by a slash. First five values are integers, the last one is a list
         of comma-separated integers, corresponding to the prayers indices.
 
     Returns
@@ -795,11 +809,12 @@ def from_string(cls, string):
 
     &#34;&#34;&#34;
     status = cls()
-    cooldown, energy, spear, health, prayers = string.split(&#34;/&#34;)
+    cooldown, energy, spear, health, spree, prayers = string.split(&#34;/&#34;)
     status.cooldown = int(cooldown)
     status.energy = int(energy)
     status.spear = spear == &#34;1&#34;
     status.health = int(health)
+    status.spree = int(spree)
     for prayer in prayers.split(&#34;,&#34;):
         if prayer != &#34;-&#34;:
             status.add_prayer(Prayer(int(prayer)))
@@ -1071,9 +1086,9 @@ def from_string(cls, string):
     self.energy = new_status.energy
     self.spear = new_status.spear
     self.health = new_status.health
+    self.spree = new_status.spree
     for prayer in new_status.prayers:
-        self.add_prayer(prayer)
-    self.attributes = new_status.attributes</code></pre>
+        self.add_prayer(prayer)</code></pre>
 </details>
 </dd>
 <dt id="hoplite.game.status.Status.use_energy"><code class="name flex">

@@ -129,6 +129,25 @@ class PlayerMove:
         self._apply_damages(next_state)
         if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
             next_state.status.restore_energy(self._killed * 6)
+        if self._killed &gt; 0:
+            next_state.status.spree += 1
+            LOGGER.debug(&#34;Increasing killing spree, current state: %d&#34;, next_state.status.spree)
+        else:
+            next_state.status.spree = 0
+            LOGGER.debug(&#34;Resetting killing spree&#34;)
+        if next_state.status.spree == 3:
+            if hoplite.game.status.Prayer.SURGE in next_state.status.prayers:
+                LOGGER.debug(&#34;Using SURGE&#34;)
+                next_state.status.restore_energy(100)
+                next_state.status.cooldown = 0
+                next_state.status.spear = True
+                next_state.terrain.spear = None
+            elif hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers:
+                LOGGER.debug(&#34;Using REGENERATION&#34;)
+                next_state.status.restore_health(1)
+            else:
+                LOGGER.debug(&#34;No prayer to spend killing spree on&#34;)
+            next_state.status.spree = 0
         return next_state
 
     def _apply(self, prev_state, next_state):
@@ -691,6 +710,25 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
         self._apply_damages(next_state)
         if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
             next_state.status.restore_energy(self._killed * 6)
+        if self._killed &gt; 0:
+            next_state.status.spree += 1
+            LOGGER.debug(&#34;Increasing killing spree, current state: %d&#34;, next_state.status.spree)
+        else:
+            next_state.status.spree = 0
+            LOGGER.debug(&#34;Resetting killing spree&#34;)
+        if next_state.status.spree == 3:
+            if hoplite.game.status.Prayer.SURGE in next_state.status.prayers:
+                LOGGER.debug(&#34;Using SURGE&#34;)
+                next_state.status.restore_energy(100)
+                next_state.status.cooldown = 0
+                next_state.status.spear = True
+                next_state.terrain.spear = None
+            elif hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers:
+                LOGGER.debug(&#34;Using REGENERATION&#34;)
+                next_state.status.restore_health(1)
+            else:
+                LOGGER.debug(&#34;No prayer to spend killing spree on&#34;)
+            next_state.status.spree = 0
         return next_state
 
     def _apply(self, prev_state, next_state):
@@ -747,6 +785,25 @@ and damage taken. Enemy movements are not taken into account.</p>
     self._apply_damages(next_state)
     if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
         next_state.status.restore_energy(self._killed * 6)
+    if self._killed &gt; 0:
+        next_state.status.spree += 1
+        LOGGER.debug(&#34;Increasing killing spree, current state: %d&#34;, next_state.status.spree)
+    else:
+        next_state.status.spree = 0
+        LOGGER.debug(&#34;Resetting killing spree&#34;)
+    if next_state.status.spree == 3:
+        if hoplite.game.status.Prayer.SURGE in next_state.status.prayers:
+            LOGGER.debug(&#34;Using SURGE&#34;)
+            next_state.status.restore_energy(100)
+            next_state.status.cooldown = 0
+            next_state.status.spear = True
+            next_state.terrain.spear = None
+        elif hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers:
+            LOGGER.debug(&#34;Using REGENERATION&#34;)
+            next_state.status.restore_health(1)
+        else:
+            LOGGER.debug(&#34;No prayer to spend killing spree on&#34;)
+        next_state.status.spree = 0
     return next_state</code></pre>
 </details>
 </dd>

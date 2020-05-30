@@ -19,11 +19,11 @@ import hoplite.actuator
 import hoplite.brain
 
 
-def play(monkey_runner, save_screenshots, prayers):
+def play(monkey_runner, prayers, record):
     """Play with the monkey runner interface.
     """
     mr_if = hoplite.monkey_runner.MonkeyRunnerInterface(monkey_runner)
-    observer = hoplite.vision.observer.Observer(mr_if, save_screenshots=save_screenshots)
+    observer = hoplite.vision.observer.Observer(mr_if)
     actuator = hoplite.actuator.Actuator(mr_if)
     brain = hoplite.brain.Brain()
     starting_prayers = list()
@@ -31,7 +31,13 @@ def play(monkey_runner, save_screenshots, prayers):
         if prayer == "":
             continue
         starting_prayers.append(hoplite.game.status.Prayer(int(prayer)))
-    controller = hoplite.controller.Controller(observer, actuator, brain, starting_prayers)
+    recorder = None
+    if record:
+        recorder = hoplite.controller.Recorder(observer)
+        recorder.start()
+    controller = hoplite.controller.Controller(observer, actuator, brain,
+                                               starting_prayers,
+                                               recorder=recorder)
     mr_if.open()
     try:
         controller.run()
@@ -105,15 +111,15 @@ def main():
     subparsers = parser.add_subparsers(dest="action", required=True)
     play_parser = subparsers.add_parser("play")
     play_parser.add_argument(
-        "--save-screenshots",
-        action="store_true",
-        help="store screenshots as they are taken"
-    )
-    play_parser.add_argument(
         "--prayers",
         type=str,
         help="comma separated prayer index",
         default="",
+    )
+    play_parser.add_argument(
+        "-r", "--record",
+        action="store_true",
+        help="record the game"
     )
     parse_parser = subparsers.add_parser("parse")
     parse_parser.add_argument(
@@ -175,7 +181,7 @@ def main():
         log_level = logging.CRITICAL
     logging.basicConfig(level=log_level)
     if args.action == "play":
-        play(args.monkey_runner, args.save_screenshots, args.prayers)
+        play(args.monkey_runner, args.prayers, args.record)
     elif args.action == "parse":
         parse(args)
 

@@ -31,15 +31,100 @@ the <code><a title="hoplite.brain.Brain" href="brain.html#hoplite.brain.Brain">B
 the `hoplite.brain.Brain` the `hoplite.actuator.Actuator`. Plays the game.
 &#34;&#34;&#34;
 
+import os
 import time
 import logging
+import hoplite
 import hoplite.game.state
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class Controller:
+class Recorder:
+    &#34;&#34;&#34;Game recorder. Records states and screenshots encountered while playing
+    the game.
+
+    Parameters
+    ----------
+    observer : hoplite.vision.observer.Observer
+        Reference to an observer to save the screenshots from.
+
+    Attributes
+    ----------
+    folder : str
+        Path to the folder containing all the data about the current recording.
+    DIRECTORY : str
+        Path to the folder containing all recordings.
+    FILENAME : str
+        Basename of the file containing the state logs.
+    observer
+
+    &#34;&#34;&#34;
+
+    DIRECTORY = &#34;recordings&#34;
+    FILENAME = &#34;game.log&#34;
+
+    def __init__(self, observer):
+        self.observer = observer
+        if not os.path.isdir(Recorder.DIRECTORY):
+            LOGGER.info(
+                &#34;Creating recordings directory at &#39;%s&#39;&#34;,
+                os.path.realpath(Recorder.DIRECTORY)
+            )
+            os.mkdir(Recorder.DIRECTORY)
+        self.folder = None
+
+    def start(self):
+        &#34;&#34;&#34;Create the folder structure for the recording.
+        &#34;&#34;&#34;
+        index = len(next(os.walk(Recorder.DIRECTORY))[1]) + 1
+        self.folder = str(index).rjust(3, &#34;0&#34;)
+        os.mkdir(os.path.join(Recorder.DIRECTORY, self.folder))
+        LOGGER.info(&#34;Initializing recording at %s&#34;, os.path.realpath(self.folder))
+        open(os.path.join(Recorder.DIRECTORY, self.folder, Recorder.FILENAME), &#34;w&#34;).close()
+
+    def _record(self, turn, line):
+        self.observer.save_screenshot(os.path.join(
+            Recorder.DIRECTORY,
+            self.folder,
+            str(turn).rjust(3, &#34;0&#34;) + &#34;.png&#34;
+        ))
+        with open(os.path.join(Recorder.DIRECTORY, self.folder, Recorder.FILENAME), &#34;a&#34;) as file:
+            file.write(&#34;%s\t%s\n&#34; % (str(turn).rjust(3, &#34;0&#34;), line))
+
+    def record_move(self, turn, game_state, move):
+        &#34;&#34;&#34;Append a move record.
+
+        Parameters
+        ----------
+        turn : int
+            Controller&#39;s turn, used to name the screenshot file.
+        game_state : hoplite.game.state.GameState
+            Current state of the game to the controller&#39;s knowledge.
+        move : hoplite.game.moves.PlayerMove
+            Move that the controller picked to perform in this state.
+
+        &#34;&#34;&#34;
+        self._record(turn, &#34;\t&#34;.join([&#34;move&#34;, repr(game_state), repr(move)]))
+
+    def record_altar(self, turn, altar_state, prayer):
+        &#34;&#34;&#34;Append an altar prayer selection record.
+
+        Parameters
+        ----------
+        turn : int
+            Controller&#39;s turn, used to name the screenshot file.
+        altar_state : hoplite.game.state.AltarState
+            State of the altar as to the controller&#39;s knowledge.
+        prayer : hoplite.game.status.Prayer
+            Prayer the controller picked for selection.
+
+        &#34;&#34;&#34;
+        self._record(turn, &#34;\t&#34;.join([&#34;altar&#34;, repr(altar_state), str(prayer.value)]))
+
+
+class Controller:  # pylint: disable=R0902
     &#34;&#34;&#34;Game controller.
 
     Parameters
@@ -52,6 +137,8 @@ class Controller:
         Mind of the controller.
     starting_prayers : list[hoplite.game.status.Prayer]
         Prayers to artificially add to the first encountered game status.
+    recorder : Recorder
+        Game recorder.
 
     Attributes
     ----------
@@ -59,6 +146,9 @@ class Controller:
         Whether the controller main loop should be stopped.
     memory : hoplite.game.state.GameState
         Last known state of the game.
+    turn : int
+        Current controller turn; may differ from internal game&#39;s turn count,
+        as interface here count as full turns.
     observer
     actuator
     brain
@@ -66,15 +156,17 @@ class Controller:
 
     &#34;&#34;&#34;
 
-    def __init__(self, observer, actuator, brain, starting_prayers=None):
+    def __init__(self, observer, actuator, brain, starting_prayers=None, recorder=None):  # pylint: disable=R0913
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
-        self.memory = None
-        self.stop = False
         self.starting_prayers = starting_prayers
+        self.recorder = recorder
+        self.stop = False
+        self.memory = None
+        self.turn = 1
 
-    def step(self):
+    def step(self):  # pylint: disable=R0912
         &#34;&#34;&#34;One step of the game: recognition, decision and action.
         &#34;&#34;&#34;
         interface = self.observer.fetch_screenshot()
@@ -91,6 +183,8 @@ class Controller:
             LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
             move = self.brain.pick_move(self.memory)
             self.actuator.make_move(move)
+            if self.recorder is not None:
+                self.recorder.record_move(self.turn, self.memory, move)
         elif interface == hoplite.game.state.Interface.EMBARK:
             self.actuator.close_interface(interface)
         elif interface == hoplite.game.state.Interface.DEATH:
@@ -106,11 +200,14 @@ class Controller:
             self.memory.status.add_prayer(prayer)
             LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
             self.actuator.choose_prayer(altar, prayer)
+            if self.recorder is not None:
+                self.recorder.record_altar(self.turn, altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
             self.actuator.close_interface(interface)
         elif interface == hoplite.game.state.Interface.STAIRS:
             self.stop = True
             LOGGER.info(&#34;Reached the stairs!&#34;)
+        self.turn += 1
         time.sleep(1)
 
     def run(self):
@@ -135,7 +232,7 @@ class Controller:
 <dl>
 <dt id="hoplite.controller.Controller"><code class="flex name class">
 <span>class <span class="ident">Controller</span></span>
-<span>(</span><span>observer, actuator, brain, starting_prayers=None)</span>
+<span>(</span><span>observer, actuator, brain, starting_prayers=None, recorder=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Game controller.</p>
@@ -149,6 +246,8 @@ class Controller:
 <dd>Mind of the controller.</dd>
 <dt><strong><code>starting_prayers</code></strong> :&ensp;<code>list[<a title="hoplite.game.status.Prayer" href="game/status.html#hoplite.game.status.Prayer">Prayer</a>]</code></dt>
 <dd>Prayers to artificially add to the first encountered game status.</dd>
+<dt><strong><code>recorder</code></strong> :&ensp;<code><a title="hoplite.controller.Recorder" href="#hoplite.controller.Recorder">Recorder</a></code></dt>
+<dd>Game recorder.</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
@@ -156,6 +255,9 @@ class Controller:
 <dd>Whether the controller main loop should be stopped.</dd>
 <dt><strong><code>memory</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
 <dd>Last known state of the game.</dd>
+<dt><strong><code>turn</code></strong> :&ensp;<code>int</code></dt>
+<dd>Current controller turn; may differ from internal game's turn count,
+as interface here count as full turns.</dd>
 <dt><strong><code>observer</code></strong></dt>
 <dd>&nbsp;</dd>
 <dt><strong><code>actuator</code></strong></dt>
@@ -169,7 +271,7 @@ class Controller:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Controller:
+<pre><code class="python">class Controller:  # pylint: disable=R0902
     &#34;&#34;&#34;Game controller.
 
     Parameters
@@ -182,6 +284,8 @@ class Controller:
         Mind of the controller.
     starting_prayers : list[hoplite.game.status.Prayer]
         Prayers to artificially add to the first encountered game status.
+    recorder : Recorder
+        Game recorder.
 
     Attributes
     ----------
@@ -189,6 +293,9 @@ class Controller:
         Whether the controller main loop should be stopped.
     memory : hoplite.game.state.GameState
         Last known state of the game.
+    turn : int
+        Current controller turn; may differ from internal game&#39;s turn count,
+        as interface here count as full turns.
     observer
     actuator
     brain
@@ -196,15 +303,17 @@ class Controller:
 
     &#34;&#34;&#34;
 
-    def __init__(self, observer, actuator, brain, starting_prayers=None):
+    def __init__(self, observer, actuator, brain, starting_prayers=None, recorder=None):  # pylint: disable=R0913
         self.observer = observer
         self.actuator = actuator
         self.brain = brain
-        self.memory = None
-        self.stop = False
         self.starting_prayers = starting_prayers
+        self.recorder = recorder
+        self.stop = False
+        self.memory = None
+        self.turn = 1
 
-    def step(self):
+    def step(self):  # pylint: disable=R0912
         &#34;&#34;&#34;One step of the game: recognition, decision and action.
         &#34;&#34;&#34;
         interface = self.observer.fetch_screenshot()
@@ -221,6 +330,8 @@ class Controller:
             LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
             move = self.brain.pick_move(self.memory)
             self.actuator.make_move(move)
+            if self.recorder is not None:
+                self.recorder.record_move(self.turn, self.memory, move)
         elif interface == hoplite.game.state.Interface.EMBARK:
             self.actuator.close_interface(interface)
         elif interface == hoplite.game.state.Interface.DEATH:
@@ -236,11 +347,14 @@ class Controller:
             self.memory.status.add_prayer(prayer)
             LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
             self.actuator.choose_prayer(altar, prayer)
+            if self.recorder is not None:
+                self.recorder.record_altar(self.turn, altar, prayer)
         elif interface == hoplite.game.state.Interface.FLEECE:
             self.actuator.close_interface(interface)
         elif interface == hoplite.game.state.Interface.STAIRS:
             self.stop = True
             LOGGER.info(&#34;Reached the stairs!&#34;)
+        self.turn += 1
         time.sleep(1)
 
     def run(self):
@@ -284,7 +398,7 @@ class Controller:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def step(self):
+<pre><code class="python">def step(self):  # pylint: disable=R0912
     &#34;&#34;&#34;One step of the game: recognition, decision and action.
     &#34;&#34;&#34;
     interface = self.observer.fetch_screenshot()
@@ -301,6 +415,8 @@ class Controller:
         LOGGER.info(&#34;Current evaluation: %.2f&#34;, self.brain.evaluate(self.memory))
         move = self.brain.pick_move(self.memory)
         self.actuator.make_move(move)
+        if self.recorder is not None:
+            self.recorder.record_move(self.turn, self.memory, move)
     elif interface == hoplite.game.state.Interface.EMBARK:
         self.actuator.close_interface(interface)
     elif interface == hoplite.game.state.Interface.DEATH:
@@ -316,12 +432,226 @@ class Controller:
         self.memory.status.add_prayer(prayer)
         LOGGER.info(&#34;Picked prayer %s&#34;, prayer)
         self.actuator.choose_prayer(altar, prayer)
+        if self.recorder is not None:
+            self.recorder.record_altar(self.turn, altar, prayer)
     elif interface == hoplite.game.state.Interface.FLEECE:
         self.actuator.close_interface(interface)
     elif interface == hoplite.game.state.Interface.STAIRS:
         self.stop = True
         LOGGER.info(&#34;Reached the stairs!&#34;)
+    self.turn += 1
     time.sleep(1)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hoplite.controller.Recorder"><code class="flex name class">
+<span>class <span class="ident">Recorder</span></span>
+<span>(</span><span>observer)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Game recorder. Records states and screenshots encountered while playing
+the game.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>observer</code></strong> :&ensp;<code><a title="hoplite.vision.observer.Observer" href="vision/observer.html#hoplite.vision.observer.Observer">Observer</a></code></dt>
+<dd>Reference to an observer to save the screenshots from.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>folder</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the folder containing all the data about the current recording.</dd>
+<dt><strong><code>DIRECTORY</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the folder containing all recordings.</dd>
+<dt><strong><code>FILENAME</code></strong> :&ensp;<code>str</code></dt>
+<dd>Basename of the file containing the state logs.</dd>
+<dt><strong><code>observer</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Recorder:
+    &#34;&#34;&#34;Game recorder. Records states and screenshots encountered while playing
+    the game.
+
+    Parameters
+    ----------
+    observer : hoplite.vision.observer.Observer
+        Reference to an observer to save the screenshots from.
+
+    Attributes
+    ----------
+    folder : str
+        Path to the folder containing all the data about the current recording.
+    DIRECTORY : str
+        Path to the folder containing all recordings.
+    FILENAME : str
+        Basename of the file containing the state logs.
+    observer
+
+    &#34;&#34;&#34;
+
+    DIRECTORY = &#34;recordings&#34;
+    FILENAME = &#34;game.log&#34;
+
+    def __init__(self, observer):
+        self.observer = observer
+        if not os.path.isdir(Recorder.DIRECTORY):
+            LOGGER.info(
+                &#34;Creating recordings directory at &#39;%s&#39;&#34;,
+                os.path.realpath(Recorder.DIRECTORY)
+            )
+            os.mkdir(Recorder.DIRECTORY)
+        self.folder = None
+
+    def start(self):
+        &#34;&#34;&#34;Create the folder structure for the recording.
+        &#34;&#34;&#34;
+        index = len(next(os.walk(Recorder.DIRECTORY))[1]) + 1
+        self.folder = str(index).rjust(3, &#34;0&#34;)
+        os.mkdir(os.path.join(Recorder.DIRECTORY, self.folder))
+        LOGGER.info(&#34;Initializing recording at %s&#34;, os.path.realpath(self.folder))
+        open(os.path.join(Recorder.DIRECTORY, self.folder, Recorder.FILENAME), &#34;w&#34;).close()
+
+    def _record(self, turn, line):
+        self.observer.save_screenshot(os.path.join(
+            Recorder.DIRECTORY,
+            self.folder,
+            str(turn).rjust(3, &#34;0&#34;) + &#34;.png&#34;
+        ))
+        with open(os.path.join(Recorder.DIRECTORY, self.folder, Recorder.FILENAME), &#34;a&#34;) as file:
+            file.write(&#34;%s\t%s\n&#34; % (str(turn).rjust(3, &#34;0&#34;), line))
+
+    def record_move(self, turn, game_state, move):
+        &#34;&#34;&#34;Append a move record.
+
+        Parameters
+        ----------
+        turn : int
+            Controller&#39;s turn, used to name the screenshot file.
+        game_state : hoplite.game.state.GameState
+            Current state of the game to the controller&#39;s knowledge.
+        move : hoplite.game.moves.PlayerMove
+            Move that the controller picked to perform in this state.
+
+        &#34;&#34;&#34;
+        self._record(turn, &#34;\t&#34;.join([&#34;move&#34;, repr(game_state), repr(move)]))
+
+    def record_altar(self, turn, altar_state, prayer):
+        &#34;&#34;&#34;Append an altar prayer selection record.
+
+        Parameters
+        ----------
+        turn : int
+            Controller&#39;s turn, used to name the screenshot file.
+        altar_state : hoplite.game.state.AltarState
+            State of the altar as to the controller&#39;s knowledge.
+        prayer : hoplite.game.status.Prayer
+            Prayer the controller picked for selection.
+
+        &#34;&#34;&#34;
+        self._record(turn, &#34;\t&#34;.join([&#34;altar&#34;, repr(altar_state), str(prayer.value)]))</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="hoplite.controller.Recorder.DIRECTORY"><code class="name">var <span class="ident">DIRECTORY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hoplite.controller.Recorder.FILENAME"><code class="name">var <span class="ident">FILENAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hoplite.controller.Recorder.record_altar"><code class="name flex">
+<span>def <span class="ident">record_altar</span></span>(<span>self, turn, altar_state, prayer)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Append an altar prayer selection record.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>turn</code></strong> :&ensp;<code>int</code></dt>
+<dd>Controller's turn, used to name the screenshot file.</dd>
+<dt><strong><code>altar_state</code></strong> :&ensp;<code><a title="hoplite.game.state.AltarState" href="game/state.html#hoplite.game.state.AltarState">AltarState</a></code></dt>
+<dd>State of the altar as to the controller's knowledge.</dd>
+<dt><strong><code>prayer</code></strong> :&ensp;<code><a title="hoplite.game.status.Prayer" href="game/status.html#hoplite.game.status.Prayer">Prayer</a></code></dt>
+<dd>Prayer the controller picked for selection.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def record_altar(self, turn, altar_state, prayer):
+    &#34;&#34;&#34;Append an altar prayer selection record.
+
+    Parameters
+    ----------
+    turn : int
+        Controller&#39;s turn, used to name the screenshot file.
+    altar_state : hoplite.game.state.AltarState
+        State of the altar as to the controller&#39;s knowledge.
+    prayer : hoplite.game.status.Prayer
+        Prayer the controller picked for selection.
+
+    &#34;&#34;&#34;
+    self._record(turn, &#34;\t&#34;.join([&#34;altar&#34;, repr(altar_state), str(prayer.value)]))</code></pre>
+</details>
+</dd>
+<dt id="hoplite.controller.Recorder.record_move"><code class="name flex">
+<span>def <span class="ident">record_move</span></span>(<span>self, turn, game_state, move)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Append a move record.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>turn</code></strong> :&ensp;<code>int</code></dt>
+<dd>Controller's turn, used to name the screenshot file.</dd>
+<dt><strong><code>game_state</code></strong> :&ensp;<code><a title="hoplite.game.state.GameState" href="game/state.html#hoplite.game.state.GameState">GameState</a></code></dt>
+<dd>Current state of the game to the controller's knowledge.</dd>
+<dt><strong><code>move</code></strong> :&ensp;<code><a title="hoplite.game.moves.PlayerMove" href="game/moves.html#hoplite.game.moves.PlayerMove">PlayerMove</a></code></dt>
+<dd>Move that the controller picked to perform in this state.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def record_move(self, turn, game_state, move):
+    &#34;&#34;&#34;Append a move record.
+
+    Parameters
+    ----------
+    turn : int
+        Controller&#39;s turn, used to name the screenshot file.
+    game_state : hoplite.game.state.GameState
+        Current state of the game to the controller&#39;s knowledge.
+    move : hoplite.game.moves.PlayerMove
+        Move that the controller picked to perform in this state.
+
+    &#34;&#34;&#34;
+    self._record(turn, &#34;\t&#34;.join([&#34;move&#34;, repr(game_state), repr(move)]))</code></pre>
+</details>
+</dd>
+<dt id="hoplite.controller.Recorder.start"><code class="name flex">
+<span>def <span class="ident">start</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create the folder structure for the recording.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start(self):
+    &#34;&#34;&#34;Create the folder structure for the recording.
+    &#34;&#34;&#34;
+    index = len(next(os.walk(Recorder.DIRECTORY))[1]) + 1
+    self.folder = str(index).rjust(3, &#34;0&#34;)
+    os.mkdir(os.path.join(Recorder.DIRECTORY, self.folder))
+    LOGGER.info(&#34;Initializing recording at %s&#34;, os.path.realpath(self.folder))
+    open(os.path.join(Recorder.DIRECTORY, self.folder, Recorder.FILENAME), &#34;w&#34;).close()</code></pre>
 </details>
 </dd>
 </dl>
@@ -347,6 +677,16 @@ class Controller:
 <ul class="">
 <li><code><a title="hoplite.controller.Controller.run" href="#hoplite.controller.Controller.run">run</a></code></li>
 <li><code><a title="hoplite.controller.Controller.step" href="#hoplite.controller.Controller.step">step</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hoplite.controller.Recorder" href="#hoplite.controller.Recorder">Recorder</a></code></h4>
+<ul class="">
+<li><code><a title="hoplite.controller.Recorder.DIRECTORY" href="#hoplite.controller.Recorder.DIRECTORY">DIRECTORY</a></code></li>
+<li><code><a title="hoplite.controller.Recorder.FILENAME" href="#hoplite.controller.Recorder.FILENAME">FILENAME</a></code></li>
+<li><code><a title="hoplite.controller.Recorder.record_altar" href="#hoplite.controller.Recorder.record_altar">record_altar</a></code></li>
+<li><code><a title="hoplite.controller.Recorder.record_move" href="#hoplite.controller.Recorder.record_move">record_move</a></code></li>
+<li><code><a title="hoplite.controller.Recorder.start" href="#hoplite.controller.Recorder.start">start</a></code></li>
 </ul>
 </li>
 </ul>

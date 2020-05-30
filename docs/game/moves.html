@@ -68,6 +68,20 @@ class PlayerMove:
         return hash((self.__class__, self.target))
 
     def __repr__(self):
+        prefix = {
+            PlayerMove: &#34;move&#34;,
+            WalkMove: &#34;walk&#34;,
+            LeapMove: &#34;leap&#34;,
+            BashMove: &#34;bash&#34;,
+            ThrowMove: &#34;throw&#34;,
+            AltarMove: &#34;altar&#34;,
+            IdleMove: &#34;idle&#34;
+        }[self.__class__]
+        if self.target is None:
+            return prefix
+        return &#34;%s/%d,%d&#34; % (prefix, self.target.x, self.target.y)
+
+    def __str__(self):
         if self.target is None:
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)
@@ -649,6 +663,20 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
         return hash((self.__class__, self.target))
 
     def __repr__(self):
+        prefix = {
+            PlayerMove: &#34;move&#34;,
+            WalkMove: &#34;walk&#34;,
+            LeapMove: &#34;leap&#34;,
+            BashMove: &#34;bash&#34;,
+            ThrowMove: &#34;throw&#34;,
+            AltarMove: &#34;altar&#34;,
+            IdleMove: &#34;idle&#34;
+        }[self.__class__]
+        if self.target is None:
+            return prefix
+        return &#34;%s/%d,%d&#34; % (prefix, self.target.x, self.target.y)
+
+    def __str__(self):
         if self.target is None:
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)

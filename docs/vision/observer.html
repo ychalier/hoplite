@@ -247,10 +247,13 @@ class ScreenParser:
 
     def _observe_cooldown(self, array):
         time_start = time.time()
-        cooldown = self._observe_integer(array, &#34;cooldown&#34;)
+        part = Thresholder(.5).apply(self.locators[&#34;cooldown&#34;].get(array, 0, 0))
+        label = hoplite.vision.classifiers.font(part)
         LOGGER.debug(&#34;Observed cooldown in %.1f ms&#34;,
                      1000 * (time.time() - time_start))
-        return cooldown
+        if label == &#34;empty&#34;:
+            return 0
+        return int(label)
 
     def _observe_energy(self, array):
         time_start = time.time()
@@ -370,8 +373,6 @@ class Observer:
     ----------
     monkey_runner : hoplite.monkey_runner.MonkeyRunnerInterface
         Interface controlling the game, to retrieve screenshots froms.
-    save_screenshots : bool
-        Whether to store screenshots as they are taken.
 
     Attributes
     ----------
@@ -380,15 +381,13 @@ class Observer:
     parser : ScreenParser
         Parser for the screenshot.
     monkey_runner
-    save_screenshots
 
     &#34;&#34;&#34;
 
-    def __init__(self, monkey_runner, save_screenshots=False):
+    def __init__(self, monkey_runner):
         self.monkey_runner = monkey_runner
         self.screenshot = None
         self.parser = ScreenParser()
-        self.save_screenshots = save_screenshots
 
     def fetch_screenshot(self):
         &#34;&#34;&#34;Take a screenshot and check the currently displayed interface.
@@ -401,11 +400,18 @@ class Observer:
         &#34;&#34;&#34;
         self.screenshot = self.parser.read_stream(
             self.monkey_runner.snapshot(as_stream=True))
-        if self.save_screenshots:
-            filename = &#34;%d.png&#34; % (time.time() * 1000)
-            LOGGER.info(&#34;Saving screenshot to %s&#34;, filename)
-            matplotlib.image.imsave(filename, self.screenshot)
         return hoplite.vision.classifiers.interface(self.screenshot)
+
+    def save_screenshot(self, filename):
+        &#34;&#34;&#34;Save the last screenshot as a PNG file.
+
+        Parameters
+        ----------
+        filename : str
+            Path the the file to write the image to.
+
+        &#34;&#34;&#34;
+        matplotlib.image.imsave(filename, self.screenshot)
 
     def parse_game(self):
         &#34;&#34;&#34;Parse the current screenshot looking for the game interface.
@@ -688,7 +694,7 @@ class Observer:
 </dd>
 <dt id="hoplite.vision.observer.Observer"><code class="flex name class">
 <span>class <span class="ident">Observer</span></span>
-<span>(</span><span>monkey_runner, save_screenshots=False)</span>
+<span>(</span><span>monkey_runner)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Proper interface between MonkeyRunner and the game.</p>
@@ -696,8 +702,6 @@ class Observer:
 <dl>
 <dt><strong><code>monkey_runner</code></strong> :&ensp;<code><a title="hoplite.monkey_runner.MonkeyRunnerInterface" href="../monkey_runner.html#hoplite.monkey_runner.MonkeyRunnerInterface">MonkeyRunnerInterface</a></code></dt>
 <dd>Interface controlling the game, to retrieve screenshots froms.</dd>
-<dt><strong><code>save_screenshots</code></strong> :&ensp;<code>bool</code></dt>
-<dd>Whether to store screenshots as they are taken.</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
@@ -706,8 +710,6 @@ class Observer:
 <dt><strong><code>parser</code></strong> :&ensp;<code><a title="hoplite.vision.observer.ScreenParser" href="#hoplite.vision.observer.ScreenParser">ScreenParser</a></code></dt>
 <dd>Parser for the screenshot.</dd>
 <dt><strong><code>monkey_runner</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>save_screenshots</code></strong></dt>
 <dd>&nbsp;</dd>
 </dl></div>
 <details class="source">
@@ -721,8 +723,6 @@ class Observer:
     ----------
     monkey_runner : hoplite.monkey_runner.MonkeyRunnerInterface
         Interface controlling the game, to retrieve screenshots froms.
-    save_screenshots : bool
-        Whether to store screenshots as they are taken.
 
     Attributes
     ----------
@@ -731,15 +731,13 @@ class Observer:
     parser : ScreenParser
         Parser for the screenshot.
     monkey_runner
-    save_screenshots
 
     &#34;&#34;&#34;
 
-    def __init__(self, monkey_runner, save_screenshots=False):
+    def __init__(self, monkey_runner):
         self.monkey_runner = monkey_runner
         self.screenshot = None
         self.parser = ScreenParser()
-        self.save_screenshots = save_screenshots
 
     def fetch_screenshot(self):
         &#34;&#34;&#34;Take a screenshot and check the currently displayed interface.
@@ -752,11 +750,18 @@ class Observer:
         &#34;&#34;&#34;
         self.screenshot = self.parser.read_stream(
             self.monkey_runner.snapshot(as_stream=True))
-        if self.save_screenshots:
-            filename = &#34;%d.png&#34; % (time.time() * 1000)
-            LOGGER.info(&#34;Saving screenshot to %s&#34;, filename)
-            matplotlib.image.imsave(filename, self.screenshot)
         return hoplite.vision.classifiers.interface(self.screenshot)
+
+    def save_screenshot(self, filename):
+        &#34;&#34;&#34;Save the last screenshot as a PNG file.
+
+        Parameters
+        ----------
+        filename : str
+            Path the the file to write the image to.
+
+        &#34;&#34;&#34;
+        matplotlib.image.imsave(filename, self.screenshot)
 
     def parse_game(self):
         &#34;&#34;&#34;Parse the current screenshot looking for the game interface.
@@ -825,10 +830,6 @@ class Observer:
     &#34;&#34;&#34;
     self.screenshot = self.parser.read_stream(
         self.monkey_runner.snapshot(as_stream=True))
-    if self.save_screenshots:
-        filename = &#34;%d.png&#34; % (time.time() * 1000)
-        LOGGER.info(&#34;Saving screenshot to %s&#34;, filename)
-        matplotlib.image.imsave(filename, self.screenshot)
     return hoplite.vision.classifiers.interface(self.screenshot)</code></pre>
 </details>
 </dd>
@@ -900,6 +901,32 @@ class Observer:
 
     &#34;&#34;&#34;
     return self.parser.observe_game(self.screenshot)</code></pre>
+</details>
+</dd>
+<dt id="hoplite.vision.observer.Observer.save_screenshot"><code class="name flex">
+<span>def <span class="ident">save_screenshot</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save the last screenshot as a PNG file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path the the file to write the image to.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_screenshot(self, filename):
+    &#34;&#34;&#34;Save the last screenshot as a PNG file.
+
+    Parameters
+    ----------
+    filename : str
+        Path the the file to write the image to.
+
+    &#34;&#34;&#34;
+    matplotlib.image.imsave(filename, self.screenshot)</code></pre>
 </details>
 </dd>
 </dl>
@@ -977,10 +1004,13 @@ class Observer:
 
     def _observe_cooldown(self, array):
         time_start = time.time()
-        cooldown = self._observe_integer(array, &#34;cooldown&#34;)
+        part = Thresholder(.5).apply(self.locators[&#34;cooldown&#34;].get(array, 0, 0))
+        label = hoplite.vision.classifiers.font(part)
         LOGGER.debug(&#34;Observed cooldown in %.1f ms&#34;,
                      1000 * (time.time() - time_start))
-        return cooldown
+        if label == &#34;empty&#34;:
+            return 0
+        return int(label)
 
     def _observe_energy(self, array):
         time_start = time.time()
@@ -1347,6 +1377,7 @@ margins.
 <li><code><a title="hoplite.vision.observer.Observer.fetch_screenshot" href="#hoplite.vision.observer.Observer.fetch_screenshot">fetch_screenshot</a></code></li>
 <li><code><a title="hoplite.vision.observer.Observer.parse_altar" href="#hoplite.vision.observer.Observer.parse_altar">parse_altar</a></code></li>
 <li><code><a title="hoplite.vision.observer.Observer.parse_game" href="#hoplite.vision.observer.Observer.parse_game">parse_game</a></code></li>
+<li><code><a title="hoplite.vision.observer.Observer.save_screenshot" href="#hoplite.vision.observer.Observer.save_screenshot">save_screenshot</a></code></li>
 </ul>
 </li>
 <li>

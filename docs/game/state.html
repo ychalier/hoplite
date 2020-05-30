@@ -74,7 +74,7 @@ class GameState:
         self.status = hoplite.game.status.Status()
 
     def __repr__(self):
-        return &#34;%d %s %s&#34; % (self.depth, repr(self.terrain), repr(self.status))
+        return &#34;%d;%s;%s&#34; % (self.depth, repr(self.terrain), repr(self.status))
 
     def __str__(self):
         return &#34;GameState%s&#34; % self.__dict__
@@ -95,8 +95,8 @@ class GameState:
         ----------
         string : str
             String representation of the game state, composed of three parts
-            separated by spaces. First part is an integer corresponding to the
-            current depth. Second part is the string representation of the
+            separated by semicolons. First part is an integer corresponding to
+            the current depth. Second part is the string representation of the
             `hoplite.game.terrain.Terrain`. Last part is the string
             representation of the `hoplite.game.status.Status`.
 
@@ -107,7 +107,7 @@ class GameState:
 
         &#34;&#34;&#34;
         state = cls()
-        depth, terrain_string, status_string = string.split(&#34; &#34;)
+        depth, terrain_string, status_string = string.split(&#34;;&#34;)
         state.depth = int(depth)
         state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
         state.status = hoplite.game.status.Status.from_string(status_string)
@@ -224,6 +224,9 @@ class AltarState:  # pylint: disable=R0903
     def __init__(self):
         self.prayers = dict()
 
+    def __repr__(self):
+        return &#34;,&#34;.join([str(prayer.value) for prayer in self.prayers])
+
     def __str__(self):
         return str(list(self.prayers.keys()))</code></pre>
 </details>
@@ -265,6 +268,9 @@ class AltarState:  # pylint: disable=R0903
 
     def __init__(self):
         self.prayers = dict()
+
+    def __repr__(self):
+        return &#34;,&#34;.join([str(prayer.value) for prayer in self.prayers])
 
     def __str__(self):
         return str(list(self.prayers.keys()))</code></pre>
@@ -308,7 +314,7 @@ class AltarState:  # pylint: disable=R0903
         self.status = hoplite.game.status.Status()
 
     def __repr__(self):
-        return &#34;%d %s %s&#34; % (self.depth, repr(self.terrain), repr(self.status))
+        return &#34;%d;%s;%s&#34; % (self.depth, repr(self.terrain), repr(self.status))
 
     def __str__(self):
         return &#34;GameState%s&#34; % self.__dict__
@@ -329,8 +335,8 @@ class AltarState:  # pylint: disable=R0903
         ----------
         string : str
             String representation of the game state, composed of three parts
-            separated by spaces. First part is an integer corresponding to the
-            current depth. Second part is the string representation of the
+            separated by semicolons. First part is an integer corresponding to
+            the current depth. Second part is the string representation of the
             `hoplite.game.terrain.Terrain`. Last part is the string
             representation of the `hoplite.game.status.Status`.
 
@@ -341,7 +347,7 @@ class AltarState:  # pylint: disable=R0903
 
         &#34;&#34;&#34;
         state = cls()
-        depth, terrain_string, status_string = string.split(&#34; &#34;)
+        depth, terrain_string, status_string = string.split(&#34;;&#34;)
         state.depth = int(depth)
         state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
         state.status = hoplite.game.status.Status.from_string(status_string)
@@ -448,8 +454,8 @@ class AltarState:  # pylint: disable=R0903
 <dl>
 <dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
 <dd>String representation of the game state, composed of three parts
-separated by spaces. First part is an integer corresponding to the
-current depth. Second part is the string representation of the
+separated by semicolons. First part is an integer corresponding to
+the current depth. Second part is the string representation of the
 <code><a title="hoplite.game.terrain.Terrain" href="terrain.html#hoplite.game.terrain.Terrain">Terrain</a></code>. Last part is the string
 representation of the <code><a title="hoplite.game.status.Status" href="status.html#hoplite.game.status.Status">Status</a></code>.</dd>
 </dl>
@@ -470,8 +476,8 @@ def from_string(cls, string):
     ----------
     string : str
         String representation of the game state, composed of three parts
-        separated by spaces. First part is an integer corresponding to the
-        current depth. Second part is the string representation of the
+        separated by semicolons. First part is an integer corresponding to
+        the current depth. Second part is the string representation of the
         `hoplite.game.terrain.Terrain`. Last part is the string
         representation of the `hoplite.game.status.Status`.
 
@@ -482,7 +488,7 @@ def from_string(cls, string):
 
     &#34;&#34;&#34;
     state = cls()
-    depth, terrain_string, status_string = string.split(&#34; &#34;)
+    depth, terrain_string, status_string = string.split(&#34;;&#34;)
     state.depth = int(depth)
     state.terrain = hoplite.game.terrain.Terrain.from_string(terrain_string)
     state.status = hoplite.game.status.Status.from_string(status_string)

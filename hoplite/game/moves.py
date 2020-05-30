@@ -41,6 +41,20 @@ class PlayerMove:
         return hash((self.__class__, self.target))
 
     def __repr__(self):
+        prefix = {
+            PlayerMove: "move",
+            WalkMove: "walk",
+            LeapMove: "leap",
+            BashMove: "bash",
+            ThrowMove: "throw",
+            AltarMove: "altar",
+            IdleMove: "idle"
+        }[self.__class__]
+        if self.target is None:
+            return prefix
+        return "%s/%d,%d" % (prefix, self.target.x, self.target.y)
+
+    def __str__(self):
         if self.target is None:
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)

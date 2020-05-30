@@ -220,10 +220,13 @@ class ScreenParser:
 
     def _observe_cooldown(self, array):
         time_start = time.time()
-        cooldown = self._observe_integer(array, "cooldown")
+        part = Thresholder(.5).apply(self.locators["cooldown"].get(array, 0, 0))
+        label = hoplite.vision.classifiers.font(part)
         LOGGER.debug("Observed cooldown in %.1f ms",
                      1000 * (time.time() - time_start))
-        return cooldown
+        if label == "empty":
+            return 0
+        return int(label)
 
     def _observe_energy(self, array):
         time_start = time.time()
@@ -343,8 +346,6 @@ class Observer:
     ----------
     monkey_runner : hoplite.monkey_runner.MonkeyRunnerInterface
         Interface controlling the game, to retrieve screenshots froms.
-    save_screenshots : bool
-        Whether to store screenshots as they are taken.
 
     Attributes
     ----------
@@ -353,15 +354,13 @@ class Observer:
     parser : ScreenParser
         Parser for the screenshot.
     monkey_runner
-    save_screenshots
 
     """
 
-    def __init__(self, monkey_runner, save_screenshots=False):
+    def __init__(self, monkey_runner):
         self.monkey_runner = monkey_runner
         self.screenshot = None
         self.parser = ScreenParser()
-        self.save_screenshots = save_screenshots
 
     def fetch_screenshot(self):
         """Take a screenshot and check the currently displayed interface.
@@ -374,11 +373,18 @@ class Observer:
         """
         self.screenshot = self.parser.read_stream(
             self.monkey_runner.snapshot(as_stream=True))
-        if self.save_screenshots:
-            filename = "%d.png" % (time.time() * 1000)
-            LOGGER.info("Saving screenshot to %s", filename)
-            matplotlib.image.imsave(filename, self.screenshot)
         return hoplite.vision.classifiers.interface(self.screenshot)
+
+    def save_screenshot(self, filename):
+        """Save the last screenshot as a PNG file.
+
+        Parameters
+        ----------
+        filename : str
+            Path the the file to write the image to.
+
+        """
+        matplotlib.image.imsave(filename, self.screenshot)
 
     def parse_game(self):
         """Parse the current screenshot looking for the game interface.

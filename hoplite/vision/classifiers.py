@@ -289,7 +289,9 @@ def prayer(part):
             return hoplite.game.status.Prayer.SPINNING_BASH
         return hoplite.game.status.Prayer.MIGHTY_BASH
     if is_close(part[50, 200], [1.000000, 1.000000, 1.000000]):
-        return hoplite.game.status.Prayer.GREATER_THROW_II
+        if is_close(part[60, 755], [1.000000, 1.000000, 1.000000]):
+            return hoplite.game.status.Prayer.GREATER_THROW_II
+        return hoplite.game.status.Prayer.DEEP_LUNGE
     if is_close(part[36, 536], [1.000000, 1.000000, 1.000000]):
         return hoplite.game.status.Prayer.REGENERATION
     if is_close(part[86, 300], [1.000000, 1.000000, 1.000000]):

@@ -99,7 +99,13 @@ def parse(args):
     """
     if os.path.isfile(args.input):
         parser = hoplite.vision.observer.ScreenParser(save_parts=args.save_parts)
-        game = parser.observe_game(parser.read_stream(args.input))
+        stream = parser.read_stream(args.input)
+        interface = hoplite.vision.classifiers.interface(stream)
+        if interface == hoplite.game.state.Interface.ALTAR:
+            altar = parser.observe_altar(stream)
+            print("Found an altar with the following prayers:", altar)
+            return
+        game = parser.observe_game(stream)
     else:
         game = hoplite.game.state.GameState.from_string(args.input)
     for prayer in args.prayers.strip().split(","):

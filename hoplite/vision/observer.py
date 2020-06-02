@@ -167,6 +167,53 @@ class TerrainLocator(Locator):  # pylint: disable=R0903
         )
 
 
+class PrayerLocator(Locator):
+    """
+    Locator for the prayers available at an altar (i.e. not greyed).
+
+    Attributes
+    ----------
+    _last_i : int
+        Vertical index of lastly detected prayer.
+    _last_value : tuple[float, float, float]
+        Color of pixel at _last_i.
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        Locator.__init__(self, *args, **kwargs)
+        self._last_i = 450
+        self._last_value = None
+
+    def get_last_i(self):
+        """Getter for the `PrayerLocator._last_i` attribute.
+
+        Returns
+        -------
+        int
+            Vertical index of lastly detected prayer.
+
+        """
+        return self._last_i
+
+    def get(self, array, i, j):
+        j_ = 40  # pylint: disable=C0103
+        for i_ in range(self._last_i, 1600):  # pylint: disable=C0103
+            if self._last_value is None:
+                self._last_value = array[i_, j_, :]
+            if (self._last_value == array[i_, j_, :]).all():
+                continue
+            self._last_value = array[i_, j_, :]
+            if hoplite.vision.classifiers.is_close(
+                    array[i_, j_, :],
+                    [.3529412, .27058825, .16078432]):
+                self._last_i = i_
+                return self._extract(array, j_, i_)
+        self._last_i = 450
+        self._last_value = None
+        return None
+
+
 class ScreenParser:
     """Wrapper for screenshot parsing tools.
 
@@ -193,7 +240,8 @@ class ScreenParser:
             "energy_two": TopLeftLocator((20, 28), (508, 1885), 4, save_parts=save_parts),
             "energy_three": TopLeftLocator((20, 28), (496, 1885), 4, save_parts=save_parts),
             "energy": TopLeftLocator((40, 28), (544, 1885), save_parts=save_parts),
-            "spree": TopLeftLocator((60, 72), (874, 1668), save_parts=save_parts)
+            "spree": TopLeftLocator((60, 72), (874, 1668), save_parts=save_parts),
+            "prayer": PrayerLocator((900, 120), (40, 450), save_parts=save_parts),
         }
 
     def _observe_integer(self, array, locator):
@@ -290,7 +338,7 @@ class ScreenParser:
         return terrain
 
     def observe_game(self, array):
-        """Parse a screenshot.
+        """Parse a screenshot of a game.
 
         Parameters
         ----------
@@ -319,6 +367,29 @@ class ScreenParser:
             time.time() - time_start
         )
         return state
+
+    def observe_altar(self, array):
+        """Parse a screenshot of an altar.
+
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Screenshot array of shape `(1920, 1080, 3)`.
+
+        Returns
+        -------
+        hoplite.game.state.AltarState
+            Parsed altar state.
+
+        """
+        altar = hoplite.game.state.AltarState()
+        while True:
+            part = self.locators["prayer"].get(array, 0, 0)
+            if part is None:
+                break
+            label = hoplite.vision.classifiers.prayer(part)
+            altar.prayers[label] = self.locators["prayer"].get_last_i()
+        return altar
 
     @staticmethod
     def read_stream(path):
@@ -406,22 +477,4 @@ class Observer:
             Current parsed altar state.
 
         """
-        altar = hoplite.game.state.AltarState()
-        j = 40
-        min_i = 450
-        max_i = 1600
-        width = 900
-        height = 120
-        last_value = None
-        for i in range(min_i, max_i):
-            if last_value is None:
-                last_value = self.screenshot[i, j, :]
-            if (last_value == self.screenshot[i, j, :]).all():
-                continue
-            if hoplite.vision.classifiers.is_close(self.screenshot[i, j, :],
-                                                   [.3529412, .27058825, .16078432]):
-                part = self.screenshot[i:i + height, j:j + width, :]
-                label = hoplite.vision.classifiers.prayer(part)
-                altar.prayers[label] = i
-            last_value = self.screenshot[i, j, :]
-        return altar
+        return self.parser.observe_altar(self.screenshot)

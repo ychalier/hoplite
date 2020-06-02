@@ -106,16 +106,23 @@ class Actuator:
         """
         self.button_move(target, Actuator.BUTTON_LEAP)
 
-    def bash(self, target):
+    def bash(self, target, spinning):
         """Perform a bash move.
 
         Parameters
         ----------
         target : hoplite.utils.HexagonalCoordinates
             Tile to bash.
+        spinning : bool
+            If `True`, then the player is bashing while having unlocked the
+            "Spinning Bash" prayer. If so, there is no tile to click on, the
+            button press is enough to trigger the move.
 
         """
-        self.button_move(target, Actuator.BUTTON_BASH)
+        if spinning:
+            self.monkey.touch(*Actuator.BUTTON_BASH)
+        else:
+            self.button_move(target, Actuator.BUTTON_BASH)
 
     def throw(self, target):
         """Perform a throw move.
@@ -128,7 +135,7 @@ class Actuator:
         """
         self.button_move(target, Actuator.BUTTON_THROW)
 
-    def make_move(self, player_move):
+    def make_move(self, player_move, spinning=False):
         """Translate a `hoplite.game.moves.PlayerMove` into a sequence of actions
         for the `hoplite.monkey_runner.MonkeyRunnerInterface`.
 
@@ -136,6 +143,8 @@ class Actuator:
         ----------
         player_move : hoplite.game.moves.PlayerMove
             Move to perform.
+        spinning : bool
+            See `hoplite.actuator.Actuator.bash` for details.
 
         """
         if isinstance(player_move, hoplite.game.moves.WalkMove):
@@ -143,7 +152,7 @@ class Actuator:
         elif isinstance(player_move, hoplite.game.moves.LeapMove):
             self.leap(player_move.target)
         elif isinstance(player_move, hoplite.game.moves.BashMove):
-            self.bash(player_move.target)
+            self.bash(player_move.target, spinning)
         elif isinstance(player_move, hoplite.game.moves.ThrowMove):
             self.throw(player_move.target)
         elif isinstance(player_move, hoplite.game.moves.AltarMove):

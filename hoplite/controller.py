@@ -148,12 +148,15 @@ class Controller:  # pylint: disable=R0902
                 self.memory = game
                 if self.starting_prayers:
                     for prayer in self.starting_prayers:
-                        self.memory.status.add_prayer(prayer)
+                        self.memory.status.add_prayer(prayer, False)
             else:
                 self.memory.update(game)
             LOGGER.info("Current evaluation: %.2f", self.brain.evaluate(self.memory))
             move = self.brain.pick_move(self.memory)
-            self.actuator.make_move(move)
+            self.actuator.make_move(
+                move,
+                spinning=hoplite.game.status.Prayer.SPINNING_BASH in self.memory.status.prayers
+            )
             if self.recorder is not None:
                 self.recorder.record_move(self.turn, self.memory, move)
         elif interface == hoplite.game.state.Interface.EMBARK:

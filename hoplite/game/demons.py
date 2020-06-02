@@ -132,7 +132,6 @@ class Demolitionist(Demon):  # pylint: disable=R0903
 
     def attack(self, game_state, demon_pos):
         self.cooldown = max(0, self.cooldown - 1)
-        # TODO: proper cooldown handling
         return 0
 
 
@@ -146,7 +145,6 @@ class Wizard(Demon):  # pylint: disable=R0903
         self.charged_wand = charged_wand
 
     def attack(self, game_state, demon_pos):
-        # TODO: proper cooldown handling
         if game_state.terrain.player in self.range(game_state.terrain, demon_pos):
             self.charged_wand = False
             return 1

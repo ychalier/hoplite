@@ -60,7 +60,7 @@ class Brain:
         }
         self.weights = numpy.array([
             -100,  # DEAD
-            16,    # HEALTH
+            25, # 16,    # HEALTH
             1,     # ENERGY
             -.5,   # COOLDOWN
             -6,    # ENEMIES DANGEROSITY

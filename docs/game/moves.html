@@ -86,6 +86,37 @@ class PlayerMove:
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)
 
+    @staticmethod
+    def from_string(string):
+        &#34;&#34;&#34;Create a `PlayerMove` instance from a representation string.
+
+        Parameters
+        ----------
+        string : str
+            String representing the player move, with the form
+            {class}/{target_x},{target_y}.
+
+        Returns
+        -------
+        PlayerMove
+            Corresponding player move. The returned object acutally has the
+            class corresponding to its own kind, which inherits from
+            `PlayerMove`.
+
+        &#34;&#34;&#34;
+        cls = {
+            &#34;move&#34;: PlayerMove,
+            &#34;walk&#34;: WalkMove,
+            &#34;leap&#34;: LeapMove,
+            &#34;bash&#34;: BashMove,
+            &#34;throw&#34;: ThrowMove,
+            &#34;altar&#34;: AltarMove,
+            &#34;idle&#34;: IdleMove
+        }[string.split(&#34;/&#34;)[0]]
+        target = hoplite.utils.HexagonalCoordinates(
+            *tuple(map(int, string.split(&#34;/&#34;)[1].split(&#34;,&#34;))))
+        return cls(target)
+
     def _apply_damages(self, next_state):
         &#34;&#34;&#34;Resolve the damage step within the current state.
         &#34;&#34;&#34;
@@ -100,14 +131,16 @@ class PlayerMove:
                     damages += 1
                 elif neighbor in next_state.terrain.demons:
                     LOGGER.debug(
-                        &#34;Killing with BOMB: %s at %s&#34;,
+                        &#34;Killing with BOMB at %s: %s at %s&#34;,
+                        bomb_pos,
                         next_state.terrain.demons[neighbor].skill.name,
                         neighbor
                     )
-                    if neighbor in self._pushed_bombs:
+                    if bomb_pos in self._pushed_bombs:
                         # Only kills by knocked bombs count as player kills,
                         # that can be used for the Bloodlust, Surge or
                         # Regeneration prayers.
+                        LOGGER.debug(&#34;Bomb kills counts as a player kill&#34;)
                         self._killed += 1
                     del next_state.terrain.demons[neighbor]
             next_state.terrain.bombs.remove(bomb_pos)
@@ -143,7 +176,9 @@ class PlayerMove:
         self._apply_damages(next_state)
         if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
             next_state.status.restore_energy(self._killed * 6)
-        if self._killed &gt; 0:
+        if self._killed &gt; 0 and\
+            (hoplite.game.status.Prayer.SURGE in next_state.status.prayers\
+            or hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers):
             next_state.status.spree += 1
             LOGGER.debug(&#34;Increasing killing spree, current state: %d&#34;, next_state.status.spree)
         else:
@@ -307,6 +342,7 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
         if entity == BashMove.ENTITY_BOMB:
             state.terrain.bombs.remove(origin)
             state.terrain.bombs.add(target)
+            self._pushed_bombs.add(target)
         elif entity == BashMove.ENTITY_DEMON:
             state.terrain.demons[target] = state.terrain.demons[origin]
             del state.terrain.demons[origin]
@@ -385,6 +421,7 @@ class AltarMove(PlayerMove):  # pylint: disable=R0903
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
 <ul class="hlist">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 </ul>
@@ -484,6 +521,7 @@ class AltarMove(PlayerMove):  # pylint: disable=R0903
         if entity == BashMove.ENTITY_BOMB:
             state.terrain.bombs.remove(origin)
             state.terrain.bombs.add(target)
+            self._pushed_bombs.add(target)
         elif entity == BashMove.ENTITY_DEMON:
             state.terrain.demons[target] = state.terrain.demons[origin]
             del state.terrain.demons[origin]
@@ -530,6 +568,7 @@ class AltarMove(PlayerMove):  # pylint: disable=R0903
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
 <ul class="hlist">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 </ul>
@@ -560,6 +599,7 @@ class AltarMove(PlayerMove):  # pylint: disable=R0903
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
 <ul class="hlist">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 </ul>
@@ -601,6 +641,7 @@ class AltarMove(PlayerMove):  # pylint: disable=R0903
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
 <ul class="hlist">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 </ul>
@@ -681,6 +722,37 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)
 
+    @staticmethod
+    def from_string(string):
+        &#34;&#34;&#34;Create a `PlayerMove` instance from a representation string.
+
+        Parameters
+        ----------
+        string : str
+            String representing the player move, with the form
+            {class}/{target_x},{target_y}.
+
+        Returns
+        -------
+        PlayerMove
+            Corresponding player move. The returned object acutally has the
+            class corresponding to its own kind, which inherits from
+            `PlayerMove`.
+
+        &#34;&#34;&#34;
+        cls = {
+            &#34;move&#34;: PlayerMove,
+            &#34;walk&#34;: WalkMove,
+            &#34;leap&#34;: LeapMove,
+            &#34;bash&#34;: BashMove,
+            &#34;throw&#34;: ThrowMove,
+            &#34;altar&#34;: AltarMove,
+            &#34;idle&#34;: IdleMove
+        }[string.split(&#34;/&#34;)[0]]
+        target = hoplite.utils.HexagonalCoordinates(
+            *tuple(map(int, string.split(&#34;/&#34;)[1].split(&#34;,&#34;))))
+        return cls(target)
+
     def _apply_damages(self, next_state):
         &#34;&#34;&#34;Resolve the damage step within the current state.
         &#34;&#34;&#34;
@@ -695,14 +767,16 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
                     damages += 1
                 elif neighbor in next_state.terrain.demons:
                     LOGGER.debug(
-                        &#34;Killing with BOMB: %s at %s&#34;,
+                        &#34;Killing with BOMB at %s: %s at %s&#34;,
+                        bomb_pos,
                         next_state.terrain.demons[neighbor].skill.name,
                         neighbor
                     )
-                    if neighbor in self._pushed_bombs:
+                    if bomb_pos in self._pushed_bombs:
                         # Only kills by knocked bombs count as player kills,
                         # that can be used for the Bloodlust, Surge or
                         # Regeneration prayers.
+                        LOGGER.debug(&#34;Bomb kills counts as a player kill&#34;)
                         self._killed += 1
                     del next_state.terrain.demons[neighbor]
             next_state.terrain.bombs.remove(bomb_pos)
@@ -738,7 +812,9 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
         self._apply_damages(next_state)
         if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
             next_state.status.restore_energy(self._killed * 6)
-        if self._killed &gt; 0:
+        if self._killed &gt; 0 and\
+            (hoplite.game.status.Prayer.SURGE in next_state.status.prayers\
+            or hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers):
             next_state.status.spree += 1
             LOGGER.debug(&#34;Increasing killing spree, current state: %d&#34;, next_state.status.spree)
         else:
@@ -771,6 +847,63 @@ impacts Bloodlust, Surge and Regeneration prayers.</dd>
 <li><a title="hoplite.game.moves.ThrowMove" href="#hoplite.game.moves.ThrowMove">ThrowMove</a></li>
 <li><a title="hoplite.game.moves.WalkMove" href="#hoplite.game.moves.WalkMove">WalkMove</a></li>
 </ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="hoplite.game.moves.PlayerMove.from_string"><code class="name flex">
+<span>def <span class="ident">from_string</span></span>(<span>string)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a <code><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></code> instance from a representation string.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>String representing the player move, with the form
+{class}/{target_x},{target_y}.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></code></dt>
+<dd>Corresponding player move. The returned object acutally has the
+class corresponding to its own kind, which inherits from
+<code><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_string(string):
+    &#34;&#34;&#34;Create a `PlayerMove` instance from a representation string.
+
+    Parameters
+    ----------
+    string : str
+        String representing the player move, with the form
+        {class}/{target_x},{target_y}.
+
+    Returns
+    -------
+    PlayerMove
+        Corresponding player move. The returned object acutally has the
+        class corresponding to its own kind, which inherits from
+        `PlayerMove`.
+
+    &#34;&#34;&#34;
+    cls = {
+        &#34;move&#34;: PlayerMove,
+        &#34;walk&#34;: WalkMove,
+        &#34;leap&#34;: LeapMove,
+        &#34;bash&#34;: BashMove,
+        &#34;throw&#34;: ThrowMove,
+        &#34;altar&#34;: AltarMove,
+        &#34;idle&#34;: IdleMove
+    }[string.split(&#34;/&#34;)[0]]
+    target = hoplite.utils.HexagonalCoordinates(
+        *tuple(map(int, string.split(&#34;/&#34;)[1].split(&#34;,&#34;))))
+    return cls(target)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="hoplite.game.moves.PlayerMove.apply"><code class="name flex">
@@ -813,7 +946,9 @@ and damage taken. Enemy movements are not taken into account.</p>
     self._apply_damages(next_state)
     if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
         next_state.status.restore_energy(self._killed * 6)
-    if self._killed &gt; 0:
+    if self._killed &gt; 0 and\
+        (hoplite.game.status.Prayer.SURGE in next_state.status.prayers\
+        or hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers):
         next_state.status.spree += 1
         LOGGER.debug(&#34;Increasing killing spree, current state: %d&#34;, next_state.status.spree)
     else:
@@ -872,6 +1007,7 @@ and damage taken. Enemy movements are not taken into account.</p>
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
 <ul class="hlist">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 </ul>
@@ -912,6 +1048,7 @@ and damage taken. Enemy movements are not taken into account.</p>
 <li><code><b><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></b></code>:
 <ul class="hlist">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 </ul>
@@ -952,6 +1089,7 @@ and damage taken. Enemy movements are not taken into account.</p>
 <h4><code><a title="hoplite.game.moves.PlayerMove" href="#hoplite.game.moves.PlayerMove">PlayerMove</a></code></h4>
 <ul class="">
 <li><code><a title="hoplite.game.moves.PlayerMove.apply" href="#hoplite.game.moves.PlayerMove.apply">apply</a></code></li>
+<li><code><a title="hoplite.game.moves.PlayerMove.from_string" href="#hoplite.game.moves.PlayerMove.from_string">from_string</a></code></li>
 </ul>
 </li>
 <li>

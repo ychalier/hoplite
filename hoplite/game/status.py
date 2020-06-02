@@ -141,26 +141,34 @@ class Status:
         status.spree = int(spree)
         for prayer in prayers.split(","):
             if prayer != "-":
-                status.add_prayer(Prayer(int(prayer)))
+                status.add_prayer(Prayer(int(prayer)), False)
         return status
 
-    def add_prayer(self, prayer):  # pylint: disable=R0912
+    def add_prayer(self, prayer, online=True):  # pylint: disable=R0912
         """Add a prayer to the prayer list.
 
         Parameters
         ----------
         prayer : hoplite.game.status.Prayer
             Prayer to add to the list.
+        online : bool
+            If `True`, then changes on health an energy will also affects the
+            live values, i.e. restoring health or energy. This is not wanted
+            when artificially adding prayers to a game state already parsed
+            from a screenshot (where health and energy values) already take
+            prayers effects into account.
 
         """
         self.prayers.append(prayer)
-        if prayer == Prayer.DIVINE_RESTORATION:
+        if prayer == Prayer.DIVINE_RESTORATION and online:
             self.health = self.attributes.maximum_health
         elif prayer == Prayer.FORTITUDE:
-            self.health += 1
+            if online:
+                self.health += 1
             self.attributes.maximum_health += 1
         elif prayer == Prayer.BLOODLUST:
-            self.health -= 1
+            if online:
+                self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.MIGHTY_BASH:
             self.attributes.knockback_distance += 1
@@ -170,28 +178,35 @@ class Status:
             self.attributes.throw_distance += 1
         elif prayer == Prayer.GREATER_THROW_II:
             self.attributes.throw_distance += 1
-            self.health -= 1
+            if online:
+                self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.GREATER_ENERGY:
             self.attributes.maximum_energy += 20
-            self.energy += 20
+            if online:
+                self.energy += 20
         elif prayer == Prayer.GREATER_ENERGY_II:
             self.attributes.maximum_energy += 15
-            self.energy += 15
-            self.health -= 1
+            if online:
+                self.energy += 15
+                self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.WINGED_SANDALS:
             self.attributes.leap_distance += 1
-            self.health -= 1
+            if online:
+                self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.SURGE:
-            self.health -= 1
+            if online:
+                self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.REGENERATION:
-            self.health -= 1
+            if online:
+                self.health -= 1
             self.attributes.maximum_health -= 1
         elif prayer == Prayer.STAGGERING_LEAP:
-            self.health -= 2
+            if online:
+                self.health -= 2
             self.attributes.maximum_health -= 2
 
 
@@ -210,7 +225,7 @@ class Status:
         self.health = new_status.health
         self.spree = new_status.spree
         for prayer in new_status.prayers:
-            self.add_prayer(prayer)
+            self.add_prayer(prayer, False)
         # Attributes are automatically computed when adding the prayer
 
     def can_leap(self):

@@ -19,6 +19,50 @@ import hoplite.actuator
 import hoplite.brain
 
 
+def check(path):
+    """Check a game log for errors in predicted state.
+    """
+    print("Checking %s\n" % os.path.realpath(path))
+    with open(path, "r") as file:
+        lines = file.readlines()
+    total, errors = 0, 0
+    for prev_line, next_line in zip(lines[:-1], lines[1:]):
+        if prev_line.split("\t")[1] != "move":
+            continue
+        if next_line.split("\t")[1] != "move":
+            continue
+        prev_state = hoplite.game.state.GameState.from_string(prev_line.split("\t")[2])
+        groundtruth = hoplite.game.state.GameState.from_string(next_line.split("\t")[2])
+        if prev_state.depth != groundtruth.depth:
+            continue
+        total += 1
+        move = hoplite.game.moves.PlayerMove.from_string(prev_line.split("\t")[3])
+        prediction = move.apply(prev_state)
+        prediction.status.cooldown = max(0, prediction.status.cooldown - 1)
+        prediction_errors = list()
+        if prediction.status != groundtruth.status:
+            prediction_errors.append(
+                ("Status", prediction.status, groundtruth.status))
+        if prediction.terrain.player != groundtruth.terrain.player:
+            prediction_errors.append(
+                ("Player position", prediction.terrain.player, groundtruth.terrain.player))
+        if len(prediction_errors) > 0:
+            print("-" * 120)
+            print("Found error(s) from turn %d to %d" %
+                  (int(prev_line.split("\t")[0]), int(next_line.split("\t")[0])))
+            print("State:", repr(prev_state))
+            print("Move:", move)
+            for error_name, predicted, expected in prediction_errors:
+                print("%s expected %s but got %s" % (
+                    error_name,
+                    repr(expected),
+                    repr(predicted)
+                ))
+            print("-" * 120 + "\n")
+            errors += 1
+    print("Check run found %d errors out of %d predictions." % (errors, total))
+
+
 def play(monkey_runner, prayers, record):
     """Play with the monkey runner interface.
     """
@@ -60,7 +104,7 @@ def parse(args):
         game = hoplite.game.state.GameState.from_string(args.input)
     for prayer in args.prayers.strip().split(","):
         if prayer != "":
-            game.status.add_prayer(hoplite.game.status.Prayer(int(prayer)))
+            game.status.add_prayer(hoplite.game.status.Prayer(int(prayer)), False)
     if "move_type" in args:
         move_class = {
             "walk": hoplite.game.moves.WalkMove,
@@ -171,6 +215,8 @@ def main():
         type=int,
         help="move target y"
     )
+    check_parser = subparsers.add_parser("check")
+    check_parser.add_argument("-i", "--input", type=str, help="path to the log file to check")
     args = parser.parse_args()
     log_level = logging.INFO
     if args.verbose:
@@ -184,6 +230,8 @@ def main():
         play(args.monkey_runner, args.prayers, args.record)
     elif args.action == "parse":
         parse(args)
+    elif args.action == "check":
+        check(args.input)
 
 
 main()

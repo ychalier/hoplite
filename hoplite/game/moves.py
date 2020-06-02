@@ -59,6 +59,37 @@ class PlayerMove:
             return self.__class__.__name__
         return self.__class__.__name__ + str(self.target)
 
+    @staticmethod
+    def from_string(string):
+        """Create a `PlayerMove` instance from a representation string.
+
+        Parameters
+        ----------
+        string : str
+            String representing the player move, with the form
+            {class}/{target_x},{target_y}.
+
+        Returns
+        -------
+        PlayerMove
+            Corresponding player move. The returned object acutally has the
+            class corresponding to its own kind, which inherits from
+            `PlayerMove`.
+
+        """
+        cls = {
+            "move": PlayerMove,
+            "walk": WalkMove,
+            "leap": LeapMove,
+            "bash": BashMove,
+            "throw": ThrowMove,
+            "altar": AltarMove,
+            "idle": IdleMove
+        }[string.split("/")[0]]
+        target = hoplite.utils.HexagonalCoordinates(
+            *tuple(map(int, string.split("/")[1].split(","))))
+        return cls(target)
+
     def _apply_damages(self, next_state):
         """Resolve the damage step within the current state.
         """
@@ -73,14 +104,16 @@ class PlayerMove:
                     damages += 1
                 elif neighbor in next_state.terrain.demons:
                     LOGGER.debug(
-                        "Killing with BOMB: %s at %s",
+                        "Killing with BOMB at %s: %s at %s",
+                        bomb_pos,
                         next_state.terrain.demons[neighbor].skill.name,
                         neighbor
                     )
-                    if neighbor in self._pushed_bombs:
+                    if bomb_pos in self._pushed_bombs:
                         # Only kills by knocked bombs count as player kills,
                         # that can be used for the Bloodlust, Surge or
                         # Regeneration prayers.
+                        LOGGER.debug("Bomb kills counts as a player kill")
                         self._killed += 1
                     del next_state.terrain.demons[neighbor]
             next_state.terrain.bombs.remove(bomb_pos)
@@ -116,7 +149,9 @@ class PlayerMove:
         self._apply_damages(next_state)
         if hoplite.game.status.Prayer.BLOODLUST in next_state.status.prayers:
             next_state.status.restore_energy(self._killed * 6)
-        if self._killed > 0:
+        if self._killed > 0 and\
+            (hoplite.game.status.Prayer.SURGE in next_state.status.prayers\
+            or hoplite.game.status.Prayer.REGENERATION in next_state.status.prayers):
             next_state.status.spree += 1
             LOGGER.debug("Increasing killing spree, current state: %d", next_state.status.spree)
         else:
@@ -280,6 +315,7 @@ class BashMove(PlayerMove):  # pylint: disable=R0903
         if entity == BashMove.ENTITY_BOMB:
             state.terrain.bombs.remove(origin)
             state.terrain.bombs.add(target)
+            self._pushed_bombs.add(target)
         elif entity == BashMove.ENTITY_DEMON:
             state.terrain.demons[target] = state.terrain.demons[origin]
             del state.terrain.demons[origin]

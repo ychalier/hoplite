@@ -65,7 +65,9 @@ The player has a health bar composed of two values: the maximum health and the c
 
 The maximum health can not exceed 8 hearts, meaning "Fortitude" prayers are unavailable if the player already has a maximum health of 8 hearts.
 
+<!---
 ![](https://i.imgur.com/C49TiUx.png)
+--->
 
 #### 3.1.2. Energy
 
@@ -77,7 +79,9 @@ The player has an energy bar similar to the health one: it has a current value a
 - the prayer "Greater Energy" will increase the maximum energy by 20, and also increase the current energy by 20
 - the prayer "Greater Energy II" will increase the maximum energy by 15, and also increase the current energy by 15
 
+<!---
 ![](https://i.imgur.com/PvO009g.png)
+--->
 
 #### 3.1.3. Bash Cooldown
 

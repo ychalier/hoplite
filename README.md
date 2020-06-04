@@ -55,7 +55,7 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [x] ~~Make the MonkeyRunner interface more reliable~~
 - [ ] Enhance the game re-implementation:
     - [x] ~~Develop a game explorer to build a database of state sequences for further analysis~~
-    - [ ] Complete and implement the [game rules](utils/RULES.md)
+    - [ ] Complete and implement the [game rules](RULES.md)
         - [x] ~~Prayers~~
         - [x] ~~Energy restoration~~
         - [x] ~~Knockback, collisions~~
@@ -84,6 +84,6 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 
 ## Contributing
 
-Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many), and the [documentation](https://ychalier.github.io/hoplite/) for how to implement them. I put some screenshots [here](https://drive.google.com/file/d/1qxlnwcgf0HpPYMsUqjAjjSAjxX1xGKji/view?usp=sharing) (2MB) helping development.
+Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many), and the [documentation](https://ychalier.github.io/hoplite/) for how to implement them. I put some screenshots [here](https://drive.google.com/file/d/1qxlnwcgf0HpPYMsUqjAjjSAjxX1xGKji/view?usp=sharing) (2MB) helping development, and the [templates](https://drive.google.com/file/d/12jOOsBgHntUWIagNk2fzicEvEETnyvvW/view?usp=sharing) (1MB) used for the classifiers.
 
 If you implement some features, please make sure your code is clean enough (for this matter I use the [Pylint](https://www.pylint.org/) linter) and documented enough (add docstrings with short descriptions, types of arguments and returned values). I use [pdoc](https://pdoc3.github.io/pdoc/) to generate the documentation.

@@ -30,6 +30,7 @@
 
 import math
 import enum
+import heapq
 import pygame
 import hoplite.utils
 import hoplite.game.demons
@@ -122,7 +123,7 @@ class Terrain:  # pylint: disable=R0902
     spear : hoplite.utils.HexagonalCoordinates
         Location of the spear, `None` if not present.
     altar : hoplite.utils.HexagonalCoordinates
-        Location of the altar of Apollo.
+        Location of the altar, `None` if not present.
     altar_prayable : bool
         Whether a prayer can be made at the altar.
     fleece : hoplite.utils.HexagonalCoordinates
@@ -340,34 +341,62 @@ class Terrain:  # pylint: disable=R0902
 
         &#34;&#34;&#34;
 
-        open_set = {start}
+        heuristic = dict()
         came_from = dict()
         cost = dict()
-        heuristic = dict()
+        open_set = [HeapQNode(start, heuristic)]
+        heapq.heapify(open_set)
         for pos in hoplite.utils.SURFACE_COORDINATES:
-            cost[pos] = float(&#34;inf&#34;)
-            heuristic[pos] = float(&#34;inf&#34;)
-        cost[start] = 0.
-        heuristic[start] = (goal - start).norm()
+            cost[HeapQNode(pos, heuristic)] = float(&#34;inf&#34;)
+            heuristic[HeapQNode(pos, heuristic)] = float(&#34;inf&#34;)
+        cost[HeapQNode(start, heuristic)] = 0.
+        heuristic[HeapQNode(start, heuristic)] = (goal - start).norm()
         while len(open_set) &gt; 0:
-            # TODO: use heapq to represent the open_set
-            current = min(open_set, key=lambda node: heuristic[node])
-            if current == goal:
-                path = [current]
+            current = heapq.heappop(open_set)
+            if current.position == goal:
+                path = [current.position]
                 while current in came_from:
                     current = came_from[current]
-                    path.insert(0, current)
+                    path.insert(0, current.position)
                 return path
-            open_set.remove(current)
-            for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+            for neighbor_position in self.walkable(
+                    *hoplite.utils.hexagonal_neighbors(current.position)):
+                neighbor = HeapQNode(neighbor_position, heuristic)
                 tentative_cost = cost[current] + 1
                 if tentative_cost &lt; cost[neighbor]:
                     came_from[neighbor] = current
                     cost[neighbor] = tentative_cost
                     heuristic[neighbor] = tentative_cost + \
-                        (goal - neighbor).norm()
-                    open_set.add(neighbor)
+                        (goal - neighbor_position).norm()
+                    heapq.heappush(open_set, neighbor)
         return None
+
+
+class HeapQNode:
+    &#34;&#34;&#34;Wrapper for HexagonalCoordinates with order defined by an
+    heuristic dictionnary, meant to be used by the `heapq` module.
+
+    Parameters
+    ----------
+    position : hoplite.utils.HexagonalCoordinates
+        Node position.
+    weights : dict[HeapQNode, int]
+        Reference to the heuristic dictionnary.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, position, weights):
+        self.position = position
+        self.weights = weights
+
+    def __hash__(self):
+        return hash(self.position)
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+    def __lt__(self, other):
+        return self.weights[self] &lt; other.weights[other]
 
 
 class Sprite(pygame.Surface):  # pylint: disable=E0239, R0903
@@ -617,6 +646,51 @@ class TerrainRenderer:  # pylint: disable=R0903
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="hoplite.game.terrain.HeapQNode"><code class="flex name class">
+<span>class <span class="ident">HeapQNode</span></span>
+<span>(</span><span>position, weights)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper for HexagonalCoordinates with order defined by an
+heuristic dictionnary, meant to be used by the <code>heapq</code> module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>position</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
+<dd>Node position.</dd>
+<dt><strong><code>weights</code></strong> :&ensp;<code>dict[<a title="hoplite.game.terrain.HeapQNode" href="#hoplite.game.terrain.HeapQNode">HeapQNode</a>, int]</code></dt>
+<dd>Reference to the heuristic dictionnary.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HeapQNode:
+    &#34;&#34;&#34;Wrapper for HexagonalCoordinates with order defined by an
+    heuristic dictionnary, meant to be used by the `heapq` module.
+
+    Parameters
+    ----------
+    position : hoplite.utils.HexagonalCoordinates
+        Node position.
+    weights : dict[HeapQNode, int]
+        Reference to the heuristic dictionnary.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, position, weights):
+        self.position = position
+        self.weights = weights
+
+    def __hash__(self):
+        return hash(self.position)
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+    def __lt__(self, other):
+        return self.weights[self] &lt; other.weights[other]</code></pre>
+</details>
+</dd>
 <dt id="hoplite.game.terrain.Sprite"><code class="flex name class">
 <span>class <span class="ident">Sprite</span></span>
 <span>(</span><span>path)</span>
@@ -844,7 +918,7 @@ class TerrainRenderer:  # pylint: disable=R0903
 <dt><strong><code>spear</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
 <dd>Location of the spear, <code>None</code> if not present.</dd>
 <dt><strong><code>altar</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
-<dd>Location of the altar of Apollo.</dd>
+<dd>Location of the altar, <code>None</code> if not present.</dd>
 <dt><strong><code>altar_prayable</code></strong> :&ensp;<code>bool</code></dt>
 <dd>Whether a prayer can be made at the altar.</dd>
 <dt><strong><code>fleece</code></strong> :&ensp;<code><a title="hoplite.utils.HexagonalCoordinates" href="../utils.html#hoplite.utils.HexagonalCoordinates">HexagonalCoordinates</a></code></dt>
@@ -874,7 +948,7 @@ class TerrainRenderer:  # pylint: disable=R0903
     spear : hoplite.utils.HexagonalCoordinates
         Location of the spear, `None` if not present.
     altar : hoplite.utils.HexagonalCoordinates
-        Location of the altar of Apollo.
+        Location of the altar, `None` if not present.
     altar_prayable : bool
         Whether a prayer can be made at the altar.
     fleece : hoplite.utils.HexagonalCoordinates
@@ -1092,33 +1166,34 @@ class TerrainRenderer:  # pylint: disable=R0903
 
         &#34;&#34;&#34;
 
-        open_set = {start}
+        heuristic = dict()
         came_from = dict()
         cost = dict()
-        heuristic = dict()
+        open_set = [HeapQNode(start, heuristic)]
+        heapq.heapify(open_set)
         for pos in hoplite.utils.SURFACE_COORDINATES:
-            cost[pos] = float(&#34;inf&#34;)
-            heuristic[pos] = float(&#34;inf&#34;)
-        cost[start] = 0.
-        heuristic[start] = (goal - start).norm()
+            cost[HeapQNode(pos, heuristic)] = float(&#34;inf&#34;)
+            heuristic[HeapQNode(pos, heuristic)] = float(&#34;inf&#34;)
+        cost[HeapQNode(start, heuristic)] = 0.
+        heuristic[HeapQNode(start, heuristic)] = (goal - start).norm()
         while len(open_set) &gt; 0:
-            # TODO: use heapq to represent the open_set
-            current = min(open_set, key=lambda node: heuristic[node])
-            if current == goal:
-                path = [current]
+            current = heapq.heappop(open_set)
+            if current.position == goal:
+                path = [current.position]
                 while current in came_from:
                     current = came_from[current]
-                    path.insert(0, current)
+                    path.insert(0, current.position)
                 return path
-            open_set.remove(current)
-            for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+            for neighbor_position in self.walkable(
+                    *hoplite.utils.hexagonal_neighbors(current.position)):
+                neighbor = HeapQNode(neighbor_position, heuristic)
                 tentative_cost = cost[current] + 1
                 if tentative_cost &lt; cost[neighbor]:
                     came_from[neighbor] = current
                     cost[neighbor] = tentative_cost
                     heuristic[neighbor] = tentative_cost + \
-                        (goal - neighbor).norm()
-                    open_set.add(neighbor)
+                        (goal - neighbor_position).norm()
+                    heapq.heappush(open_set, neighbor)
         return None</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -1277,33 +1352,34 @@ distance as heuristic.</p>
 
     &#34;&#34;&#34;
 
-    open_set = {start}
+    heuristic = dict()
     came_from = dict()
     cost = dict()
-    heuristic = dict()
+    open_set = [HeapQNode(start, heuristic)]
+    heapq.heapify(open_set)
     for pos in hoplite.utils.SURFACE_COORDINATES:
-        cost[pos] = float(&#34;inf&#34;)
-        heuristic[pos] = float(&#34;inf&#34;)
-    cost[start] = 0.
-    heuristic[start] = (goal - start).norm()
+        cost[HeapQNode(pos, heuristic)] = float(&#34;inf&#34;)
+        heuristic[HeapQNode(pos, heuristic)] = float(&#34;inf&#34;)
+    cost[HeapQNode(start, heuristic)] = 0.
+    heuristic[HeapQNode(start, heuristic)] = (goal - start).norm()
     while len(open_set) &gt; 0:
-        # TODO: use heapq to represent the open_set
-        current = min(open_set, key=lambda node: heuristic[node])
-        if current == goal:
-            path = [current]
+        current = heapq.heappop(open_set)
+        if current.position == goal:
+            path = [current.position]
             while current in came_from:
                 current = came_from[current]
-                path.insert(0, current)
+                path.insert(0, current.position)
             return path
-        open_set.remove(current)
-        for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+        for neighbor_position in self.walkable(
+                *hoplite.utils.hexagonal_neighbors(current.position)):
+            neighbor = HeapQNode(neighbor_position, heuristic)
             tentative_cost = cost[current] + 1
             if tentative_cost &lt; cost[neighbor]:
                 came_from[neighbor] = current
                 cost[neighbor] = tentative_cost
                 heuristic[neighbor] = tentative_cost + \
-                    (goal - neighbor).norm()
-                open_set.add(neighbor)
+                    (goal - neighbor_position).norm()
+                heapq.heappush(open_set, neighbor)
     return None</code></pre>
 </details>
 </dd>
@@ -1738,6 +1814,9 @@ terrain.</p>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="hoplite.game.terrain.HeapQNode" href="#hoplite.game.terrain.HeapQNode">HeapQNode</a></code></h4>
+</li>
 <li>
 <h4><code><a title="hoplite.game.terrain.Sprite" href="#hoplite.game.terrain.Sprite">Sprite</a></code></h4>
 <ul class="">

@@ -3,7 +3,10 @@
 
 
 class HexagonalCoordinates:
-    """Wrapper for hexagonal coordinates.
+    """Wrapper for hexagonal coordinates. It follows the description of this
+    article:
+    [*Hexagonal Grids*, by Red Blob Games](https://www.redblobgames.com/grids/hexagons/).
+    Here is a plot of what it looks like: ![](https://i.imgur.com/EOaG67E.png)
 
     Attributes
     ----------

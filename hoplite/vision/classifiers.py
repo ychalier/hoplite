@@ -60,6 +60,8 @@ def terrain(part):
     if is_close(part[33, 28], [0.905882, 0.364706, 0.352941]):
         return hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_HOLDING_BOMB
     if is_close(part[33, 28], [0.160784, 0.254902, 0.258824]):
+        if is_close(part[8, 25], [0.741176, 0.141176, 0.192157]):
+            return hoplite.game.terrain.SurfaceElement.FOOTMAN
         return hoplite.game.terrain.SurfaceElement.DEMOLITIONIST_WITHOUT_BOMB
     if is_close(part[48, 26], [0.741176, 0.286275, 0.517647]):
         if is_close(part[0, 0], [0.741176, 0.141176, 0.192157]):
@@ -88,6 +90,12 @@ def terrain(part):
         return hoplite.game.terrain.SurfaceElement.SPEAR
     if is_close(part[26, 26], [0.9372549, 0.5411765, 0.19215687]):
         return hoplite.game.terrain.SurfaceElement.SPEAR
+    if is_close(part[45, 40], [0.937255, 0.541176, 0.192157]):
+        return hoplite.game.terrain.SurfaceElement.FOOTMAN
+    if is_close(part[15, 26], [0.611765, 0.890196, 0.352941]):
+        return hoplite.game.terrain.SurfaceElement.ARCHER
+    if is_close(part[26, 26], [0.223529, 0.235294, 0.223529]):
+        return hoplite.game.terrain.SurfaceElement.GROUND
     return None
 
 
@@ -190,31 +198,6 @@ def energy(part):
     return 2
 
 
-def is_spear(array):
-    """Check if a ground tile contains a spear. The difficult part is that the
-    spear is rotated depending on where the player thrown it from.
-
-    Parameters
-    ----------
-    array : numpy.ndarray
-        Tile image array of shape `(52, 52, 3)`.
-
-    Returns
-    -------
-    bool
-        Whether the tile contains a spear.
-
-    """
-    reference = numpy.array([
-        [.9372549, .5411765, .19215687],
-        [.4509804, .27058825, .09411765]
-    ])
-    for index in [(25, 25), (25, 26), (26, 25), (26, 26)]:
-        if numpy.all(numpy.isclose(reference - array[index], 0, .001), axis=1).any():
-            return True
-    return False
-
-
 def interface(part):
     """Detect which of `hoplite.game.state.Interface` is displayed on screen.
 
@@ -245,6 +228,11 @@ def interface(part):
         return hoplite.game.state.Interface.STAIRS
     if is_close(part[750, 1000], [0.352941, 0.270588, 0.160784]):
         return hoplite.game.state.Interface.ALTAR
+    if abs(part[1011, 543, 0] * 0.80465513 + 0.018641233 - part[1011, 543, 1]) < .03:
+        if numpy.max(abs(part[1011, 543] - [1, 1, 0])) < .5:
+            return hoplite.game.state.Interface.FLEECE
+    if is_close(part[949, 542], [0.094118, 0.109804, 0.094118]):
+        return  hoplite.game.state.Interface.BLACK
     return hoplite.game.state.Interface.PLAYING
 
 

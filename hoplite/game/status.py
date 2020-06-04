@@ -7,7 +7,7 @@ import enum
 @enum.unique
 class Prayer(enum.Enum):
     """
-    Prayers obtained at the altars of Apollo.
+    Prayers obtained at the altars.
     """
 
     DIVINE_RESTORATION = 0

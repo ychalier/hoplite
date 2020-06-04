@@ -25,6 +25,7 @@ class Interface(enum.Enum):
     VICTORY = 4
     DEATH = 5
     STAIRS = 6
+    BLACK = 7
 
 
 class GameState:

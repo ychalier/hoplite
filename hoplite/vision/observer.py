@@ -4,6 +4,7 @@
 import os
 import time
 import logging
+import numpy
 import matplotlib.image
 import hoplite.vision.classifiers
 import hoplite.utils
@@ -47,15 +48,9 @@ class Thresholder(ImagePreprocessor):  # pylint: disable=R0903
         super(Thresholder, self).__init__()
 
     def apply(self, array):
-        # TODO: use a Numpy way of doing this efficiently
-        for i in range(array.shape[0]):
-            for j in range(array.shape[1]):
-                value = 0.
-                if sum(array[i, j, :3]) > 3 * self.threshold:
-                    value = 1.
-                for k in range(3):
-                    array[i, j, k] = value
-        return array
+        result = numpy.zeros(array.shape)
+        result[numpy.where(numpy.sum(array, axis=2) >= 3 * self.threshold)] = [1., 1., 1.]
+        return result
 
 
 class Locator:  # pylint: disable=R0903
@@ -186,7 +181,7 @@ class PrayerLocator(Locator):
         self._last_value = None
 
     def get_last_i(self):
-        """Getter for the `PrayerLocator._last_i` attribute.
+        """Getter for the `_last_i` attribute.
 
         Returns
         -------
@@ -195,6 +190,9 @@ class PrayerLocator(Locator):
 
         """
         return self._last_i
+
+    def _locate(self, i, j):
+        return j, i
 
     def get(self, array, i, j):
         j_ = 40  # pylint: disable=C0103
@@ -208,7 +206,7 @@ class PrayerLocator(Locator):
                     array[i_, j_, :],
                     [.3529412, .27058825, .16078432]):
                 self._last_i = i_
-                return self._extract(array, j_, i_)
+                return self._extract(array, *self._locate(i_, j_))
         self._last_i = 450
         self._last_value = None
         return None

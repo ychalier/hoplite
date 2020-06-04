@@ -3,6 +3,7 @@
 
 import math
 import enum
+import heapq
 import pygame
 import hoplite.utils
 import hoplite.game.demons
@@ -95,7 +96,7 @@ class Terrain:  # pylint: disable=R0902
     spear : hoplite.utils.HexagonalCoordinates
         Location of the spear, `None` if not present.
     altar : hoplite.utils.HexagonalCoordinates
-        Location of the altar of Apollo.
+        Location of the altar, `None` if not present.
     altar_prayable : bool
         Whether a prayer can be made at the altar.
     fleece : hoplite.utils.HexagonalCoordinates
@@ -313,34 +314,62 @@ class Terrain:  # pylint: disable=R0902
 
         """
 
-        open_set = {start}
+        heuristic = dict()
         came_from = dict()
         cost = dict()
-        heuristic = dict()
+        open_set = [HeapQNode(start, heuristic)]
+        heapq.heapify(open_set)
         for pos in hoplite.utils.SURFACE_COORDINATES:
-            cost[pos] = float("inf")
-            heuristic[pos] = float("inf")
-        cost[start] = 0.
-        heuristic[start] = (goal - start).norm()
+            cost[HeapQNode(pos, heuristic)] = float("inf")
+            heuristic[HeapQNode(pos, heuristic)] = float("inf")
+        cost[HeapQNode(start, heuristic)] = 0.
+        heuristic[HeapQNode(start, heuristic)] = (goal - start).norm()
         while len(open_set) > 0:
-            # TODO: use heapq to represent the open_set
-            current = min(open_set, key=lambda node: heuristic[node])
-            if current == goal:
-                path = [current]
+            current = heapq.heappop(open_set)
+            if current.position == goal:
+                path = [current.position]
                 while current in came_from:
                     current = came_from[current]
-                    path.insert(0, current)
+                    path.insert(0, current.position)
                 return path
-            open_set.remove(current)
-            for neighbor in self.walkable(*hoplite.utils.hexagonal_neighbors(current)):
+            for neighbor_position in self.walkable(
+                    *hoplite.utils.hexagonal_neighbors(current.position)):
+                neighbor = HeapQNode(neighbor_position, heuristic)
                 tentative_cost = cost[current] + 1
                 if tentative_cost < cost[neighbor]:
                     came_from[neighbor] = current
                     cost[neighbor] = tentative_cost
                     heuristic[neighbor] = tentative_cost + \
-                        (goal - neighbor).norm()
-                    open_set.add(neighbor)
+                        (goal - neighbor_position).norm()
+                    heapq.heappush(open_set, neighbor)
         return None
+
+
+class HeapQNode:
+    """Wrapper for HexagonalCoordinates with order defined by an
+    heuristic dictionnary, meant to be used by the `heapq` module.
+
+    Parameters
+    ----------
+    position : hoplite.utils.HexagonalCoordinates
+        Node position.
+    weights : dict[HeapQNode, int]
+        Reference to the heuristic dictionnary.
+
+    """
+
+    def __init__(self, position, weights):
+        self.position = position
+        self.weights = weights
+
+    def __hash__(self):
+        return hash(self.position)
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+    def __lt__(self, other):
+        return self.weights[self] < other.weights[other]
 
 
 class Sprite(pygame.Surface):  # pylint: disable=E0239, R0903

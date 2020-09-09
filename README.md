@@ -8,7 +8,7 @@ An attempt at making a basic AI for the Hoplite Android game.
 
 This modules provides an interface for automatically playing the game on an Android simulator or even live on a device. Screen is captured and analyzed for the program to get a logical representation of the game. Then, like most chess engines, possible moves are explored and evaluated by pondering some relevant features. The best one is picked, and played.
 
-[Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=GJIp3fEq9Xc).
+[Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=8ofj6W05LZg&list=PL2ecHtEW1_x9NVOkVryLtduEI3Y_NNnuB&index=4&t=0s).
 
 This is a first draft, meaning many components are missing or poorly implemented. See the [roadmap](#roadmap) for details.
 

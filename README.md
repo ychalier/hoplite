@@ -18,11 +18,9 @@ This is a first draft, meaning many components are missing or poorly implemented
 
 ### Prerequisites
 
-You will need Python 3 and Android Studio (for [`adb`](https://developer.android.com/studio/command-line/adb) and [`monkeyrunner`](https://developer.android.com/studio/test/monkeyrunner)).
+You will need Python 3 and Android Studio for [`adb`](https://developer.android.com/studio/command-line/adb).
 
 `adb` allows for remotely controlling the Android device (either a real phone plugged into the computer via USB with ['USB debugging' enabled](https://developer.android.com/studio/command-line/adb#Enabling), or an emulated phone created with [AVD](https://developer.android.com/studio/run/managing-avds)).
-
-`monkeyrunner` makes the interface between Python and Java. I had some troubles getting it to work properly. I mostly used this [StackOverflow answer](https://stackoverflow.com/questions/52815413/monkeyrunner-noclassdeffounderror-com-android-chimpchat-chimpchat).
 
 ### Installation
 
@@ -39,9 +37,13 @@ You will need Python 3 and Android Studio (for [`adb`](https://developer.android
 
 1. Either start the emulated phone in AVD or plug in your phone, and open the Hoplite app.
 
-2. Start the script with:
+2. Find out adb device serial using:
 
-        python main.py play
+        adb devices
+
+3. Start the script with:
+
+        python main.py -serial <adb_device_serial> play 
 
 Use `python main.py --help` for more details.
 
@@ -53,6 +55,7 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [x] ~~Implement a basic game engine~~
 - [x] ~~Implement a basic decision making system~~
 - [x] ~~Make the MonkeyRunner interface more reliable~~
+- [x] ~~Replace the MonkeyRunner with python-pure-adb
 - [ ] Enhance the game re-implementation:
     - [x] ~~Develop a game explorer to build a database of state sequences for further analysis~~
     - [ ] Complete and implement the [game rules](RULES.md)

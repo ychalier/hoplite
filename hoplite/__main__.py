@@ -63,10 +63,10 @@ def check(path):
     print("Check run found %d errors out of %d predictions." % (errors, total))
 
 
-def play(monkey_runner, prayers, record):
+def play(serial: str, prayers, record):
     """Play with the monkey runner interface.
     """
-    mr_if = hoplite.monkey_runner.MonkeyRunnerInterface(monkey_runner)
+    mr_if = hoplite.ppadb_runner.PurePythonAdbInterface(serial)
     observer = hoplite.vision.observer.Observer(mr_if)
     actuator = hoplite.actuator.Actuator(mr_if)
     brain = hoplite.brain.Brain()
@@ -138,10 +138,10 @@ def main():
     ))
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
-        "-mkr", "--monkey-runner",
+        "-serial",
         type=str,
-        help="path to MonkeyRunner script",
-        default="C:\\Users\\yohan\\AppData\\Local\\Android\\Sdk\\tools\\bin\\monkeyrunner.bat"
+        help="adb serial of device",
+        default=None
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -233,7 +233,7 @@ def main():
         log_level = logging.CRITICAL
     logging.basicConfig(level=log_level)
     if args.action == "play":
-        play(args.monkey_runner, args.prayers, args.record)
+        play(args.serial, args.prayers, args.record)
     elif args.action == "parse":
         parse(args)
     elif args.action == "check":

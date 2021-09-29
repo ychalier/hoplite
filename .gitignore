@@ -6,3 +6,6 @@ screenshots/
 clips/
 templates/
 recordings/
+venv
+.idea
+.vscode

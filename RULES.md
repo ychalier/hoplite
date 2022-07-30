@@ -42,11 +42,94 @@ Here is a representation of the archer and the wizard ranges:
 
 ![](https://i.imgur.com/oklXok9.png)
 
-### 2.2. Demon Movements
+### 2.2. Turn
+
+Turn is split into following stages:
+1. Player move(walk, attack, leap, bash, etc.)
+1. Bombs explode
+1. Demons attack player
+1. Demons walk
+
+**Note: Demon cannot walk and attack at the same turn.**
+
+Because attacking player takes precedense before walking, therefore demons cannot block other demons from attacking.
+
+As will be explained in next subsection demons move in some order and attacking probably works in same way.
+
+Checked situations:
+- depth 1 (order (footman)->(archer), never seen it any other way), player has 1 health and is attacked by footman and archer at the same time. 
+Animation show that footman attack first and archer later. Death message `You were killed by a demon archer.`.
+- depth 1 (order (footman)->(archer), never seen it any other way), player has 2 health and is attacked by footman and archer at the same time. 
+Animation show that footman attack first and archer later. Death message `You were killed by a demon archer.`.
+
+Possible explanation for this is that last demon to hit is mentioned in death message, but to reach more concrete conclusions more experiments are necessary.
+
+**Note: Attacks Animations seem to start in order, thus it is possible to deduce order using them.**
+
+### 2.3. Order
+Demons move in specified at the begging of the depth order. If any demon dies, demon at the end of the order replaces its postion.
+In game coordinates of demons is defined like this:
+![](images/gameCoordinates.png)
+**Example order and how it changes**:
+```
+[depth 6]
+footman(8,6) -> archer(7,5) -> footman(6,7) -> demolitionist(1,5) -> footman(0,7) -> wizard(8,8)
+(killed footman)
+wizard(6,6) -> archer(6,5) -> footman(8,5) -> demolitionist(2,5) -> footman(3,5)
+(killed archer)
+wizard(7,6) -> footman(4,5) -> footman(8,4) -> demolitionist(2,5)
+[...]
+```
+
+How to get order of demons movement:
+1. Reading memory - It should be possible to read demons movement order, but it's not technique used in this project.
+2. Reverse enginering - Actual method used for this analysis and program.
+3. Use in-game mechanics
+- attack animations
+- movement
+
+**Movement order and why it is important**
+example calculation of movement of demons and theirs order
+
+### 2.4. Demon Movements
+Priority list chose first that work else go next.
+**footman**:
+1. Attack if player adjecent
+2. Randomly move to one hex that reduces distance to player(distance is calculated using map without demons)
+3. Randomly wait or move to hex that has equal distance to player. Probabilities are split treating wait as one move. If there are to walk moves possible and one wait, all will have 1/3 probability.
+If there is no path then wait(need proof).
+
+**archer** 
+1. Attack if player is in same hexagonal line and in range from 2 to 5 and there is no demon between.
+2. Walk to hex or wait on hex that is in range to shoot the player and is nearest hex that is in range 3 from player. Hex cannot be stairs or spear. 
+3. Walk to hex or wait on hex that is in range to shoot the player and is nearest hex that is in range 3 from player. 
+4. Randomly walk to hex that reduce range to field with range 3 from player. Hex cannot be stairs or spear.
+5. Randomly walk not changing range from player. Hex cannot be stairs or spear.
+6. Wait.
+
+**demolitionist**
+1. Throw bomb to hex that is adjacent to player and in range 3 from demolisher and is not adjacent to any other demon and has bomb.
+2. (needs checking) Walk to hex or wait on hex that is in range to shoot the player and is nearest hex that is in range 3 from player. Hex cannot be stairs or spear.
+3. (needs checking) Walk to hex or wait on hex that is in range to shoot the player and is nearest hex that is in range 3 from player.
+4. Randomly walk to hex that reduce range to field with range 3 from player. Hex cannot be stairs or spear.
+5. Randomly walk not changing range from player. Hex cannot be stairs or spear.
+6. Wait.
+
+Gets Charge every not attacking turn. Needs two charges to attack.
+
+**wizard**
+1. Attack if player is in same hexagonal line and in range from 1 to 5 and there is no demon in range and is charged.
+2. Walk to hex or wait on hex that is in range to shoot the player and is nearest hex that is in range 3 from player. Hex cannot be stairs or spear.
+3. Walk to hex or wait on hex that is in range to shoot the player and is nearest hex that is in range 3 from player.
+4. Randomly walk to hex that reduce range to field with range 3 from player. Hex cannot be stairs or spear.
+5. Randomly walk not changing range from player. Hex cannot be stairs or spear.
+6. Wait.
+
+Gets Charge every not attacking turn. Needs one charge to attack.
 
 **TODO**
 
-### 2.3. Demon Status
+### 2.5. Demon Status
 
 **TODO**
 
@@ -136,6 +219,7 @@ The mechanism to **push away** a demon has been [described by the developer on R
 ![](https://i.imgur.com/vSdBL6o.png)
 
 The game looks for empty an empty tile in 1, and if not in 2 and 2' in random order. If it finds an empty tile (magma counts as empty, killing the demon), the demon is moved there. Otherwise, the demon in tile 1 is pushed away using the same algorithm, then the first demon is moved to tile 1. If a demon needs to be pushed away but has nowhere to escape (i.e. no demon can be pushed to make room for it), then it gets crushed.
+If demon is bashed through lava it burns and dies.
 
 #### 3.2.4. Throw
 

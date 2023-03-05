@@ -8,7 +8,7 @@ An attempt at making a basic AI for the Hoplite Android game.
 
 This modules provides an interface for automatically playing the game on an Android simulator or even live on a device. Screen is captured and analyzed for the program to get a logical representation of the game. Then, like most chess engines, possible moves are explored and evaluated by pondering some relevant features. The best one is picked, and played.
 
-[Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=8ofj6W05LZg&list=PL2ecHtEW1_x9NVOkVryLtduEI3Y_NNnuB&index=4&t=0s).
+[Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=GJIp3fEq9Xc).
 
 This is a first draft, meaning many components are missing or poorly implemented. See the [roadmap](#roadmap) for details.
 
@@ -18,9 +18,11 @@ This is a first draft, meaning many components are missing or poorly implemented
 
 ### Prerequisites
 
-You will need Python 3 and Android Studio for [`adb`](https://developer.android.com/studio/command-line/adb).
+You will need Python 3 and Android Studio (for [`adb`](https://developer.android.com/studio/command-line/adb) and [`monkeyrunner`](https://developer.android.com/studio/test/monkeyrunner)).
 
 `adb` allows for remotely controlling the Android device (either a real phone plugged into the computer via USB with ['USB debugging' enabled](https://developer.android.com/studio/command-line/adb#Enabling), or an emulated phone created with [AVD](https://developer.android.com/studio/run/managing-avds)).
+
+`monkeyrunner` makes the interface between Python and Java. I had some troubles getting it to work properly. I mostly used this [StackOverflow answer](https://stackoverflow.com/questions/52815413/monkeyrunner-noclassdeffounderror-com-android-chimpchat-chimpchat).
 
 ### Installation
 
@@ -37,13 +39,9 @@ You will need Python 3 and Android Studio for [`adb`](https://developer.android.
 
 1. Either start the emulated phone in AVD or plug in your phone, and open the Hoplite app.
 
-2. Find out adb device serial using:
+2. Start the script with:
 
-        adb devices
-
-3. Start the script with:
-
-        python main.py -serial <adb_device_serial> play 
+        python main.py play
 
 Use `python main.py --help` for more details.
 
@@ -55,7 +53,6 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 - [x] ~~Implement a basic game engine~~
 - [x] ~~Implement a basic decision making system~~
 - [x] ~~Make the MonkeyRunner interface more reliable~~
-- [x] ~~Replace the MonkeyRunner with python-pure-adb
 - [ ] Enhance the game re-implementation:
     - [x] ~~Develop a game explorer to build a database of state sequences for further analysis~~
     - [ ] Complete and implement the [game rules](RULES.md)
@@ -87,6 +84,6 @@ There is a lot to do, so feel free to [contribute](#contributing)!
 
 ## Contributing
 
-Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many), and the [documentation](https://ychalier.github.io/hoplite/) for how to implement them. I put some screenshots [here](https://drive.google.com/file/d/1qxlnwcgf0HpPYMsUqjAjjSAjxX1xGKji/view?usp=sharing) (2MB) helping development, and the [templates](https://drive.google.com/file/d/12jOOsBgHntUWIagNk2fzicEvEETnyvvW/view?usp=sharing) (1MB) used for the classifiers.
+Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many), and the [documentation](https://ychalier.github.io/hoplite/) for how to implement them. I put some screenshots [here](https://mega.nz/folder/2L5TnJLC#70yL5fUOErmTHBo9SUD2Nw) (2MB) helping development, and the [templates](https://mega.nz/folder/LCgFUYaD#P4OjM9CjsMTVFGx_TDo-Aw) (1MB) used for the classifiers.
 
 If you implement some features, please make sure your code is clean enough (for this matter I use the [Pylint](https://www.pylint.org/) linter) and documented enough (add docstrings with short descriptions, types of arguments and returned values). I use [pdoc](https://pdoc3.github.io/pdoc/) to generate the documentation.

@@ -57,3 +57,15 @@ Use `python main.py --help` for more details.
 Open pull requests or issues if you have any proposition to make. I put some screenshots [here](https://mega.nz/folder/2L5TnJLC#70yL5fUOErmTHBo9SUD2Nw) (2MB) helping development, and the [templates](https://mega.nz/folder/LCgFUYaD#P4OjM9CjsMTVFGx_TDo-Aw) (1MB) used for the classifiers.
 
 If you implement some features, please make sure your code is clean enough (for this matter I use the [Pylint](https://www.pylint.org/) linter) and documented enough (add docstrings with short descriptions, types of arguments and returned values). I use [pdoc](https://pdoc3.github.io/pdoc/) to generate the documentation.
+
+## Note
+
+For some reason, screen observation seems broken. Classifiers need to be retrained. This branch provides a temporary fix where the classifier tolerance is increased. Here is a quick status:
+
+- Terrain observation seems fine
+- Health & Cooldown status seem fine
+- Clicking on "Embark" button seems broken
+- Energy detection seems broken
+- Altar interaction is broken, and has been disabled (along with incentives to reach the altar) to avoid crashes
+
+After a quick test, the current script reached depth 8, without prayers and jumps.

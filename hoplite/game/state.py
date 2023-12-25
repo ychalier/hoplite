@@ -171,9 +171,10 @@ class GameState:
                         or (pos in self.terrain.bombs):
                     continue
                 yield hoplite.game.moves.ThrowMove(pos)
-        if self.terrain.altar_prayable\
-                and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
-            yield hoplite.game.moves.AltarMove(self.terrain.altar)
+        # FIXME: disabled AltarMoves to avoid crash on prayers detection
+        # if self.terrain.altar_prayable\
+        #         and self.terrain.altar in hoplite.utils.hexagonal_neighbors(self.terrain.player):
+        #     yield hoplite.game.moves.AltarMove(self.terrain.altar)
         if hoplite.game.status.Prayer.PATIENCE in self.status.prayers:
             yield hoplite.game.moves.IdleMove(self.terrain.player)
 

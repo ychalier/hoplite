@@ -7,7 +7,7 @@ import hoplite.game.terrain
 import hoplite.game.status
 
 
-def is_close(tgt, ref, tol=.001):
+def is_close(tgt, ref, tol=.05):
     """Check if two pixels are of same color.
 
     Parameters

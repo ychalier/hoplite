@@ -10,7 +10,7 @@ This modules provides an interface for automatically playing the game on an Andr
 
 [Here is a demonstration of it working on a emulator](https://www.youtube.com/watch?v=GJIp3fEq9Xc).
 
-This is a first draft, meaning many components are missing or poorly implemented. See the [roadmap](#roadmap) for details.
+This is a first draft, meaning many components are missing or poorly implemented.
 
 ![Hoplite Android Icon](https://2.bp.blogspot.com/-QH3Ceormja0/UrKqFsfIMkI/AAAAAAAAAIM/XicUf6o0n4I/s200/helmetICON.png)
 
@@ -18,11 +18,9 @@ This is a first draft, meaning many components are missing or poorly implemented
 
 ### Prerequisites
 
-You will need Python 3 and Android Studio (for [`adb`](https://developer.android.com/studio/command-line/adb) and [`monkeyrunner`](https://developer.android.com/studio/test/monkeyrunner)).
+You will need Python 3 and Android Studio (for [`adb`](https://developer.android.com/studio/command-line/adb)).
 
 `adb` allows for remotely controlling the Android device (either a real phone plugged into the computer via USB with ['USB debugging' enabled](https://developer.android.com/studio/command-line/adb#Enabling), or an emulated phone created with [AVD](https://developer.android.com/studio/run/managing-avds)).
-
-`monkeyrunner` makes the interface between Python and Java. I had some troubles getting it to work properly. I mostly used this [StackOverflow answer](https://stackoverflow.com/questions/52815413/monkeyrunner-noclassdeffounderror-com-android-chimpchat-chimpchat).
 
 ### Installation
 
@@ -35,55 +33,27 @@ You will need Python 3 and Android Studio (for [`adb`](https://developer.android
         cd hoplite/
         pip install -r requirements.txt
 
+**Disclaimer: interactions with phone screen currently rely on static and hardcoded values. A screen resolution of 1080x1920 is required for them to work properly.** For other resolutions, changes might be required in the following places:
+
+- `vision.observer.ScreenParser.__init__`
+- `actuator.hexagonal_to_pixels`
+- `actuator.Actuator`
+
 ### Usage
 
 1. Either start the emulated phone in AVD or plug in your phone, and open the Hoplite app.
+2. List the available devices with
 
-2. Start the script with:
+        adb devices 
 
-        python main.py play
+3. Start the script with:
+
+        python main.py play <adb-device-id>
 
 Use `python main.py --help` for more details.
 
-## Roadmap
-
-There is a lot to do, so feel free to [contribute](#contributing)!
-
-- [x] ~~Implement basic interaction with the game~~
-- [x] ~~Implement a basic game engine~~
-- [x] ~~Implement a basic decision making system~~
-- [x] ~~Make the MonkeyRunner interface more reliable~~
-- [ ] Enhance the game re-implementation:
-    - [x] ~~Develop a game explorer to build a database of state sequences for further analysis~~
-    - [ ] Complete and implement the [game rules](RULES.md)
-        - [x] ~~Prayers~~
-        - [x] ~~Energy restoration~~
-        - [x] ~~Knockback, collisions~~
-        - [x] ~~Killing spree (Surge and Regeneration prayers)~~
-        - [ ] Demons movements
-            - [ ] Footman movement
-            - [ ] Archer and Wizard movement
-            - [ ] Demolitionist movement and throw
-        - [ ] Cooldowns
-            - [ ] Bash cooldown
-            - [ ] Wizard cooldown
-            - [ ] Demolitionist cooldown
-        - [ ] Demons status
-            - [ ] Stunned
-            - [ ] Sleeping
-            - [ ] Shield
-    - [x] ~~Allow for menus recognition (title screen and altars) and answering~~
-    - [x] ~~Implement memory for `GameState` to allow prayers handling~~
-- [x] ~~Fasten `Observer` by using fine-tuned template recognition model~~
-- [ ] Enhance the AI part:
-    - [ ] Fine-tune player's incentives between killing all enemies, go to the next level, and pray at the altar
-    - [ ] Implement a proper training of the game state evaluation
-    - [ ] Implement a proper exploration of variations starting from a position, like chess engines
-- [ ] Explore support for device with resolution different from 1080*1920
-- [ ] *Many more things that I am not thinking of right now...*
-
 ## Contributing
 
-Open pull requests or issues if you have any proposition to make. Check the [roadmap](#roadmap) for ideas (there are many), and the [documentation](https://ychalier.github.io/hoplite/) for how to implement them. I put some screenshots [here](https://mega.nz/folder/2L5TnJLC#70yL5fUOErmTHBo9SUD2Nw) (2MB) helping development, and the [templates](https://mega.nz/folder/LCgFUYaD#P4OjM9CjsMTVFGx_TDo-Aw) (1MB) used for the classifiers.
+Open pull requests or issues if you have any proposition to make. I put some screenshots [here](https://mega.nz/folder/2L5TnJLC#70yL5fUOErmTHBo9SUD2Nw) (2MB) helping development, and the [templates](https://mega.nz/folder/LCgFUYaD#P4OjM9CjsMTVFGx_TDo-Aw) (1MB) used for the classifiers.
 
 If you implement some features, please make sure your code is clean enough (for this matter I use the [Pylint](https://www.pylint.org/) linter) and documented enough (add docstrings with short descriptions, types of arguments and returned values). I use [pdoc](https://pdoc3.github.io/pdoc/) to generate the documentation.

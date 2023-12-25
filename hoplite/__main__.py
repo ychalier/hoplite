@@ -14,7 +14,7 @@ import hoplite.game.moves
 import hoplite.game.state
 import hoplite.vision.observer
 import hoplite.controller
-import hoplite.monkey_runner
+import hoplite.ppadb_runner
 import hoplite.actuator
 import hoplite.brain
 
@@ -138,12 +138,6 @@ def main():
     ))
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
-        "-serial",
-        type=str,
-        help="adb serial of device",
-        default=None
-    )
-    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="see debug messages"
@@ -160,6 +154,12 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="action", required=True)
     play_parser = subparsers.add_parser("play")
+    parser.add_argument(
+        "serial",
+        type=str,
+        help="adb serial of device",
+        default=None
+    )
     play_parser.add_argument(
         "--prayers",
         type=str,
